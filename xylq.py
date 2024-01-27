@@ -14,7 +14,7 @@ status = "Cookie Run: Ovenbreak"
 #status = "Testing new features!"
 versionnum = "2.4b"
 updatetime = "2024/01/27 14:37"
-changes = "**(2.4)** Added version check command\n(a) Whoops\n(b) WHOOPS"
+changes = "**(2.5)** Added guild_ids parameter back and made meme gen text server-specific"
 path = os.getcwd()
 print(f"XyL-Q v{versionnum}")
 print(updatetime)
@@ -56,6 +56,7 @@ mariowiki = ["https://www.mariowiki.com/index.php?title=Category:Character_artwo
 stringlist = {}
 aff = ["Okay", "Alright", "Got it", "Affirmative"]
 bots = [432610292342587392, 429305856241172480, 439205512425504771, 247283454440374274, 431544605209788416]
+guilds = [783976468815937556,1032727370584559617,467886334971871232]
 imglist = []
 for n in range(1,63):
     imglist.append(f"https://starmoon.neocities.org/files/gb/{n}.jpg")
@@ -119,11 +120,11 @@ async def on_message(message):
             stringlist.update({str(message.guild.id):[message.content]})
     print(stringlist)
 
-@client.slash_command(description="Disables message caching in a given channel or from a given user!")
+@client.slash_command(description="Disables message caching in a given channel or from a given user!", guild_ids=guilds)
 async def version(ctx): 
     await ctx.respond(f"Hello-Q! I'm XyL-Q, running version {versionnum} released on {updatetime}-Q!")
 
-@client.slash_command(description="Disables message caching in a given channel or from a given user!")
+@client.slash_command(description="Disables message caching in a given channel or from a given user!", guild_ids=guilds)
 async def disable_cache(ctx, channel=None, user=None): 
     global badcacheIDs
     if (channel == None) and (user == None):
@@ -142,7 +143,7 @@ async def disable_cache(ctx, channel=None, user=None):
             file.write(f"{id}\n")
         file.close()
 
-@client.slash_command(description="Disables a command in a given channel!")
+@client.slash_command(description="Disables a command in a given channel!", guild_ids=guilds)
 async def disable(ctx, command: discord.Option(str, choices=["meme"]), channel): 
     global badIDs
     channelID = channel.strip("<>#")
@@ -158,15 +159,15 @@ async def disable(ctx, command: discord.Option(str, choices=["meme"]), channel):
         file.close()
     await ctx.respond(f"Okay-Q! I've disabled the *{command}* command in the <#{channelID}> channel-Q!")
 
-@client.slash_command(description="Makes a meme based on parameters given!")
+@client.slash_command(description="Makes a meme based on parameters given!", guild_ids=guilds)
 async def meme(ctx, top_text=None, bottom_text=None, image_link=None, image_upload: discord.Attachment=None): 
         if (top_text == None) and (bottom_text != None):
-            top_text = random.choice(stringlist)
+            top_text = random.choice(stringlist[str(ctx.guild.id)])
         if (bottom_text == None) and (top_text != None):
-            bottom_text = random.choice(stringlist)
+            bottom_text = random.choice(stringlist[str(ctx.guild.id)])
         if (bottom_text == None) and (top_text == None):
             #everybody say thaaaank you chatGPT
-            full_text = random.choice(stringlist)
+            full_text = random.choice(stringlist[str(ctx.guild.id)])
 
             if " " in full_text:
                 # If there are spaces, find the best place to split
