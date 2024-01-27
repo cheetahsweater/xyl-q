@@ -12,9 +12,9 @@ from bs4 import BeautifulSoup
 
 status = "Cookie Run: Ovenbreak"
 #status = "Testing new features!"
-versionnum = "2.5"
-updatetime = "2024/01/27 14:55"
-changes = "**(2.5)** Added guild_ids back and added server specificity to meme generation text"
+versionnum = "2.6"
+updatetime = "2024/01/27 15:04"
+changes = "**(2.6)** Fixed message list length shortener thing"
 path = os.getcwd()
 print(f"XyL-Q v{versionnum}")
 print(updatetime)
@@ -105,19 +105,14 @@ async def on_message(message):
         return
     if str(message.author.id) in badcacheIDs:
         return
-    if len(stringlist) > 100:
-        for _ in range(60):
-            if stringlist:
-                # Get the first key and remove its key-value pair
-                key_to_remove = next(iter(stringlist))
-                stringlist.pop(key_to_remove)
-    else:
-        try:
-            msglist = stringlist[str(message.guild.id)]
-            msglist.append(message.content)
-            stringlist[str(message.guild.id)] = msglist
-        except KeyError:
-            stringlist.update({str(message.guild.id):[message.content]})
+    try:
+        msglist = stringlist[str(message.guild.id)]
+        if len(msglist) > 100:
+            msglist = msglist[-30:0]
+        msglist.append(message.content)
+        stringlist[str(message.guild.id)] = msglist
+    except KeyError:
+        stringlist.update({str(message.guild.id):[message.content]})
     print(stringlist)
 
 @client.slash_command(description="Disables message caching in a given channel or from a given user!", guild_ids=guilds)
