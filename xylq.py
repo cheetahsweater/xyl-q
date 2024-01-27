@@ -12,9 +12,9 @@ from bs4 import BeautifulSoup
 
 status = "Cookie Run: Ovenbreak"
 #status = "Testing new features!"
-versionnum = "2.0"
-updatetime = "2024/01/27 6:00"
-changes = "**(2.0)** Added needlessly complex meme generation feature that sometimes doesn't work!!! Yay"
+versionnum = "2.3"
+updatetime = "2024/01/27 14:15"
+changes = "**(2.3)** Added image upload function to meme generator"
 path = os.getcwd()
 print(f"XyL-Q v{versionnum}")
 print(updatetime)
@@ -79,7 +79,7 @@ async def on_message(message):
         stringlist.append(message.content)
 
 @client.slash_command(description="Makes a meme based on parameters given!",guild_ids=[1032727370584559617])
-async def meme(ctx, top_text=None, bottom_text=None, image_link=None): 
+async def meme(ctx, top_text=None, bottom_text=None, image_link=None, image_upload: discord.Attachment=None): 
         if (top_text == None) and (bottom_text != None):
             top_text = random.choice(stringlist)
         if (bottom_text == None) and (top_text != None):
@@ -94,46 +94,49 @@ async def meme(ctx, top_text=None, bottom_text=None, image_link=None):
         if bottom_text != None:
             bottom_text_new = memeformat(bottom_text)
         if image_link == None:
-            numba = random.choice(range(11))
-            if numba > 3:
-                words = top_text.split(" ")
-                word = f"{random.choice(words)}_{random.choice(words)}"
-                response = requests.get(f"https://www.googleapis.com/customsearch/v1?key={gapi}&cx=25b1c3996753d4bb9&q={word}&searchType=image")
-                resultsDict = response.json()
-                results = []
-                for key, value in resultsDict.items():
-                    if key == "items":
-                        results = value
-                try:
-                    memeImg = random.choice(results)
-                    image_link = memeImg["link"]
-                except IndexError:
-                    image_link = "https://mario.wiki.gallery/images/f/fe/36-Diddy_Kong.png"
-            elif numba < 7:
-                image_link = random.choice(imglist)
-            else:
-                url = random.choice(mariowiki)
-                reqs = requests.get(url)
-                soup = BeautifulSoup(reqs.text, 'html.parser')
-                
-                urls = []
-                for link in soup.find_all('a'):
-                    url = link.get('href')
-                    if url != None:
-                        if url[-4:] == ".png":
-                            urls.append(url)
-                page = f"https://www.mariowiki.com{random.choice(urls)}"
-                reqsagain = requests.get(page)
-                soup = BeautifulSoup(reqsagain.text, 'html.parser')
-                
-                urls = []
-                for link in soup.find_all('a'):
-                    url = link.get('href')
-                    if url != None:
-                        if url[-4:] == ".png":
-                            if "images" in url:
+            if image_upload != None:
+                image_link = image_upload.url
+            elif image_upload == None:
+                numba = random.choice(range(11))
+                if numba > 3:
+                    words = top_text.split(" ")
+                    word = f"{random.choice(words)}_{random.choice(words)}"
+                    response = requests.get(f"https://www.googleapis.com/customsearch/v1?key={gapi}&cx=25b1c3996753d4bb9&q={word}&searchType=image")
+                    resultsDict = response.json()
+                    results = []
+                    for key, value in resultsDict.items():
+                        if key == "items":
+                            results = value
+                    try:
+                        memeImg = random.choice(results)
+                        image_link = memeImg["link"]
+                    except IndexError:
+                        image_link = "https://mario.wiki.gallery/images/f/fe/36-Diddy_Kong.png"
+                elif numba < 7:
+                    image_link = random.choice(imglist)
+                else:
+                    url = random.choice(mariowiki)
+                    reqs = requests.get(url)
+                    soup = BeautifulSoup(reqs.text, 'html.parser')
+                    
+                    urls = []
+                    for link in soup.find_all('a'):
+                        url = link.get('href')
+                        if url != None:
+                            if url[-4:] == ".png":
                                 urls.append(url)
-                image_link = random.choice(urls)
+                    page = f"https://www.mariowiki.com{random.choice(urls)}"
+                    reqsagain = requests.get(page)
+                    soup = BeautifulSoup(reqsagain.text, 'html.parser')
+                    
+                    urls = []
+                    for link in soup.find_all('a'):
+                        url = link.get('href')
+                        if url != None:
+                            if url[-4:] == ".png":
+                                if "images" in url:
+                                    urls.append(url)
+                    image_link = random.choice(urls)
         memelink = f"https://api.memegen.link/images/custom/{top_text_new}/{bottom_text_new}.png?background={image_link}"
         await ctx.respond(memelink)
 
