@@ -12,9 +12,9 @@ from bs4 import BeautifulSoup
 
 status = "Cookie Run: Ovenbreak"
 #status = "Testing new features!"
-versionnum = "2.0"
-updatetime = "2024/01/27 6:00"
-changes = "**(2.0)** Added needlessly complex meme generation feature that sometimes doesn't work!!! Yay"
+versionnum = "2.0a"
+updatetime = "2024/01/27 6:09"
+changes = "**(2.0)** Added needlessly complex meme generation feature that sometimes doesn't work!!! Yay\n(a) Changed print function slightly"
 path = os.getcwd()
 print(f"XyL-Q v{versionnum}")
 print(updatetime)
@@ -70,13 +70,13 @@ async def on_ready():
 @client.event
 async def on_message(message):
     global stringlist
-    print(stringlist)
     if message.author == client.user:
         return
     if len(stringlist) > 100:
         stringlist = stringlist[0:20]
     else:
         stringlist.append(message.content)
+    print(len(stringlist))
 
 @client.slash_command(description="Makes a meme based on parameters given!",guild_ids=[1032727370584559617])
 async def meme(ctx, top_text=None, bottom_text=None, image_link=None): 
