@@ -53,7 +53,7 @@ with open(f'{path}\\badcache.txt',"r+") as file:
         
 
 mariowiki = ["https://www.mariowiki.com/index.php?title=Category:Character_artwork&fileuntil=AlolanExeggutorUltimate.png#mw-category-media","https://www.mariowiki.com/index.php?title=Category:Character_artwork&filefrom=AlolanExeggutorUltimate.png#mw-category-media","https://www.mariowiki.com/index.php?title=Category:Character_artwork&filefrom=Back-To-School+Funny+Personality+Quiz+result+Toadette.jpg#mw-category-media","https://www.mariowiki.com/index.php?title=Category:Character_artwork&filefrom=Black+Kirby+SSBU.png#mw-category-media","https://www.mariowiki.com/index.php?title=Category:Character_artwork&filefrom=Boomgtt.png#mw-category-media","https://www.mariowiki.com/index.php?title=Category:Character_artwork&filefrom=Box+Art+Background+-+Mario+Party+Island+Tour.png#mw-category-media","https://www.mariowiki.com/index.php?title=Category:Character_artwork&filefrom=Captain+toad-+New+Donk+City+bg.jpg#mw-category-media","https://www.mariowiki.com/index.php?title=Category:Character_artwork&filefrom=Club+Nintendo+Mario+German+Flag.png#mw-category-media","https://www.mariowiki.com/index.php?title=Category:Character_artwork&filefrom=Daisy+MPIT.png#mw-category-media"]
-stringlist = []
+stringlist = {}
 aff = ["Okay", "Alright", "Got it", "Affirmative"]
 bots = [432610292342587392, 429305856241172480, 439205512425504771, 247283454440374274, 431544605209788416]
 imglist = []
@@ -105,10 +105,19 @@ async def on_message(message):
     if str(message.author.id) in badcacheIDs:
         return
     if len(stringlist) > 100:
-        stringlist = stringlist[0:20]
+        for _ in range(60):
+            if stringlist:
+                # Get the first key and remove its key-value pair
+                key_to_remove = next(iter(stringlist))
+                stringlist.pop(key_to_remove)
     else:
-        stringlist.append(message.content)
-    print(len(stringlist))
+        try:
+            msglist = stringlist[str(message.guild.id)]
+            msglist.append(message.content)
+            stringlist[str(message.guild.id)] = msglist
+        except KeyError:
+            stringlist.update({str(message.guild.id):[message.content]})
+    print(stringlist)
 
 @client.slash_command(description="Disables message caching in a given channel or from a given user!")
 async def version(ctx): 
