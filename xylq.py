@@ -12,9 +12,9 @@ from bs4 import BeautifulSoup
 
 status = "Cookie Run: Ovenbreak"
 #status = "Testing new features!"
-versionnum = "2.3"
-updatetime = "2024/01/27 14:15"
-changes = "**(2.3)** Added image upload function to meme generator"
+versionnum = "2.4"
+updatetime = "2024/01/27 14:19"
+changes = "**(2.4)** Added version check command"
 path = os.getcwd()
 print(f"XyL-Q v{versionnum}")
 print(updatetime)
@@ -109,6 +109,10 @@ async def on_message(message):
     else:
         stringlist.append(message.content)
     print(len(stringlist))
+
+@client.slash_command(description="Disables message caching in a given channel or from a given user!",guild_ids=[1032727370584559617])
+async def version(ctx): 
+    await ctx.respond(f"Hello-Q! I'm XyL-Q, running version {versionnum} released on {updatetime}-Q!")
 
 @client.slash_command(description="Disables message caching in a given channel or from a given user!",guild_ids=[1032727370584559617])
 async def disable_cache(ctx, channel=None, user=None): 
