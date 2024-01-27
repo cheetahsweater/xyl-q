@@ -12,9 +12,9 @@ from bs4 import BeautifulSoup
 
 status = "Cookie Run: Ovenbreak"
 #status = "Testing new features!"
-versionnum = "2.1"
-updatetime = "2024/01/27 11:45"
-changes = "**(2.1)** Fixed meme generator so that it doesn't cache empty messages and you can disable message gathering from certain channels"
+versionnum = "2.2"
+updatetime = "2024/01/27 11:58"
+changes = "**(2.2)** Made it so that if meme generator gets a cached message that's only one word, it repeats the word"
 path = os.getcwd()
 print(f"XyL-Q v{versionnum}")
 print(updatetime)
@@ -152,9 +152,31 @@ async def meme(ctx, top_text=None, bottom_text=None, image_link=None):
         if (bottom_text == None) and (top_text != None):
             bottom_text = random.choice(stringlist)
         if (bottom_text == None) and (top_text == None):
+            #everybody say thaaaank you chatGPT
             full_text = random.choice(stringlist)
-            top_text = full_text[:len(full_text) // 2]
-            bottom_text = full_text[len(full_text) // 2:] 
+
+            if " " in full_text:
+                # If there are spaces, find the best place to split
+                middle_index = len(full_text) // 2
+
+                # Find the nearest space to the middle index
+                split_index = middle_index
+                while split_index > 0 and full_text[split_index] != " ":
+                    split_index -= 1
+
+                # If no space was found before the middle, search after the middle
+                if split_index == 0:
+                    split_index = middle_index
+                    while split_index < len(full_text) and full_text[split_index] != " ":
+                        split_index += 1
+
+                # Split the text at the nearest space
+                top_text = full_text[:split_index].strip()
+                bottom_text = full_text[split_index:].strip()
+            else:
+                # If there are no spaces, set both to the same full_text
+                top_text = full_text
+                bottom_text = full_text
         if top_text != None:
             top_text_new = memeformat(top_text)
         if bottom_text != None:
