@@ -29,9 +29,33 @@ with open(f'{path}\\secrets.txt',"r") as file:
     text = file.read()
     gapi = text.split("=")[1]
 
+with open(f'{path}\\badid.json',"r+") as file:
+    try:
+        text = json.loads(file.read())
+        badIDs = text
+        print(badIDs)
+    except JSONDecodeError as e:
+        print(e)
+        badIDs = {}
+    file.close()
+
+with open(f'{path}\\badcache.txt',"r+") as file:
+    try:
+        text = file.read()
+        if len(text) > 1:
+            badcacheIDs = text.split("\n")
+        else:
+            badcacheIDs = []
+        print(badcacheIDs)
+    except IndexError:
+        badcacheIDs = []
+    file.close()
+        
+
 mariowiki = ["https://www.mariowiki.com/index.php?title=Category:Character_artwork&fileuntil=AlolanExeggutorUltimate.png#mw-category-media","https://www.mariowiki.com/index.php?title=Category:Character_artwork&filefrom=AlolanExeggutorUltimate.png#mw-category-media","https://www.mariowiki.com/index.php?title=Category:Character_artwork&filefrom=Back-To-School+Funny+Personality+Quiz+result+Toadette.jpg#mw-category-media","https://www.mariowiki.com/index.php?title=Category:Character_artwork&filefrom=Black+Kirby+SSBU.png#mw-category-media","https://www.mariowiki.com/index.php?title=Category:Character_artwork&filefrom=Boomgtt.png#mw-category-media","https://www.mariowiki.com/index.php?title=Category:Character_artwork&filefrom=Box+Art+Background+-+Mario+Party+Island+Tour.png#mw-category-media","https://www.mariowiki.com/index.php?title=Category:Character_artwork&filefrom=Captain+toad-+New+Donk+City+bg.jpg#mw-category-media","https://www.mariowiki.com/index.php?title=Category:Character_artwork&filefrom=Club+Nintendo+Mario+German+Flag.png#mw-category-media","https://www.mariowiki.com/index.php?title=Category:Character_artwork&filefrom=Daisy+MPIT.png#mw-category-media"]
 stringlist = []
-
+aff = ["Okay", "Alright", "Got it", "Affirmative"]
+bots = [432610292342587392, 429305856241172480, 439205512425504771, 247283454440374274, 431544605209788416]
 imglist = []
 for n in range(1,63):
     imglist.append(f"https://starmoon.neocities.org/files/gb/{n}.jpg")
@@ -70,13 +94,56 @@ async def on_ready():
 @client.event
 async def on_message(message):
     global stringlist
-    print(stringlist)
     if message.author == client.user:
+        return
+    if message.author.id in bots:
+        return
+    if len(message.content) == 0:
+        return
+    if str(message.channel.id) in badcacheIDs:
+        return
+    if str(message.author.id) in badcacheIDs:
         return
     if len(stringlist) > 100:
         stringlist = stringlist[0:20]
     else:
         stringlist.append(message.content)
+    print(len(stringlist))
+
+@client.slash_command(description="Disables message caching in a given channel or from a given user!",guild_ids=[1032727370584559617])
+async def disable_cache(ctx, channel=None, user=None): 
+    global badcacheIDs
+    if (channel == None) and (user == None):
+        await ctx.respond("Error-Q! No parameters given-Q!")
+        return
+    if channel != None:
+        channelID = channel.strip("<>#")
+        badcacheIDs.append(channelID)
+        await ctx.respond(f"{random.choice(aff)}-Q! I've disabled message caching in the <#{channelID}> channel-Q!")
+    if user != None:
+        userID = user.strip("<>@")
+        badcacheIDs.append(userID)
+        await ctx.respond(f"{random.choice(aff)}-Q! I've disabled message caching for <@{userID}>-Q!")
+    with open(f'{path}\\badcache.txt',"w") as file:
+        for id in badcacheIDs:
+            file.write(f"{id}\n")
+        file.close()
+
+@client.slash_command(description="Disables a command in a given channel!",guild_ids=[1032727370584559617])
+async def disable(ctx, command: discord.Option(str, choices=["meme"]), channel): 
+    global badIDs
+    channelID = channel.strip("<>#")
+    try:
+        channelList = badIDs[command]
+        channelList.append(channelID)
+        badIDs.update({command:channelList})
+    except KeyError:
+        badIDs.update({command:[channelID]})
+    with open(f'{path}\\badid.json',"w") as file:
+        myJson = json.dumps(badIDs)
+        file.write(myJson)
+        file.close()
+    await ctx.respond(f"Okay-Q! I've disabled the *{command}* command in the <#{channelID}> channel-Q!")
 
 @client.slash_command(description="Makes a meme based on parameters given!",guild_ids=[1032727370584559617])
 async def meme(ctx, top_text=None, bottom_text=None, image_link=None, image_upload: discord.Attachment=None): 
@@ -85,10 +152,31 @@ async def meme(ctx, top_text=None, bottom_text=None, image_link=None, image_uplo
         if (bottom_text == None) and (top_text != None):
             bottom_text = random.choice(stringlist)
         if (bottom_text == None) and (top_text == None):
+            #everybody say thaaaank you chatGPT
             full_text = random.choice(stringlist)
-            top_text = full_text[0:len(full_text)//2] 
-            bottom_text = full_text[len(full_text)//2 if len(full_text)%2 == 0
-                                            else ((len(full_text)//2)+1):] 
+
+            if " " in full_text:
+                # If there are spaces, find the best place to split
+                middle_index = len(full_text) // 2
+
+                # Find the nearest space to the middle index
+                split_index = middle_index
+                while split_index > 0 and full_text[split_index] != " ":
+                    split_index -= 1
+
+                # If no space was found before the middle, search after the middle
+                if split_index == 0:
+                    split_index = middle_index
+                    while split_index < len(full_text) and full_text[split_index] != " ":
+                        split_index += 1
+
+                # Split the text at the nearest space
+                top_text = full_text[:split_index].strip()
+                bottom_text = full_text[split_index:].strip()
+            else:
+                # If there are no spaces, set both to the same full_text
+                top_text = full_text
+                bottom_text = full_text
         if top_text != None:
             top_text_new = memeformat(top_text)
         if bottom_text != None:

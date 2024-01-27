@@ -3,3 +3,6 @@ build/
 dist/
 compile.bat
 secrets.txt
+xylq.spec
+badid.json
+badcache.txt

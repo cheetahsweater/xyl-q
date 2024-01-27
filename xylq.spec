@@ -2,7 +2,7 @@
 
 
 a = Analysis(
-    ['C:\\Users\\Me\\Desktop\\programs\\python\\xyl-q\\xylq.py'],
+    ['C:\\Users\\LAIN\\Documents\\programs\\python\\xyl-q\\xylq.py'],
     pathex=[],
     binaries=[],
     datas=[],
