@@ -12,9 +12,9 @@ from bs4 import BeautifulSoup
 
 status = "Cookie Run: Ovenbreak"
 #status = "Testing new features!"
-versionnum = "2.7"
-updatetime = "2024/01/28 00:31"
-changes = "**(2.7)** Added more wikis for the wiki one to pull from, changed chances of google image search so I don't use up all my API calls"
+versionnum = "2.7a"
+updatetime = "2024/01/28 00:32"
+changes = "**(2.7)** Added more wikis for the wiki one to pull from, changed chances of google image search so I don't use up all my API calls\n(a) Took out print statements"
 path = os.getcwd()
 print(f"XyL-Q v{versionnum}")
 print(updatetime)
@@ -272,7 +272,6 @@ async def meme(ctx, top_text=None, bottom_text=None, image_link=None, image_uplo
                             if url != None:
                                 if ".png" in url:
                                     if "images" in url:
-                                        print(url)
                                         urls.append(url)
                         image_link = f"https://minecraft.wiki{random.choice(urls)}"
                     if wiki == "fanon":
@@ -298,7 +297,6 @@ async def meme(ctx, top_text=None, bottom_text=None, image_link=None, image_uplo
                                 if ".png" in url:
                                     print(url)
                                     if "images" in url:
-                                        print(url)
                                         urls.append(url)
                         image_link = random.choice(urls)
 
