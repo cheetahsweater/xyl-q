@@ -12,9 +12,9 @@ from bs4 import BeautifulSoup
 
 status = "Cookie Run: Ovenbreak"
 #status = "Testing new features!"
-versionnum = "2.6"
-updatetime = "2024/01/27 15:04"
-changes = "**(2.6)** Fixed message list length shortener thing"
+versionnum = "2.7"
+updatetime = "2024/01/28 00:31"
+changes = "**(2.7)** Added more wikis for the wiki one to pull from, changed chances of google image search so I don't use up all my API calls"
 path = os.getcwd()
 print(f"XyL-Q v{versionnum}")
 print(updatetime)
@@ -51,8 +51,20 @@ with open(f'{path}\\badcache.txt',"r+") as file:
         badcacheIDs = []
     file.close()
         
-
-mariowiki = ["https://www.mariowiki.com/index.php?title=Category:Character_artwork&fileuntil=AlolanExeggutorUltimate.png#mw-category-media","https://www.mariowiki.com/index.php?title=Category:Character_artwork&filefrom=AlolanExeggutorUltimate.png#mw-category-media","https://www.mariowiki.com/index.php?title=Category:Character_artwork&filefrom=Back-To-School+Funny+Personality+Quiz+result+Toadette.jpg#mw-category-media","https://www.mariowiki.com/index.php?title=Category:Character_artwork&filefrom=Black+Kirby+SSBU.png#mw-category-media","https://www.mariowiki.com/index.php?title=Category:Character_artwork&filefrom=Boomgtt.png#mw-category-media","https://www.mariowiki.com/index.php?title=Category:Character_artwork&filefrom=Box+Art+Background+-+Mario+Party+Island+Tour.png#mw-category-media","https://www.mariowiki.com/index.php?title=Category:Character_artwork&filefrom=Captain+toad-+New+Donk+City+bg.jpg#mw-category-media","https://www.mariowiki.com/index.php?title=Category:Character_artwork&filefrom=Club+Nintendo+Mario+German+Flag.png#mw-category-media","https://www.mariowiki.com/index.php?title=Category:Character_artwork&filefrom=Daisy+MPIT.png#mw-category-media"]
+wikis = ["mario","minecraft","fanon"]
+mariowiki = ["https://www.mariowiki.com/index.php?title=Category:Character_artwork&fileuntil=AlolanExeggutorUltimate.png#mw-category-media","https://www.mariowiki.com/index.php?title=Category:Character_artwork&filefrom=AlolanExeggutorUltimate.png#mw-category-media",
+             "https://www.mariowiki.com/index.php?title=Category:Character_artwork&filefrom=Back-To-School+Funny+Personality+Quiz+result+Toadette.jpg#mw-category-media","https://www.mariowiki.com/index.php?title=Category:Character_artwork&filefrom=Black+Kirby+SSBU.png#mw-category-media",
+             "https://www.mariowiki.com/index.php?title=Category:Character_artwork&filefrom=Boomgtt.png#mw-category-media","https://www.mariowiki.com/index.php?title=Category:Character_artwork&filefrom=Box+Art+Background+-+Mario+Party+Island+Tour.png#mw-category-media",
+             "https://www.mariowiki.com/index.php?title=Category:Character_artwork&filefrom=Captain+toad-+New+Donk+City+bg.jpg#mw-category-media","https://www.mariowiki.com/index.php?title=Category:Character_artwork&filefrom=Club+Nintendo+Mario+German+Flag.png#mw-category-media",
+             "https://www.mariowiki.com/index.php?title=Category:Character_artwork&filefrom=Daisy+MPIT.png#mw-category-media","https://www.mariowiki.com/index.php?title=Category:Character_artwork&filefrom=Ditrani+Salvatore+MRSOH+Midnite.jpg#mw-category-media",
+             "https://www.mariowiki.com/index.php?title=Category:Character_artwork&filefrom=DKC2+Screech.png#mw-category-media","https://www.mariowiki.com/index.php?title=Category:Character_artwork&filefrom=DMW+Skill+Summit+12+mentors.png#mw-category-media",
+             "https://www.mariowiki.com/index.php?title=Category:Character_artwork&filefrom=Donkey+Kong+vector+art.svg#mw-category-media","https://www.mariowiki.com/index.php?title=Category:Character_artwork&filefrom=DrMarioLesson.png#mw-category-media",
+             "https://www.mariowiki.com/index.php?title=Category:Character_artwork&filefrom=Fire+Mario.png#mw-category-media"]
+mcwiki = ["https://minecraft.wiki/w/Category:Mojang_images","https://minecraft.wiki/w/Category:Mojang_images?filefrom=1-18-dripstone-caves.jpg#mw-category-media","https://minecraft.wiki/w/Category:Mojang_images?filefrom=1.19.1-pre3.jpg#mw-category-media",
+          "https://minecraft.wiki/w/Category:Mojang_images?filefrom=11a-44.jpg#mw-category-media","https://minecraft.wiki/w/Category:Mojang_images?filefrom=14w31a+textures+0.png#mw-category-media","https://minecraft.wiki/w/Category:Mojang_images?filefrom=2+joined+shipwrecks.png#mw-category-media",
+          "https://minecraft.wiki/w/Category:Mojang_images?filefrom=21a01-25.jpg#mw-category-media","https://minecraft.wiki/w/Category:Mojang_images?filefrom=3inone.png#mw-category-media","https://minecraft.wiki/w/Category:Mojang_images?filefrom=Abominable+Weaver+Icon.png#mw-category-media",
+          "https://minecraft.wiki/w/Category:Mojang_images?filefrom=Acacia+Sign+JE1+BE1.png#mw-category-media","https://minecraft.wiki/w/Category:Mojang_images?filefrom=Adriene+Texture+%28MCD%29.png#mw-category-media","https://minecraft.wiki/w/Category:Mojang_images?filefrom=Albino+Cow+Spawn+Egg+Icon.png#mw-category-media",
+          "https://minecraft.wiki/w/Category:Mojang_images?filefrom=Allay+animated+sticker.gif#mw-category-media","https://minecraft.wiki/w/Category:Mojang_images?filefrom=Alpha+v1.2.1.jpg#mw-category-media","https://minecraft.wiki/w/Category:Mojang_images?filefrom=Ancient+City+intact+corner+wall+1.png#mw-category-media"]
 stringlist = {}
 aff = ["Okay", "Alright", "Got it", "Affirmative"]
 bots = [432610292342587392, 429305856241172480, 439205512425504771, 247283454440374274, 431544605209788416]
@@ -81,7 +93,9 @@ def memeformat(text: str):
         "\n":"~n",
         '"':"''",
         "‘":"'",
-        "’":"'"
+        "’":"'",
+        "“":'"',
+        "”":'"'
     }
     for key, value in formatlist.items():
         text = text.replace(key, value)
@@ -195,7 +209,7 @@ async def meme(ctx, top_text=None, bottom_text=None, image_link=None, image_uplo
                 image_link = image_upload.url
             elif image_upload == None:
                 numba = random.choice(range(11))
-                if numba > 3:
+                if numba > 9:
                     words = top_text.split(" ")
                     word = f"{random.choice(words)}_{random.choice(words)}"
                     response = requests.get(f"https://www.googleapis.com/customsearch/v1?key={gapi}&cx=25b1c3996753d4bb9&q={word}&searchType=image")
@@ -209,31 +223,85 @@ async def meme(ctx, top_text=None, bottom_text=None, image_link=None, image_uplo
                         image_link = memeImg["link"]
                     except IndexError:
                         image_link = "https://mario.wiki.gallery/images/f/fe/36-Diddy_Kong.png"
-                elif numba < 7:
+                elif numba < 3:
                     image_link = random.choice(imglist)
                 else:
-                    url = random.choice(mariowiki)
-                    reqs = requests.get(url)
-                    soup = BeautifulSoup(reqs.text, 'html.parser')
-                    
-                    urls = []
-                    for link in soup.find_all('a'):
-                        url = link.get('href')
-                        if url != None:
-                            if url[-4:] == ".png":
-                                urls.append(url)
-                    page = f"https://www.mariowiki.com{random.choice(urls)}"
-                    reqsagain = requests.get(page)
-                    soup = BeautifulSoup(reqsagain.text, 'html.parser')
-                    
-                    urls = []
-                    for link in soup.find_all('a'):
-                        url = link.get('href')
-                        if url != None:
-                            if url[-4:] == ".png":
-                                if "images" in url:
+                    wiki = random.choice(wikis)
+                    if wiki == "mario":
+                        url = random.choice(mariowiki)
+                        reqs = requests.get(url)
+                        soup = BeautifulSoup(reqs.text, 'html.parser')
+                        
+                        urls = []
+                        for link in soup.find_all('a'):
+                            url = link.get('href')
+                            if url != None:
+                                if url[-4:] == ".png":
                                     urls.append(url)
-                    image_link = random.choice(urls)
+                        page = f"https://www.mariowiki.com{random.choice(urls)}"
+                        reqsagain = requests.get(page)
+                        soup = BeautifulSoup(reqsagain.text, 'html.parser')
+                        
+                        urls = []
+                        for link in soup.find_all('a'):
+                            url = link.get('href')
+                            if url != None:
+                                if url[-4:] == ".png":
+                                    if "images" in url:
+                                        urls.append(url)
+                        image_link = random.choice(urls)
+                    if wiki == "minecraft":
+                        url = random.choice(mcwiki)
+                        reqs = requests.get(url)
+                        soup = BeautifulSoup(reqs.text, 'html.parser')
+                        
+                        urls = []
+                        for link in soup.find_all('a'):
+                            url = link.get('href')
+                            if url != None:
+                                if url[-4:] == ".png":
+                                    if "w/File:" in url:
+                                        urls.append(url)
+                        page = f"https://minecraft.wiki{random.choice(urls)}"
+                        reqsagain = requests.get(page)
+                        soup = BeautifulSoup(reqsagain.text, 'html.parser')
+                        
+                        urls = []
+                        for link in soup.find_all('a'):
+                            url = link.get('href')
+                            if url != None:
+                                if ".png" in url:
+                                    if "images" in url:
+                                        print(url)
+                                        urls.append(url)
+                        image_link = f"https://minecraft.wiki{random.choice(urls)}"
+                    if wiki == "fanon":
+                        url = "https://carebearsfanon.fandom.com/wiki/Special:NewFiles?offset=&limit=500"
+                        reqs = requests.get(url)
+                        soup = BeautifulSoup(reqs.text, 'html.parser')
+                        
+                        urls = []
+                        for link in soup.find_all('a'):
+                            url = link.get('href')
+                            if url != None:
+                                if url[-4:] == ".png":
+                                    if "File:" in url:
+                                        urls.append(url)
+                        page = f"https://carebearsfanon.fandom.com{random.choice(urls)}"
+                        reqsagain = requests.get(page)
+                        soup = BeautifulSoup(reqsagain.text, 'html.parser')
+                        
+                        urls = []
+                        for link in soup.find_all('a'):
+                            url = link.get('href')
+                            if url != None:
+                                if ".png" in url:
+                                    print(url)
+                                    if "images" in url:
+                                        print(url)
+                                        urls.append(url)
+                        image_link = random.choice(urls)
+
         memelink = f"https://api.memegen.link/images/custom/{top_text_new}/{bottom_text_new}.png?background={image_link}"
         await ctx.respond(memelink)
 
