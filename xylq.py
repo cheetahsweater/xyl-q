@@ -12,9 +12,9 @@ from bs4 import BeautifulSoup
 
 status = "Cookie Run: Ovenbreak"
 #status = "Testing new features!"
-versionnum = "3.0"
-updatetime = "2024/02/25 21:13"
-changes = "**(3.0)** Added a reputation giving function that includes a function to look at your reputation and who's given you the most reputation"
+versionnum = "3.0a"
+updatetime = "2024/02/5 21:14"
+changes = "**(3.0a)** Added a reputation giving function that includes a function to look at your reputation and who's given you/who you've given the most reputation\n(a) Dramatically decreased chances of Google search and Grumpy Bedtime images in meme gen"
 path = os.getcwd()
 print(f"XyL-Q v{versionnum}")
 print(updatetime)
@@ -323,7 +323,7 @@ async def meme(ctx, top_text=None, bottom_text=None, image_link=None, image_uplo
                 image_link = image_upload.url
             elif image_upload == None:
                 numba = random.choice(range(11))
-                if numba > 9:
+                if numba > 10:
                     words = top_text.split(" ")
                     word = f"{random.choice(words)}_{random.choice(words)}"
                     response = requests.get(f"https://www.googleapis.com/customsearch/v1?key={gapi}&cx=25b1c3996753d4bb9&q={word}&searchType=image")
@@ -337,7 +337,7 @@ async def meme(ctx, top_text=None, bottom_text=None, image_link=None, image_uplo
                         image_link = memeImg["link"]
                     except IndexError:
                         image_link = "https://mario.wiki.gallery/images/f/fe/36-Diddy_Kong.png"
-                elif numba < 3:
+                elif numba < 1:
                     image_link = random.choice(imglist)
                 else:
                     wiki = random.choice(wikis)
