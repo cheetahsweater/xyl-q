@@ -12,9 +12,9 @@ from bs4 import BeautifulSoup
 
 status = "Cookie Run: Ovenbreak"
 #status = "Testing new features!"
-versionnum = "3.0a"
-updatetime = "2024/02/5 21:14"
-changes = "**(3.0a)** Added a reputation giving function that includes a function to look at your reputation and who's given you/who you've given the most reputation\n(a) Dramatically decreased chances of Google search and Grumpy Bedtime images in meme gen"
+versionnum = "3.0b"
+updatetime = "2024/02/05 21:14"
+changes = "**(3.0b)** Added a reputation giving function that includes a function to look at your reputation and who's given you/who you've given the most reputation\n(a) Dramatically decreased chances of Google search and Grumpy Bedtime images in meme gen\(b) Fixed update time syntax"
 path = os.getcwd()
 print(f"XyL-Q v{versionnum}")
 print(updatetime)
