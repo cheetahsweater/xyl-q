@@ -12,9 +12,9 @@ from bs4 import BeautifulSoup
 
 status = "Cookie Run: Ovenbreak"
 #status = "Testing new features!"
-versionnum = "3.0b"
-updatetime = "2024/02/05 21:14"
-changes = "**(3.0b)** Added a reputation giving function that includes a function to look at your reputation and who's given you/who you've given the most reputation\n(a) Dramatically decreased chances of Google search and Grumpy Bedtime images in meme gen\(b) Fixed update time syntax"
+versionnum = "3.0c"
+updatetime = "2024/02/09 00:32"
+changes = "**(3.0)** Added a reputation giving function that includes a function to look at your reputation and who's given you/who you've given the most reputation\n(a) Dramatically decreased chances of Google search and Grumpy Bedtime images in meme gen\(b) Fixed update time syntax\(c) Added friend server to server list"
 path = os.getcwd()
 print(f"XyL-Q v{versionnum}")
 print(updatetime)
@@ -92,7 +92,7 @@ stringlist = {}
 aff = ["Okay", "Alright", "Got it", "Affirmative","Sounds good"]
 selfrep = ["You're giving reputation to me-Q?? Well, thank you-Q! ^^","Oh...thank you so much for the reputation-Q! I will take good care of it-Q! ^^"]
 bots = [432610292342587392, 429305856241172480, 439205512425504771, 247283454440374274, 431544605209788416]
-guilds = [783976468815937556,1032727370584559617,467886334971871232,645086582755557396]
+guilds = [783976468815937556,1032727370584559617,467886334971871232,645086582755557396,221444903522140161]
 imglist = []
 for n in range(1,63):
     imglist.append(f"https://starmoon.neocities.org/files/gb/{n}.jpg")
