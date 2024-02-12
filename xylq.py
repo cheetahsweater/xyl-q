@@ -12,9 +12,9 @@ from bs4 import BeautifulSoup
 
 status = "Cookie Run: Ovenbreak"
 #status = "Testing new features!"
-versionnum = "3.0c"
-updatetime = "2024/02/09 00:32"
-changes = "**(3.0)** Added a reputation giving function that includes a function to look at your reputation and who's given you/who you've given the most reputation\n(a) Dramatically decreased chances of Google search and Grumpy Bedtime images in meme gen\(b) Fixed update time syntax\(c) Added friend server to server list"
+versionnum = "3.1"
+updatetime = "2024/02/12 13:45"
+changes = "**(3.1)** Added a few more wikis to the meme gen function"
 path = os.getcwd()
 print(f"XyL-Q v{versionnum}")
 print(updatetime)
@@ -71,7 +71,7 @@ with open(f'{path}\\badcache.txt',"r+") as file:
         badcacheIDs = []
     file.close()
         
-wikis = ["mario","minecraft","fanon","ssb"]
+wikis = ["mario","minecraft","fanon","ssb","cb","cr","logo"]
 mariowiki = ["https://www.mariowiki.com/index.php?title=Category:Character_artwork&fileuntil=AlolanExeggutorUltimate.png#mw-category-media","https://www.mariowiki.com/index.php?title=Category:Character_artwork&filefrom=AlolanExeggutorUltimate.png#mw-category-media",
              "https://www.mariowiki.com/index.php?title=Category:Character_artwork&filefrom=Back-To-School+Funny+Personality+Quiz+result+Toadette.jpg#mw-category-media","https://www.mariowiki.com/index.php?title=Category:Character_artwork&filefrom=Black+Kirby+SSBU.png#mw-category-media",
              "https://www.mariowiki.com/index.php?title=Category:Character_artwork&filefrom=Boomgtt.png#mw-category-media","https://www.mariowiki.com/index.php?title=Category:Character_artwork&filefrom=Box+Art+Background+-+Mario+Party+Island+Tour.png#mw-category-media",
@@ -79,15 +79,58 @@ mariowiki = ["https://www.mariowiki.com/index.php?title=Category:Character_artwo
              "https://www.mariowiki.com/index.php?title=Category:Character_artwork&filefrom=Daisy+MPIT.png#mw-category-media","https://www.mariowiki.com/index.php?title=Category:Character_artwork&filefrom=Ditrani+Salvatore+MRSOH+Midnite.jpg#mw-category-media",
              "https://www.mariowiki.com/index.php?title=Category:Character_artwork&filefrom=DKC2+Screech.png#mw-category-media","https://www.mariowiki.com/index.php?title=Category:Character_artwork&filefrom=DMW+Skill+Summit+12+mentors.png#mw-category-media",
              "https://www.mariowiki.com/index.php?title=Category:Character_artwork&filefrom=Donkey+Kong+vector+art.svg#mw-category-media","https://www.mariowiki.com/index.php?title=Category:Character_artwork&filefrom=DrMarioLesson.png#mw-category-media",
-             "https://www.mariowiki.com/index.php?title=Category:Character_artwork&filefrom=Fire+Mario.png#mw-category-media"]
+             "https://www.mariowiki.com/index.php?title=Category:Character_artwork&filefrom=Fire+Mario.png#mw-category-media","https://www.mariowiki.com/index.php?title=Category:Character_artwork&filefrom=FSWaluigi.jpg#mw-category-media","https://www.mariowiki.com/index.php?title=Category:Character_artwork&filefrom=Goboten+Perfect.png#mw-category-media",
+             "https://www.mariowiki.com/index.php?title=Category:Character_artwork&filefrom=Happy+Holidays+Greeting+Card+Poll+preview.jpg#mw-category-media","https://www.mariowiki.com/index.php?title=Category:Character_artwork&filefrom=ITnKnBT+NOM+Manga+Program+3+8.jpg#mw-category-media",
+             "https://www.mariowiki.com/index.php?title=Category:Character_artwork&filefrom=Kiddy+Kong+running+DKC3+artwork.jpg#mw-category-media","https://www.mariowiki.com/index.php?title=Category:Character_artwork&filefrom=Koopa+Troopa+and+Paratroopa+-+MKDD.png#mw-category-media"]
+
 mcwiki = ["https://minecraft.wiki/w/Category:Mojang_images","https://minecraft.wiki/w/Category:Mojang_images?filefrom=1-18-dripstone-caves.jpg#mw-category-media","https://minecraft.wiki/w/Category:Mojang_images?filefrom=1.19.1-pre3.jpg#mw-category-media",
           "https://minecraft.wiki/w/Category:Mojang_images?filefrom=11a-44.jpg#mw-category-media","https://minecraft.wiki/w/Category:Mojang_images?filefrom=14w31a+textures+0.png#mw-category-media","https://minecraft.wiki/w/Category:Mojang_images?filefrom=2+joined+shipwrecks.png#mw-category-media",
           "https://minecraft.wiki/w/Category:Mojang_images?filefrom=21a01-25.jpg#mw-category-media","https://minecraft.wiki/w/Category:Mojang_images?filefrom=3inone.png#mw-category-media","https://minecraft.wiki/w/Category:Mojang_images?filefrom=Abominable+Weaver+Icon.png#mw-category-media",
           "https://minecraft.wiki/w/Category:Mojang_images?filefrom=Acacia+Sign+JE1+BE1.png#mw-category-media","https://minecraft.wiki/w/Category:Mojang_images?filefrom=Adriene+Texture+%28MCD%29.png#mw-category-media","https://minecraft.wiki/w/Category:Mojang_images?filefrom=Albino+Cow+Spawn+Egg+Icon.png#mw-category-media",
-          "https://minecraft.wiki/w/Category:Mojang_images?filefrom=Allay+animated+sticker.gif#mw-category-media","https://minecraft.wiki/w/Category:Mojang_images?filefrom=Alpha+v1.2.1.jpg#mw-category-media","https://minecraft.wiki/w/Category:Mojang_images?filefrom=Ancient+City+intact+corner+wall+1.png#mw-category-media"]
+          "https://minecraft.wiki/w/Category:Mojang_images?filefrom=Allay+animated+sticker.gif#mw-category-media","https://minecraft.wiki/w/Category:Mojang_images?filefrom=Alpha+v1.2.1.jpg#mw-category-media","https://minecraft.wiki/w/Category:Mojang_images?filefrom=Ancient+City+intact+corner+wall+1.png#mw-category-media",
+          "https://minecraft.wiki/w/Category:Mojang_images?filefrom=Anti+Mortar.png#mw-category-media","https://minecraft.wiki/w/Category:Mojang_images?filefrom=Area+render.png#mw-category-media","https://minecraft.wiki/w/Category:Mojang_images?filefrom=Armored+Jungle+Zombie.png#mw-category-media",
+          "https://minecraft.wiki/w/Category:Mojang_images?filefrom=Astatine.png#mw-category-media","https://minecraft.wiki/w/Category:Mojang_images?filefrom=Attached+Stem+Age+10+%28S%29+JE1.png#mw-category-media","https://minecraft.wiki/w/Category:Mojang_images?filefrom=Autoreset+booster.jpg#mw-category-media",
+          "https://minecraft.wiki/w/Category:Mojang_images?filefrom=Baby+Brown+Horse+Revision+2.png#mw-category-media","https://minecraft.wiki/w/Category:Mojang_images?filefrom=Baby+Light+Blue+Sheep+JE1.png#mw-category-media","https://minecraft.wiki/w/Category:Mojang_images?filefrom=Baby+Yellow+Sheep+JE3.png#mw-category-media",
+          ]
+
 ssb = ["https://supersmashbros.fandom.com/wiki/Special:NewFiles?offset=&limit=500","https://supersmashbros.fandom.com/wiki/Special:NewFiles?offset=&limit=500","https://supersmashbros.fandom.com/wiki/Special:NewFiles?offset=20230614074616&limit=500",
        "https://supersmashbros.fandom.com/wiki/Special:NewFiles?offset=20230211232543&limit=500","https://supersmashbros.fandom.com/wiki/Special:NewFiles?offset=20230126182127&limit=500",
        "https://supersmashbros.fandom.com/wiki/Special:NewFiles?offset=20211005224641&limit=500","https://supersmashbros.fandom.com/wiki/Special:NewFiles?offset=20210703010151&limit=500"]
+
+cb = ["https://carebears.fandom.com/wiki/Special:NewFiles?user=&mediatype%5B0%5D=BITMAP&mediatype%5B1%5D=ARCHIVE&start=&end=&wpFormIdentifier=specialnewimages&limit=500&offset=","https://carebears.fandom.com/wiki/Special:NewFiles?user=&mediatype%5B0%5D=BITMAP&mediatype%5B1%5D=ARCHIVE&start=&end=&wpFormIdentifier=specialnewimages&offset=20230822035355&limit=500",
+      "https://carebears.fandom.com/wiki/Special:NewFiles?user=&mediatype%5B0%5D=BITMAP&mediatype%5B1%5D=ARCHIVE&start=&end=&wpFormIdentifier=specialnewimages&offset=20230207164344&limit=500","https://carebears.fandom.com/wiki/Special:NewFiles?user=&mediatype%5B0%5D=BITMAP&mediatype%5B1%5D=ARCHIVE&start=&end=&wpFormIdentifier=specialnewimages&offset=20220819144935&limit=500",
+      "https://carebears.fandom.com/wiki/Special:NewFiles?user=&mediatype%5B0%5D=BITMAP&mediatype%5B1%5D=ARCHIVE&start=&end=&wpFormIdentifier=specialnewimages&offset=20211027050918&limit=500","https://carebears.fandom.com/wiki/Special:NewFiles?user=&mediatype%5B0%5D=BITMAP&mediatype%5B1%5D=ARCHIVE&start=&end=&wpFormIdentifier=specialnewimages&offset=20210220074319&limit=500",
+      "https://carebears.fandom.com/wiki/Special:NewFiles?user=&mediatype%5B0%5D=BITMAP&mediatype%5B1%5D=ARCHIVE&start=&end=&wpFormIdentifier=specialnewimages&offset=20191207025325&limit=500","https://carebears.fandom.com/wiki/Special:NewFiles?user=&mediatype%5B0%5D=BITMAP&mediatype%5B1%5D=ARCHIVE&start=&end=&wpFormIdentifier=specialnewimages&offset=20181118235504&limit=500"]
+
+cr = ["https://cookierun.fandom.com/wiki/Special:NewFiles?user=&mediatype%5B0%5D=BITMAP&mediatype%5B1%5D=ARCHIVE&start=&end=&wpFormIdentifier=specialnewimages&limit=500&offset=","https://cookierun.fandom.com/wiki/Special:NewFiles?user=&mediatype%5B0%5D=BITMAP&mediatype%5B1%5D=ARCHIVE&start=&end=&wpFormIdentifier=specialnewimages&offset=20231228065602&limit=500",
+      "https://cookierun.fandom.com/wiki/Special:NewFiles?user=&mediatype%5B0%5D=BITMAP&mediatype%5B1%5D=ARCHIVE&start=&end=&wpFormIdentifier=specialnewimages&offset=20231128052630&limit=500","https://cookierun.fandom.com/wiki/Special:NewFiles?user=&mediatype%5B0%5D=BITMAP&mediatype%5B1%5D=ARCHIVE&start=&end=&wpFormIdentifier=specialnewimages&offset=20231018125513&limit=500",
+      "https://cookierun.fandom.com/wiki/Special:NewFiles?user=&mediatype%5B0%5D=BITMAP&mediatype%5B1%5D=ARCHIVE&start=&end=&wpFormIdentifier=specialnewimages&offset=20230919050858&limit=500","https://cookierun.fandom.com/wiki/Special:NewFiles?user=&mediatype%5B0%5D=BITMAP&mediatype%5B1%5D=ARCHIVE&start=&end=&wpFormIdentifier=specialnewimages&offset=20230808081127&limit=500",
+      "https://cookierun.fandom.com/wiki/Special:NewFiles?user=&mediatype%5B0%5D=BITMAP&mediatype%5B1%5D=ARCHIVE&start=&end=&wpFormIdentifier=specialnewimages&offset=20230627091113&limit=500","https://cookierun.fandom.com/wiki/Special:NewFiles?user=&mediatype%5B0%5D=BITMAP&mediatype%5B1%5D=ARCHIVE&start=&end=&wpFormIdentifier=specialnewimages&offset=20230613171215&limit=500",
+      "https://cookierun.fandom.com/wiki/Special:NewFiles?user=&mediatype%5B0%5D=BITMAP&mediatype%5B1%5D=ARCHIVE&start=&end=&wpFormIdentifier=specialnewimages&offset=20230602165331&limit=500","https://cookierun.fandom.com/wiki/Special:NewFiles?user=&mediatype%5B0%5D=BITMAP&mediatype%5B1%5D=ARCHIVE&start=&end=&wpFormIdentifier=specialnewimages&offset=20230429190940&limit=500",
+      "https://cookierun.fandom.com/wiki/Special:NewFiles?user=&mediatype%5B0%5D=BITMAP&mediatype%5B1%5D=ARCHIVE&start=&end=&wpFormIdentifier=specialnewimages&offset=20230330212318&limit=500","https://cookierun.fandom.com/wiki/Special:NewFiles?user=&mediatype%5B0%5D=BITMAP&mediatype%5B1%5D=ARCHIVE&start=&end=&wpFormIdentifier=specialnewimages&offset=20230314014930&limit=500",
+      "https://cookierun.fandom.com/wiki/Special:NewFiles?user=&mediatype%5B0%5D=BITMAP&mediatype%5B1%5D=ARCHIVE&start=&end=&wpFormIdentifier=specialnewimages&offset=20230220193258&limit=500","https://cookierun.fandom.com/wiki/Special:NewFiles?user=&mediatype%5B0%5D=BITMAP&mediatype%5B1%5D=ARCHIVE&start=&end=&wpFormIdentifier=specialnewimages&offset=20230113040240&limit=500",
+      "https://cookierun.fandom.com/wiki/Special:NewFiles?user=&mediatype%5B0%5D=BITMAP&mediatype%5B1%5D=ARCHIVE&start=&end=&wpFormIdentifier=specialnewimages&offset=20221208211322&limit=500","https://cookierun.fandom.com/wiki/Special:NewFiles?user=&mediatype%5B0%5D=BITMAP&mediatype%5B1%5D=ARCHIVE&start=&end=&wpFormIdentifier=specialnewimages&offset=20221207114228&limit=500",
+      "https://cookierun.fandom.com/wiki/Special:NewFiles?user=&mediatype%5B0%5D=BITMAP&mediatype%5B1%5D=ARCHIVE&start=&end=&wpFormIdentifier=specialnewimages&offset=20221129030150&limit=500"]
+
+crk = ["https://cookierunkingdom.fandom.com/wiki/Special:NewFiles?user=&mediatype%5B0%5D=BITMAP&mediatype%5B1%5D=ARCHIVE&start=&end=&wpFormIdentifier=specialnewimages&limit=500&offset=","https://cookierunkingdom.fandom.com/wiki/Special:NewFiles?user=&mediatype%5B0%5D=BITMAP&mediatype%5B1%5D=ARCHIVE&start=&end=&wpFormIdentifier=specialnewimages&offset=20231228065602&limit=500",
+      "https://cookierunkingdom.fandom.com/wiki/Special:NewFiles?user=&mediatype%5B0%5D=BITMAP&mediatype%5B1%5D=ARCHIVE&start=&end=&wpFormIdentifier=specialnewimages&offset=20231128052630&limit=500","https://cookierunkingdom.fandom.com/wiki/Special:NewFiles?user=&mediatype%5B0%5D=BITMAP&mediatype%5B1%5D=ARCHIVE&start=&end=&wpFormIdentifier=specialnewimages&offset=20231018125513&limit=500",
+      "https://cookierunkingdom.fandom.com/wiki/Special:NewFiles?user=&mediatype%5B0%5D=BITMAP&mediatype%5B1%5D=ARCHIVE&start=&end=&wpFormIdentifier=specialnewimages&offset=20230919050858&limit=500","https://cookierunkingdom.fandom.com/wiki/Special:NewFiles?user=&mediatype%5B0%5D=BITMAP&mediatype%5B1%5D=ARCHIVE&start=&end=&wpFormIdentifier=specialnewimages&offset=20230808081127&limit=500",
+      "https://cookierunkingdom.fandom.com/wiki/Special:NewFiles?user=&mediatype%5B0%5D=BITMAP&mediatype%5B1%5D=ARCHIVE&start=&end=&wpFormIdentifier=specialnewimages&offset=20230627091113&limit=500","https://cookierunkingdom.fandom.com/wiki/Special:NewFiles?user=&mediatype%5B0%5D=BITMAP&mediatype%5B1%5D=ARCHIVE&start=&end=&wpFormIdentifier=specialnewimages&offset=20230613171215&limit=500",
+      "https://cookierunkingdom.fandom.com/wiki/Special:NewFiles?user=&mediatype%5B0%5D=BITMAP&mediatype%5B1%5D=ARCHIVE&start=&end=&wpFormIdentifier=specialnewimages&offset=20230602165331&limit=500","https://cookierunkingdom.fandom.com/wiki/Special:NewFiles?user=&mediatype%5B0%5D=BITMAP&mediatype%5B1%5D=ARCHIVE&start=&end=&wpFormIdentifier=specialnewimages&offset=20230429190940&limit=500",
+      "https://cookierunkingdom.fandom.com/wiki/Special:NewFiles?user=&mediatype%5B0%5D=BITMAP&mediatype%5B1%5D=ARCHIVE&start=&end=&wpFormIdentifier=specialnewimages&offset=20230330212318&limit=500","https://cookierunkingdom.fandom.com/wiki/Special:NewFiles?user=&mediatype%5B0%5D=BITMAP&mediatype%5B1%5D=ARCHIVE&start=&end=&wpFormIdentifier=specialnewimages&offset=20230314014930&limit=500",
+      "https://cookierunkingdom.fandom.com/wiki/Special:NewFiles?user=&mediatype%5B0%5D=BITMAP&mediatype%5B1%5D=ARCHIVE&start=&end=&wpFormIdentifier=specialnewimages&offset=20230220193258&limit=500","https://cookierunkingdom.fandom.com/wiki/Special:NewFiles?user=&mediatype%5B0%5D=BITMAP&mediatype%5B1%5D=ARCHIVE&start=&end=&wpFormIdentifier=specialnewimages&offset=20230113040240&limit=500",
+      "https://cookierunkingdom.fandom.com/wiki/Special:NewFiles?user=&mediatype%5B0%5D=BITMAP&mediatype%5B1%5D=ARCHIVE&start=&end=&wpFormIdentifier=specialnewimages&offset=20221208211322&limit=500","https://cookierunkingdom.fandom.com/wiki/Special:NewFiles?user=&mediatype%5B0%5D=BITMAP&mediatype%5B1%5D=ARCHIVE&start=&end=&wpFormIdentifier=specialnewimages&offset=20221207114228&limit=500",
+      "https://cookierunkingdom.fandom.com/wiki/Special:NewFiles?user=&mediatype%5B0%5D=BITMAP&mediatype%5B1%5D=ARCHIVE&start=&end=&wpFormIdentifier=specialnewimages&offset=20221129030150&limit=500"]
+
+logo = ["https://logos.fandom.com/wiki/Special:NewFiles?user=&mediatype%5B0%5D=BITMAP&mediatype%5B1%5D=ARCHIVE&start=&end=&wpFormIdentifier=specialnewimages&limit=500&offset=","https://logos.fandom.com/wiki/Special:NewFiles?user=&mediatype%5B0%5D=BITMAP&mediatype%5B1%5D=ARCHIVE&start=&end=&wpFormIdentifier=specialnewimages&offset=20240209233655&limit=500","https://logos.fandom.com/wiki/Special:NewFiles?user=&mediatype%5B0%5D=BITMAP&mediatype%5B1%5D=ARCHIVE&start=&end=&wpFormIdentifier=specialnewimages&offset=20240205205824&limit=500",
+        "https://logos.fandom.com/wiki/Special:NewFiles?user=&mediatype%5B0%5D=BITMAP&mediatype%5B1%5D=ARCHIVE&start=&end=&wpFormIdentifier=specialnewimages&offset=20240203005106&limit=500","https://logos.fandom.com/wiki/Special:NewFiles?user=&mediatype%5B0%5D=BITMAP&mediatype%5B1%5D=ARCHIVE&start=&end=&wpFormIdentifier=specialnewimages&offset=20240131171306&limit=500","https://logos.fandom.com/wiki/Special:NewFiles?user=&mediatype%5B0%5D=BITMAP&mediatype%5B1%5D=ARCHIVE&start=&end=&wpFormIdentifier=specialnewimages&offset=20240128142929&limit=500",
+        "https://logos.fandom.com/wiki/Special:NewFiles?user=&mediatype%5B0%5D=BITMAP&mediatype%5B1%5D=ARCHIVE&start=&end=&wpFormIdentifier=specialnewimages&offset=20240125220604&limit=500","https://logos.fandom.com/wiki/Special:NewFiles?user=&mediatype%5B0%5D=BITMAP&mediatype%5B1%5D=ARCHIVE&start=&end=&wpFormIdentifier=specialnewimages&offset=20240123193140&limit=500","https://logos.fandom.com/wiki/Special:NewFiles?user=&mediatype%5B0%5D=BITMAP&mediatype%5B1%5D=ARCHIVE&start=&end=&wpFormIdentifier=specialnewimages&offset=20240120203521&limit=500",
+        "https://logos.fandom.com/wiki/Special:NewFiles?user=&mediatype%5B0%5D=BITMAP&mediatype%5B1%5D=ARCHIVE&start=&end=&wpFormIdentifier=specialnewimages&offset=20240117080417&limit=500","https://logos.fandom.com/wiki/Special:NewFiles?user=&mediatype%5B0%5D=BITMAP&mediatype%5B1%5D=ARCHIVE&start=&end=&wpFormIdentifier=specialnewimages&offset=20240113151603&limit=500","https://logos.fandom.com/wiki/Special:NewFiles?user=&mediatype%5B0%5D=BITMAP&mediatype%5B1%5D=ARCHIVE&start=&end=&wpFormIdentifier=specialnewimages&offset=20240113151603&limit=500",
+        "https://logos.fandom.com/wiki/Special:NewFiles?user=&mediatype%5B0%5D=BITMAP&mediatype%5B1%5D=ARCHIVE&start=&end=&wpFormIdentifier=specialnewimages&offset=20240106011557&limit=500","https://logos.fandom.com/wiki/Special:NewFiles?user=&mediatype%5B0%5D=BITMAP&mediatype%5B1%5D=ARCHIVE&start=&end=&wpFormIdentifier=specialnewimages&offset=20240103153155&limit=500","https://logos.fandom.com/wiki/Special:NewFiles?user=&mediatype%5B0%5D=BITMAP&mediatype%5B1%5D=ARCHIVE&start=&end=&wpFormIdentifier=specialnewimages&offset=20231230225259&limit=500",
+        "https://logos.fandom.com/wiki/Special:NewFiles?user=&mediatype%5B0%5D=BITMAP&mediatype%5B1%5D=ARCHIVE&start=&end=&wpFormIdentifier=specialnewimages&offset=20231228013637&limit=500","https://logos.fandom.com/wiki/Special:NewFiles?user=&mediatype%5B0%5D=BITMAP&mediatype%5B1%5D=ARCHIVE&start=&end=&wpFormIdentifier=specialnewimages&offset=20231223221351&limit=500","https://logos.fandom.com/wiki/Special:NewFiles?user=&mediatype%5B0%5D=BITMAP&mediatype%5B1%5D=ARCHIVE&start=&end=&wpFormIdentifier=specialnewimages&offset=20231221191611&limit=500",
+        "https://logos.fandom.com/wiki/Special:NewFiles?user=&mediatype%5B0%5D=BITMAP&mediatype%5B1%5D=ARCHIVE&start=&end=&wpFormIdentifier=specialnewimages&offset=20231219172320&limit=500","https://logos.fandom.com/wiki/Special:NewFiles?user=&mediatype%5B0%5D=BITMAP&mediatype%5B1%5D=ARCHIVE&start=&end=&wpFormIdentifier=specialnewimages&offset=20231217123726&limit=500","https://logos.fandom.com/wiki/Special:NewFiles?user=&mediatype%5B0%5D=BITMAP&mediatype%5B1%5D=ARCHIVE&start=&end=&wpFormIdentifier=specialnewimages&offset=20231214070528&limit=500",
+        "https://logos.fandom.com/wiki/Special:NewFiles?user=&mediatype%5B0%5D=BITMAP&mediatype%5B1%5D=ARCHIVE&start=&end=&wpFormIdentifier=specialnewimages&offset=20231210201418&limit=500","https://logos.fandom.com/wiki/Special:NewFiles?user=&mediatype%5B0%5D=BITMAP&mediatype%5B1%5D=ARCHIVE&start=&end=&wpFormIdentifier=specialnewimages&offset=20231207134742&limit=500","https://logos.fandom.com/wiki/Special:NewFiles?user=&mediatype%5B0%5D=BITMAP&mediatype%5B1%5D=ARCHIVE&start=&end=&wpFormIdentifier=specialnewimages&offset=20231203005443&limit=500"]
+
 stringlist = {}
 aff = ["Okay", "Alright", "Got it", "Affirmative","Sounds good"]
 selfrep = ["You're giving reputation to me-Q?? Well, thank you-Q! ^^","Oh...thank you so much for the reputation-Q! I will take good care of it-Q! ^^"]
@@ -438,6 +481,81 @@ async def meme(ctx, top_text=None, bottom_text=None, image_link=None, image_uplo
                                     if "images" in url:
                                         urls.append(url)
                         image_link = random.choice(urls)
+                    if wiki == "cb":
+                        url = url = random.choice(cb)
+                        reqs = requests.get(url)
+                        soup = BeautifulSoup(reqs.text, 'html.parser')
+                        
+                        urls = []
+                        for link in soup.find_all('a'):
+                            url = link.get('href')
+                            if url != None:
+                                if url[-4:] == ".png":
+                                    if "File:" in url:
+                                        urls.append(url)
+                        page = f"https://carebears.fandom.com{random.choice(urls)}"
+                        reqsagain = requests.get(page)
+                        soup = BeautifulSoup(reqsagain.text, 'html.parser')
+                        
+                        urls = []
+                        for link in soup.find_all('a'):
+                            url = link.get('href')
+                            if url != None:
+                                if ".png" in url:
+                                    print(url)
+                                    if "images" in url:
+                                        urls.append(url)
+                        image_link = random.choice(urls)
+                    if wiki == "cr":
+                        url = url = random.choice(cr)
+                        reqs = requests.get(url)
+                        soup = BeautifulSoup(reqs.text, 'html.parser')
+                        
+                        urls = []
+                        for link in soup.find_all('a'):
+                            url = link.get('href')
+                            if url != None:
+                                if url[-4:] == ".png":
+                                    if "File:" in url:
+                                        urls.append(url)
+                        page = f"https://cookierun.fandom.com{random.choice(urls)}"
+                        reqsagain = requests.get(page)
+                        soup = BeautifulSoup(reqsagain.text, 'html.parser')
+                        
+                        urls = []
+                        for link in soup.find_all('a'):
+                            url = link.get('href')
+                            if url != None:
+                                if ".png" in url:
+                                    print(url)
+                                    if "images" in url:
+                                        urls.append(url)
+                        image_link = random.choice(urls)
+                    if wiki == "logo":
+                        url = url = random.choice(logo)
+                        reqs = requests.get(url)
+                        soup = BeautifulSoup(reqs.text, 'html.parser')
+                        
+                        urls = []
+                        for link in soup.find_all('a'):
+                            url = link.get('href')
+                            if url != None:
+                                if url[-4:] == ".png":
+                                    if "File:" in url:
+                                        urls.append(url)
+                        page = f"https://cookierun.fandom.com{random.choice(urls)}"
+                        reqsagain = requests.get(page)
+                        soup = BeautifulSoup(reqsagain.text, 'html.parser')
+                        
+                        urls = []
+                        for link in soup.find_all('a'):
+                            url = link.get('href')
+                            if url != None:
+                                if ".png" in url:
+                                    print(url)
+                                    if "images" in url:
+                                        urls.append(url)
+                        image_link = random.choice(urls)        
 
         memelink = f"https://api.memegen.link/images/custom/{top_text_new}/{bottom_text_new}.png?background={image_link}"
         await ctx.respond(memelink)
