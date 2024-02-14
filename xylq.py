@@ -239,7 +239,7 @@ async def on_message(message):
     try:
         msglist = stringlist[str(message.guild.id)]
         if len(msglist) > 100:
-            with open(f"{message.guild.id}-backup.txt") as file:
+            with open(f"{message.guild.id}-backup.txt", "w") as file:
                 msgs = '\n'.join(msglist)
                 file.write(msgs)
                 file.close()
