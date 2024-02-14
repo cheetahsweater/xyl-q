@@ -239,16 +239,15 @@ async def on_message(message):
     try:
         msglist = stringlist[str(message.guild.id)]
         if len(msglist) > 100:
-            with open(f"{message.guild.id}-backup.txt", "w") as file:
+            with open(f"{message.guild.id}-backup.txt", "w", encoding='utf-8') as file:
                 msgs = '\n'.join(msglist)
-                file.write(msgs)
-                file.close()
+                file.write(msgs.encode('utf-8', 'ignore').decode('utf-8'))
             for x in range(70):
                 msglist.pop(0)
         msglist.append(message.content)
         stringlist[str(message.guild.id)] = msglist
     except KeyError:
-        stringlist.update({str(message.guild.id):[message.content]})
+        stringlist.update({str(message.guild.id): [message.content]})
     print(stringlist)
 
 @client.slash_command(description="Returns XyL-Q version number!", guild_ids=guilds)
@@ -486,7 +485,7 @@ async def meme(ctx, top_text=None, bottom_text=None, image_link=None, image_uplo
                                     if "images" in url:
                                         urls.append(url)
                         image_link = random.choice(urls)
-                    if wiki == "cb":
+                    '''if wiki == "cb":
                         url = url = random.choice(cb)
                         reqs = requests.get(url)
                         soup = BeautifulSoup(reqs.text, 'html.parser')
@@ -510,7 +509,7 @@ async def meme(ctx, top_text=None, bottom_text=None, image_link=None, image_uplo
                                     print(url)
                                     if "images" in url:
                                         urls.append(url)
-                        image_link = random.choice(urls)
+                        image_link = random.choice(urls)'''
                     if wiki == "cr":
                         url = url = random.choice(cr)
                         reqs = requests.get(url)
@@ -548,7 +547,7 @@ async def meme(ctx, top_text=None, bottom_text=None, image_link=None, image_uplo
                                 if url[-4:] == ".png":
                                     if "File:" in url:
                                         urls.append(url)
-                        page = f"https://cookierun.fandom.com{random.choice(urls)}"
+                        page = f"https://logos.fandom.com{random.choice(urls)}"
                         reqsagain = requests.get(page)
                         soup = BeautifulSoup(reqsagain.text, 'html.parser')
                         
