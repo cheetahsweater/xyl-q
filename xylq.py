@@ -71,7 +71,7 @@ with open(f'{path}\\badcache.txt',"r+") as file:
         badcacheIDs = []
     file.close()
         
-wikis = ["mario","minecraft","fanon","ssb","cb","cr","logo"]
+wikis = ["mario","minecraft","fanon","ssb","cr","logo"]
 mariowiki = ["https://www.mariowiki.com/index.php?title=Category:Character_artwork&fileuntil=AlolanExeggutorUltimate.png#mw-category-media","https://www.mariowiki.com/index.php?title=Category:Character_artwork&filefrom=AlolanExeggutorUltimate.png#mw-category-media",
              "https://www.mariowiki.com/index.php?title=Category:Character_artwork&filefrom=Back-To-School+Funny+Personality+Quiz+result+Toadette.jpg#mw-category-media","https://www.mariowiki.com/index.php?title=Category:Character_artwork&filefrom=Black+Kirby+SSBU.png#mw-category-media",
              "https://www.mariowiki.com/index.php?title=Category:Character_artwork&filefrom=Boomgtt.png#mw-category-media","https://www.mariowiki.com/index.php?title=Category:Character_artwork&filefrom=Box+Art+Background+-+Mario+Party+Island+Tour.png#mw-category-media",
@@ -239,9 +239,6 @@ async def on_message(message):
     try:
         msglist = stringlist[str(message.guild.id)]
         if len(msglist) > 100:
-            with open(f"{message.guild.id}-backup.txt", "w", encoding='utf-8') as file:
-                msgs = '\n'.join(msglist)
-                file.write(msgs.encode('utf-8', 'ignore').decode('utf-8'))
             for x in range(70):
                 msglist.pop(0)
         msglist.append(message.content)
