@@ -12,9 +12,9 @@ from bs4 import BeautifulSoup
 
 status = "Cookie Run: Ovenbreak"
 #status = "Testing new features!"
-versionnum = "3.1"
-updatetime = "2024/02/12 13:45"
-changes = "**(3.1)** Added a few more wikis to the meme gen function"
+versionnum = "3.2"
+updatetime = "2024/02/17 00:08"
+changes = "**(3.2)** Added tomato emoji to rep feature"
 path = os.getcwd()
 print(f"XyL-Q v{versionnum}")
 print(updatetime)
@@ -218,7 +218,50 @@ async def on_reaction_add(reaction, user):
         
         with open(f'{path}\\totalrep.json', "w") as file:
             json.dump(totalrep, file)
+    if reaction.emoji == "🍅":
+        guild_id_str = str(reaction.message.guild.id)
+        user_id_str = str(user.id)
+        author_id_str = str(reaction.message.author.id)
 
+        # Check for self-reputation or specific user ID conditions
+        if reaction.message.author == client.user:
+            await reaction.message.channel.send(random.choice(selfrep))
+        elif author_id_str == "1204234942897324074":
+            await reaction.message.channel.send("My apologies, but I cannot handle taking reputation from tuppers-Q!")
+            return  # Exit for specific user conditions
+        elif user_id_str == author_id_str:
+            await reaction.message.channel.send("Why would you want to take away your own rep-Q?!")
+            return  # Exit to prevent self-reputation
+
+        # Ensure guild dictionary exists
+        if guild_id_str not in rep:
+            rep[guild_id_str] = {}
+        if user_id_str not in rep[guild_id_str]:
+            rep[guild_id_str][user_id_str] = {}
+        if author_id_str not in rep[guild_id_str][user_id_str]:
+            rep[guild_id_str][user_id_str][author_id_str] = 0
+            await reaction.message.channel.send("This user has no rep to take away-Q!")
+
+        # Update rep
+        rep[guild_id_str][user_id_str][author_id_str] -= 1
+
+        # Ensure totalrep structure exists
+        if guild_id_str not in totalrep:
+            totalrep[guild_id_str] = {}
+        if author_id_str not in totalrep[guild_id_str]:
+            totalrep[guild_id_str][author_id_str] = 0
+
+        # Update totalrep
+        totalrep[guild_id_str][author_id_str] -= 1
+
+        await reaction.message.channel.send(f"<@{user_id_str}> has taken 1 reputation away from <@{author_id_str}>-Q!")
+
+        # Write to files
+        with open(f'{path}\\rep.json', "w") as file:
+            json.dump(rep, file)
+        
+        with open(f'{path}\\totalrep.json', "w") as file:
+            json.dump(totalrep, file)
     
 
 @client.event
