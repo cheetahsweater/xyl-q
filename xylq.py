@@ -12,9 +12,9 @@ from bs4 import BeautifulSoup
 
 status = "Cookie Run: Ovenbreak"
 #status = "Testing new features!"
-versionnum = "3.2"
-updatetime = "2024/02/17 00:08"
-changes = "**(3.2)** Added tomato emoji to rep feature"
+versionnum = "3.3"
+updatetime = "2024/02/18 02:33"
+changes = "**(3.3)** Made some tweaks to tomato emoji feature"
 path = os.getcwd()
 print(f"XyL-Q v{versionnum}")
 print(updatetime)
@@ -223,6 +223,10 @@ async def on_reaction_add(reaction, user):
         user_id_str = str(user.id)
         author_id_str = str(reaction.message.author.id)
 
+        if reaction.message.author == client.user:
+            await reaction.message.channel.send("I'm not letting you take rep away from me-Q! Never-Q!")
+            return
+
         # Check for self-reputation or specific user ID conditions
         if reaction.message.author == client.user:
             await reaction.message.channel.send(random.choice(selfrep))
@@ -240,7 +244,6 @@ async def on_reaction_add(reaction, user):
             rep[guild_id_str][user_id_str] = {}
         if author_id_str not in rep[guild_id_str][user_id_str]:
             rep[guild_id_str][user_id_str][author_id_str] = 0
-            await reaction.message.channel.send("This user has no rep to take away-Q!")
 
         # Update rep
         rep[guild_id_str][user_id_str][author_id_str] -= 1
@@ -250,11 +253,15 @@ async def on_reaction_add(reaction, user):
             totalrep[guild_id_str] = {}
         if author_id_str not in totalrep[guild_id_str]:
             totalrep[guild_id_str][author_id_str] = 0
+            await reaction.message.channel.send("This user has no rep to take away-Q!")
+        if totalrep[guild_id_str][author_id_str] <= 0:
+            totalrep[guild_id_str][author_id_str] = 0
+            await reaction.message.channel.send("This user has no rep to take away-Q!")
+        else:
+            # Update totalrep
+            totalrep[guild_id_str][author_id_str] -= 1
 
-        # Update totalrep
-        totalrep[guild_id_str][author_id_str] -= 1
-
-        await reaction.message.channel.send(f"<@{user_id_str}> has taken 1 reputation away from <@{author_id_str}>-Q!")
+            await reaction.message.channel.send(f"<@{user_id_str}> threw a tomato at <@{author_id_str}>-Q! Rather unclean of you-Q…")
 
         # Write to files
         with open(f'{path}\\rep.json', "w") as file:
