@@ -10,11 +10,11 @@ import random
 import requests
 from bs4 import BeautifulSoup
 
-status = "Cookie Run: Ovenbreak"
-#status = "Testing new features!"
+#status = "Cookie Run: Ovenbreak"
+status = "Testing new features!"
 versionnum = "3.3"
-updatetime = "2024/02/18 02:33"
-changes = "**(3.3)** Made some tweaks to tomato emoji feature"
+updatetime = "2024/02/21 22:27"
+changes = "**(3.3a)** Made some tweaks to tomato emoji feature\(a) Hopefully fixed semi-frequent crashes with meme command"
 path = os.getcwd()
 print(f"XyL-Q v{versionnum}")
 print(updatetime)
@@ -71,7 +71,7 @@ with open(f'{path}\\badcache.txt',"r+") as file:
         badcacheIDs = []
     file.close()
         
-wikis = ["mario","minecraft","fanon","ssb","cr","logo"]
+wikis = ["mario","minecraft","ssb","cr","logo"]
 mariowiki = ["https://www.mariowiki.com/index.php?title=Category:Character_artwork&fileuntil=AlolanExeggutorUltimate.png#mw-category-media","https://www.mariowiki.com/index.php?title=Category:Character_artwork&filefrom=AlolanExeggutorUltimate.png#mw-category-media",
              "https://www.mariowiki.com/index.php?title=Category:Character_artwork&filefrom=Back-To-School+Funny+Personality+Quiz+result+Toadette.jpg#mw-category-media","https://www.mariowiki.com/index.php?title=Category:Character_artwork&filefrom=Black+Kirby+SSBU.png#mw-category-media",
              "https://www.mariowiki.com/index.php?title=Category:Character_artwork&filefrom=Boomgtt.png#mw-category-media","https://www.mariowiki.com/index.php?title=Category:Character_artwork&filefrom=Box+Art+Background+-+Mario+Party+Island+Tour.png#mw-category-media",
@@ -457,7 +457,22 @@ async def meme(ctx, top_text=None, bottom_text=None, image_link=None, image_uplo
                                 if url[-4:] == ".png":
                                     if "images" in url:
                                         urls.append(url)
-                        image_link = random.choice(urls)
+                        try:
+                            image_link = random.choice(urls)   
+                        except IndexError:
+                            page = f"https://www.mariowiki.com{random.choice(urls)}"
+                            reqsagain = requests.get(page)
+                            soup = BeautifulSoup(reqsagain.text, 'html.parser')
+                            
+                            urls = []
+                            for link in soup.find_all('a'):
+                                url = link.get('href')
+                                if url != None:
+                                    if ".png" in url:
+                                        print(url)
+                                        if "images" in url:
+                                            urls.append(url)
+                                image_link = random.choice(urls)
                     if wiki == "minecraft":
                         url = random.choice(mcwiki)
                         reqs = requests.get(url)
@@ -481,32 +496,22 @@ async def meme(ctx, top_text=None, bottom_text=None, image_link=None, image_uplo
                                 if ".png" in url:
                                     if "images" in url:
                                         urls.append(url)
-                        image_link = f"https://minecraft.wiki{random.choice(urls)}"
-                    if wiki == "fanon":
-                        url = "https://carebearsfanon.fandom.com/wiki/Special:NewFiles?offset=&limit=500"
-                        reqs = requests.get(url)
-                        soup = BeautifulSoup(reqs.text, 'html.parser')
-                        
-                        urls = []
-                        for link in soup.find_all('a'):
-                            url = link.get('href')
-                            if url != None:
-                                if url[-4:] == ".png":
-                                    if "File:" in url:
-                                        urls.append(url)
-                        page = f"https://carebearsfanon.fandom.com{random.choice(urls)}"
-                        reqsagain = requests.get(page)
-                        soup = BeautifulSoup(reqsagain.text, 'html.parser')
-                        
-                        urls = []
-                        for link in soup.find_all('a'):
-                            url = link.get('href')
-                            if url != None:
-                                if ".png" in url:
-                                    print(url)
-                                    if "images" in url:
-                                        urls.append(url)
-                        image_link = random.choice(urls)
+                        try:
+                            image_link = random.choice(urls)   
+                        except IndexError:
+                            page = f"https://minecraft.wiki{random.choice(urls)}"
+                            reqsagain = requests.get(page)
+                            soup = BeautifulSoup(reqsagain.text, 'html.parser')
+                            
+                            urls = []
+                            for link in soup.find_all('a'):
+                                url = link.get('href')
+                                if url != None:
+                                    if ".png" in url:
+                                        print(url)
+                                        if "images" in url:
+                                            urls.append(url)
+                                image_link = random.choice(urls)
                     if wiki == "ssb":
                         url = url = random.choice(ssb)
                         reqs = requests.get(url)
@@ -531,8 +536,23 @@ async def meme(ctx, top_text=None, bottom_text=None, image_link=None, image_uplo
                                     print(url)
                                     if "images" in url:
                                         urls.append(url)
-                        image_link = random.choice(urls)
-                    '''if wiki == "cb":
+                        try:
+                            image_link = random.choice(urls)   
+                        except IndexError:
+                            page = f"https://supersmashbros.fandom.com{random.choice(urls)}"
+                            reqsagain = requests.get(page)
+                            soup = BeautifulSoup(reqsagain.text, 'html.parser')
+                            
+                            urls = []
+                            for link in soup.find_all('a'):
+                                url = link.get('href')
+                                if url != None:
+                                    if ".png" in url:
+                                        print(url)
+                                        if "images" in url:
+                                            urls.append(url)
+                                image_link = random.choice(urls)
+                    if wiki == "cb":
                         url = url = random.choice(cb)
                         reqs = requests.get(url)
                         soup = BeautifulSoup(reqs.text, 'html.parser')
@@ -556,7 +576,22 @@ async def meme(ctx, top_text=None, bottom_text=None, image_link=None, image_uplo
                                     print(url)
                                     if "images" in url:
                                         urls.append(url)
-                        image_link = random.choice(urls)'''
+                        try:
+                            image_link = random.choice(urls)   
+                        except IndexError:
+                            page = f"https://carebears.fandom.com{random.choice(urls)}"
+                            reqsagain = requests.get(page)
+                            soup = BeautifulSoup(reqsagain.text, 'html.parser')
+                            
+                            urls = []
+                            for link in soup.find_all('a'):
+                                url = link.get('href')
+                                if url != None:
+                                    if ".png" in url:
+                                        print(url)
+                                        if "images" in url:
+                                            urls.append(url)
+                                image_link = random.choice(urls)
                     if wiki == "cr":
                         url = url = random.choice(cr)
                         reqs = requests.get(url)
@@ -581,7 +616,22 @@ async def meme(ctx, top_text=None, bottom_text=None, image_link=None, image_uplo
                                     print(url)
                                     if "images" in url:
                                         urls.append(url)
-                        image_link = random.choice(urls)
+                        try:
+                            image_link = random.choice(urls)   
+                        except IndexError:
+                            page = f"https://cookierun.fandom.com{random.choice(urls)}"
+                            reqsagain = requests.get(page)
+                            soup = BeautifulSoup(reqsagain.text, 'html.parser')
+                            
+                            urls = []
+                            for link in soup.find_all('a'):
+                                url = link.get('href')
+                                if url != None:
+                                    if ".png" in url:
+                                        print(url)
+                                        if "images" in url:
+                                            urls.append(url)
+                                image_link = random.choice(urls)
                     if wiki == "logo":
                         url = url = random.choice(logo)
                         reqs = requests.get(url)
@@ -606,7 +656,22 @@ async def meme(ctx, top_text=None, bottom_text=None, image_link=None, image_uplo
                                     print(url)
                                     if "images" in url:
                                         urls.append(url)
-                        image_link = random.choice(urls)        
+                        try:
+                            image_link = random.choice(urls)   
+                        except IndexError:
+                            page = f"https://logos.fandom.com{random.choice(urls)}"
+                            reqsagain = requests.get(page)
+                            soup = BeautifulSoup(reqsagain.text, 'html.parser')
+                            
+                            urls = []
+                            for link in soup.find_all('a'):
+                                url = link.get('href')
+                                if url != None:
+                                    if ".png" in url:
+                                        print(url)
+                                        if "images" in url:
+                                            urls.append(url)
+                                image_link = random.choice(urls)
 
         memelink = f"https://api.memegen.link/images/custom/{top_text_new}/{bottom_text_new}.png?background={image_link}"
         await ctx.respond(memelink)
