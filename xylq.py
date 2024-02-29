@@ -9,12 +9,13 @@ import math
 import random
 import requests
 from bs4 import BeautifulSoup
+import asyncio
 
 #status = "Cookie Run: Ovenbreak"
 status = "Testing new features!"
-versionnum = "3.3"
-updatetime = "2024/02/21 22:27"
-changes = "**(3.3a)** Made some tweaks to tomato emoji feature\(a) Hopefully fixed semi-frequent crashes with meme command"
+versionnum = "3.4"
+updatetime = "2024/02/28 19:18"
+changes = "**(3.4)** Mostly fixed meme command crashes"
 path = os.getcwd()
 print(f"XyL-Q v{versionnum}")
 print(updatetime)
@@ -377,7 +378,7 @@ async def disable(ctx, command: discord.Option(str, choices=["meme"]), channel):
     await ctx.respond(f"Okay-Q! I've disabled the *{command}* command in the <#{channelID}> channel-Q!")
 
 @client.slash_command(description="Makes a meme based on parameters given!", guild_ids=guilds)
-async def meme(ctx, top_text=None, bottom_text=None, image_link=None, image_upload: discord.Attachment=None): 
+async def meme(ctx: discord.Interaction, top_text=None, bottom_text=None, image_link=None, image_upload: discord.Attachment=None): 
         if (top_text == None) and (bottom_text != None):
             top_text = random.choice(stringlist[str(ctx.guild.id)])
         if (bottom_text == None) and (top_text != None):
@@ -414,12 +415,14 @@ async def meme(ctx, top_text=None, bottom_text=None, image_link=None, image_uplo
             bottom_text_new = memeformat(bottom_text)
         if image_link == None:
             if image_upload != None:
+                await ctx.response.defer()
                 image_link = image_upload.url
             elif image_upload == None:
                 numba = random.choice(range(11))
                 if numba > 10:
                     words = top_text.split(" ")
                     word = f"{random.choice(words)}_{random.choice(words)}"
+                    await ctx.response.defer()
                     response = requests.get(f"https://www.googleapis.com/customsearch/v1?key={gapi}&cx=25b1c3996753d4bb9&q={word}&searchType=image")
                     resultsDict = response.json()
                     results = []
@@ -437,6 +440,7 @@ async def meme(ctx, top_text=None, bottom_text=None, image_link=None, image_uplo
                     wiki = random.choice(wikis)
                     if wiki == "mario":
                         url = random.choice(mariowiki)
+                        await ctx.response.defer()
                         reqs = requests.get(url)
                         soup = BeautifulSoup(reqs.text, 'html.parser')
                         
@@ -475,6 +479,7 @@ async def meme(ctx, top_text=None, bottom_text=None, image_link=None, image_uplo
                                 image_link = random.choice(urls)
                     if wiki == "minecraft":
                         url = random.choice(mcwiki)
+                        await ctx.response.defer()
                         reqs = requests.get(url)
                         soup = BeautifulSoup(reqs.text, 'html.parser')
                         
@@ -497,7 +502,7 @@ async def meme(ctx, top_text=None, bottom_text=None, image_link=None, image_uplo
                                     if "images" in url:
                                         urls.append(url)
                         try:
-                            image_link = random.choice(urls)   
+                            image_link = random.choice(urls)
                         except IndexError:
                             page = f"https://minecraft.wiki{random.choice(urls)}"
                             reqsagain = requests.get(page)
@@ -514,6 +519,7 @@ async def meme(ctx, top_text=None, bottom_text=None, image_link=None, image_uplo
                                 image_link = random.choice(urls)
                     if wiki == "ssb":
                         url = url = random.choice(ssb)
+                        await ctx.response.defer()
                         reqs = requests.get(url)
                         soup = BeautifulSoup(reqs.text, 'html.parser')
                         
@@ -554,6 +560,7 @@ async def meme(ctx, top_text=None, bottom_text=None, image_link=None, image_uplo
                                 image_link = random.choice(urls)
                     if wiki == "cb":
                         url = url = random.choice(cb)
+                        await ctx.response.defer()
                         reqs = requests.get(url)
                         soup = BeautifulSoup(reqs.text, 'html.parser')
                         
@@ -594,6 +601,7 @@ async def meme(ctx, top_text=None, bottom_text=None, image_link=None, image_uplo
                                 image_link = random.choice(urls)
                     if wiki == "cr":
                         url = url = random.choice(cr)
+                        await ctx.response.defer()
                         reqs = requests.get(url)
                         soup = BeautifulSoup(reqs.text, 'html.parser')
                         
@@ -634,6 +642,7 @@ async def meme(ctx, top_text=None, bottom_text=None, image_link=None, image_uplo
                                 image_link = random.choice(urls)
                     if wiki == "logo":
                         url = url = random.choice(logo)
+                        await ctx.response.defer()
                         reqs = requests.get(url)
                         soup = BeautifulSoup(reqs.text, 'html.parser')
                         
@@ -647,7 +656,6 @@ async def meme(ctx, top_text=None, bottom_text=None, image_link=None, image_uplo
                         page = f"https://logos.fandom.com{random.choice(urls)}"
                         reqsagain = requests.get(page)
                         soup = BeautifulSoup(reqsagain.text, 'html.parser')
-                        
                         urls = []
                         for link in soup.find_all('a'):
                             url = link.get('href')
@@ -672,8 +680,7 @@ async def meme(ctx, top_text=None, bottom_text=None, image_link=None, image_uplo
                                         if "images" in url:
                                             urls.append(url)
                                 image_link = random.choice(urls)
-
         memelink = f"https://api.memegen.link/images/custom/{top_text_new}/{bottom_text_new}.png?background={image_link}"
-        await ctx.respond(memelink)
+        await ctx.followup.send(content=memelink)
 
 client.run(TOKEN)
