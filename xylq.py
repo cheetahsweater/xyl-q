@@ -11,11 +11,11 @@ import requests
 from bs4 import BeautifulSoup
 import asyncio
 
-#status = "Cookie Run: Ovenbreak"
-status = "Testing new features!"
-versionnum = "3.4"
-updatetime = "2024/02/28 19:18"
-changes = "**(3.4)** Mostly fixed meme command crashes"
+status = "Cookie Run: Ovenbreak"
+#status = "Testing new features!"
+versionnum = "3.4a"
+updatetime = "2024/02/29 19:18"
+changes = "**(3.4)** Mostly fixed meme command crashes\n(a) Fixed testing status still being there after testing finished"
 path = os.getcwd()
 print(f"XyL-Q v{versionnum}")
 print(updatetime)
