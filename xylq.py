@@ -13,9 +13,9 @@ import asyncio
 
 status = "Cookie Run: Ovenbreak"
 #status = "Testing new features!"
-versionnum = "3.4a"
-updatetime = "2024/02/29 19:18"
-changes = "**(3.4)** Mostly fixed meme command crashes\n(a) Fixed testing status still being there after testing finished"
+versionnum = "3.5"
+updatetime = "2024/03/01 18:54"
+changes = "**(3.5)** Added comments to most of the code, moved server list to external file for easier updating, added missing commands to /disable, added the option to choose which wiki the meme command grabs images from, fixed broken links when pulling from Minecraft wiki"
 path = os.getcwd()
 print(f"XyL-Q v{versionnum}")
 print(updatetime)
@@ -26,40 +26,42 @@ intents=discord.Intents.default()
 intents.message_content=True
 client = commands.Bot(intents=intents)
 
+#Load Google API key
 with open(f'{path}\\secrets.txt',"r") as file:
     text = file.read()
     gapi = text.split("=")[1]
 
+#Load individual user-to-user reputation database
 with open(f'{path}\\rep.json',"r+") as file:
     try:
         text = json.loads(file.read())
         rep = text
-        print(rep)
     except JSONDecodeError as e:
         print(e)
         rep = {}
     file.close()
 
+#Load user total reputation database
 with open(f'{path}\\totalrep.json',"r+") as file:
     try:
         text = json.loads(file.read())
         totalrep = text
-        print(f"totalrep: {totalrep}")
     except JSONDecodeError as e:
         print(e)
         totalrep = {}
     file.close()
 
+#Load list of channels in which certain commands are disabled
 with open(f'{path}\\badid.json',"r+") as file:
     try:
         text = json.loads(file.read())
         badIDs = text
-        print(badIDs)
     except JSONDecodeError as e:
         print(e)
         badIDs = {}
     file.close()
 
+#Load list of channels in which message caching is disabled
 with open(f'{path}\\badcache.txt',"r+") as file:
     try:
         text = file.read()
@@ -67,12 +69,29 @@ with open(f'{path}\\badcache.txt',"r+") as file:
             badcacheIDs = text.split("\n")
         else:
             badcacheIDs = []
-        print(badcacheIDs)
     except IndexError:
         badcacheIDs = []
     file.close()
-        
-wikis = ["mario","minecraft","ssb","cr","logo"]
+
+#Load list of guilds
+with open(f'{path}\\guilds.txt',"r+") as file:
+    try:
+        text = file.read()
+        if len(text) > 1:
+            guilds = text.split("\n")
+            for serverID in guilds:
+                serverID = int(serverID)
+        else:
+            print("Error! Guilds not loaded!")
+            guilds = []
+    except IndexError:
+        print("Error! Guilds not loaded!")
+    file.close()
+
+#List of possible wikis that meme command can grab images from        
+wikis = ["mario","minecraft","ssb","cookierun","logo"]
+
+#List of image pages from each wiki (ideally this will be replaced with something that just grabs all of the possible ones instead of this mess)
 mariowiki = ["https://www.mariowiki.com/index.php?title=Category:Character_artwork&fileuntil=AlolanExeggutorUltimate.png#mw-category-media","https://www.mariowiki.com/index.php?title=Category:Character_artwork&filefrom=AlolanExeggutorUltimate.png#mw-category-media",
              "https://www.mariowiki.com/index.php?title=Category:Character_artwork&filefrom=Back-To-School+Funny+Personality+Quiz+result+Toadette.jpg#mw-category-media","https://www.mariowiki.com/index.php?title=Category:Character_artwork&filefrom=Black+Kirby+SSBU.png#mw-category-media",
              "https://www.mariowiki.com/index.php?title=Category:Character_artwork&filefrom=Boomgtt.png#mw-category-media","https://www.mariowiki.com/index.php?title=Category:Character_artwork&filefrom=Box+Art+Background+-+Mario+Party+Island+Tour.png#mw-category-media",
@@ -132,19 +151,13 @@ logo = ["https://logos.fandom.com/wiki/Special:NewFiles?user=&mediatype%5B0%5D=B
         "https://logos.fandom.com/wiki/Special:NewFiles?user=&mediatype%5B0%5D=BITMAP&mediatype%5B1%5D=ARCHIVE&start=&end=&wpFormIdentifier=specialnewimages&offset=20231219172320&limit=500","https://logos.fandom.com/wiki/Special:NewFiles?user=&mediatype%5B0%5D=BITMAP&mediatype%5B1%5D=ARCHIVE&start=&end=&wpFormIdentifier=specialnewimages&offset=20231217123726&limit=500","https://logos.fandom.com/wiki/Special:NewFiles?user=&mediatype%5B0%5D=BITMAP&mediatype%5B1%5D=ARCHIVE&start=&end=&wpFormIdentifier=specialnewimages&offset=20231214070528&limit=500",
         "https://logos.fandom.com/wiki/Special:NewFiles?user=&mediatype%5B0%5D=BITMAP&mediatype%5B1%5D=ARCHIVE&start=&end=&wpFormIdentifier=specialnewimages&offset=20231210201418&limit=500","https://logos.fandom.com/wiki/Special:NewFiles?user=&mediatype%5B0%5D=BITMAP&mediatype%5B1%5D=ARCHIVE&start=&end=&wpFormIdentifier=specialnewimages&offset=20231207134742&limit=500","https://logos.fandom.com/wiki/Special:NewFiles?user=&mediatype%5B0%5D=BITMAP&mediatype%5B1%5D=ARCHIVE&start=&end=&wpFormIdentifier=specialnewimages&offset=20231203005443&limit=500"]
 
-stringlist = {}
-aff = ["Okay", "Alright", "Got it", "Affirmative","Sounds good"]
-selfrep = ["You're giving reputation to me-Q?? Well, thank you-Q! ^^","Oh...thank you so much for the reputation-Q! I will take good care of it-Q! ^^"]
-bots = [432610292342587392, 429305856241172480, 439205512425504771, 247283454440374274, 431544605209788416]
-guilds = [783976468815937556,1032727370584559617,467886334971871232,645086582755557396,221444903522140161]
-imglist = []
-for n in range(1,63):
-    imglist.append(f"https://starmoon.neocities.org/files/gb/{n}.jpg")
-for n in range(1,5):
-    imglist.append(f"https://starmoon.neocities.org/files/awesomebot/grumpy/{n}.jpg")
-for n in range(1,3):
-    imglist.append(f"https://starmoon.neocities.org/files/awesomebot/grumpy/{n}.png")
+stringlist = {} #I don't remember what this even is
+aff = ["Okay", "Alright", "Got it", "Affirmative","Sounds good"] #Different affirmative phrases the bot can say when asked to do something
+selfrep = ["You're giving reputation to me-Q?? Well, thank you-Q! ^^","Oh...thank you so much for the reputation-Q! I will take good care of it-Q! ^^"] #Cutie little guy messages for when reputation is awarded to XyL-Q
+bots = [432610292342587392, 429305856241172480, 439205512425504771, 247283454440374274, 431544605209788416] #Bot IDs so XyL-Q can avoid indexing their messages
+imglist = [] #Instantiating list for later
 
+#The API I use for the meme creation has a lot of character substitution involved so this is a command that does all of that automatically
 def memeformat(text: str):
     formatlist = {
         "-":"--",
@@ -169,14 +182,17 @@ def memeformat(text: str):
         text = text.replace(key, value)
     return text
 
+#Changes bot's status and announces (to me) that it's online
 @client.event
 async def on_ready():
     await client.change_presence(activity=discord.Game(name=f"{status}"))
     print('Bot is online!')
 
+#Reputation giving and removing function
 @client.event
 async def on_reaction_add(reaction, user):
-    if reaction.emoji == "🏅":
+    if reaction.emoji == "🏅": #Might add all the other medal emojis too just for funsies
+        #Heavily revised by ChatGPT which was not necessarily what I even wanted it to do
         guild_id_str = str(reaction.message.guild.id)
         user_id_str = str(user.id)
         author_id_str = str(reaction.message.author.id)
@@ -264,44 +280,46 @@ async def on_reaction_add(reaction, user):
 
             await reaction.message.channel.send(f"<@{user_id_str}> threw a tomato at <@{author_id_str}>-Q! Rather unclean of you-Q…")
 
-        # Write to files
+        # Write to reputation databases
         with open(f'{path}\\rep.json', "w") as file:
             json.dump(rep, file)
         
         with open(f'{path}\\totalrep.json', "w") as file:
             json.dump(totalrep, file)
     
-
+#Message indexing for meme command with no parameters
 @client.event
 async def on_message(message):
     global stringlist
-    if message.author == client.user:
+    if message.author == client.user: #Obviously don't index XyL-Q's own messages
         return
-    if message.author.id in bots:
+    if message.author.id in bots: #Don't index certain bots (probably going to revise this because it's kind of janky)
         return
-    if len(message.content) == 0:
+    if len(message.content) == 0: #Don't index messages with no text in them (e.g. files or images)
         return
-    if str(message.channel.id) in badcacheIDs:
+    if str(message.channel.id) in badcacheIDs: #Don't index messages from channels that are in the "don't index these" list
         return
-    if str(message.author.id) in badcacheIDs:
+    if str(message.author.id) in badcacheIDs: #Don't index messages from users that are in the "don't index these" list
         return
-    if "||" in message.content:
+    if "||" in message.content: #Don't index messages with spoiler tags in them
         return
     try:
-        msglist = stringlist[str(message.guild.id)]
-        if len(msglist) > 100:
-            for x in range(70):
-                msglist.pop(0)
-        msglist.append(message.content)
-        stringlist[str(message.guild.id)] = msglist
-    except KeyError:
-        stringlist.update({str(message.guild.id): [message.content]})
-    print(stringlist)
+        msglist = stringlist[str(message.guild.id)] #Grabs the list of already indexed messages for the server the message is in
 
+        if len(msglist) > 100: #Index list should always be less than 100 just to make sure the little guy doesn't get too overwhelmed
+            for x in range(70):
+                msglist.pop(0) #Delete the oldest 70 messages from the list, I can't remember if this deletes the recent ones accidentally
+        msglist.append(message.content)
+        stringlist[str(message.guild.id)] = msglist #Update the dictionary of indexed messages per server
+    except KeyError:
+        stringlist.update({str(message.guild.id): [message.content]}) #Adds a new entry to the dictionary if there's no indexed messages for the server
+
+#Mainly I just use this to make sure I'm running the latest version after I update him
 @client.slash_command(description="Returns XyL-Q version number!", guild_ids=guilds)
 async def version(ctx): 
     await ctx.respond(f"Hello-Q! I'm XyL-Q, running version {versionnum} released on {updatetime}-Q!")
 
+#Simple way for users to check reputation, also revised by ChatGPT even though I didn't ask it to revise this either
 @client.slash_command(description="Shows you your reputation and other related stats!")
 async def reputation(ctx):
     guild_id_str = str(ctx.guild.id)
@@ -341,7 +359,7 @@ async def reputation(ctx):
 
     await ctx.respond(embed=embed)
 
-
+#Disable caching for given channel or user
 @client.slash_command(description="Disables message caching in a given channel or from a given user!", guild_ids=guilds)
 async def disable_cache(ctx, channel=None, user=None): 
     global badcacheIDs
@@ -349,42 +367,48 @@ async def disable_cache(ctx, channel=None, user=None):
         await ctx.respond("Error-Q! No parameters given-Q!")
         return
     if channel != None:
-        channelID = channel.strip("<>#")
+        channelID = channel.strip("<>#") #Remove the non-number characters present in a Discord channel ping
         badcacheIDs.append(channelID)
         await ctx.respond(f"{random.choice(aff)}-Q! I've disabled message caching in the <#{channelID}> channel-Q!")
     if user != None:
-        userID = user.strip("<>@")
+        userID = user.strip("<>@") #Remove the non-number characters present in a Discord user ping
         badcacheIDs.append(userID)
         await ctx.respond(f"{random.choice(aff)}-Q! I've disabled message caching for <@{userID}>-Q!")
+    #Save new list to database
     with open(f'{path}\\badcache.txt',"w") as file:
         for id in badcacheIDs:
             file.write(f"{id}\n")
         file.close()
 
+#Disables a command's use in a certain channel, not really even sure what the use case for this is
 @client.slash_command(description="Disables a command in a given channel!", guild_ids=guilds)
-async def disable(ctx, command: discord.Option(str, choices=["meme"]), channel): 
+async def disable(ctx, command: discord.Option(str, choices=["meme", "reputation", "version"]), channel): 
     global badIDs
-    channelID = channel.strip("<>#")
+    channelID = channel.strip("<>#") #Remove the non-number characters present in a Discord channel ping
     try:
+        #Add channel to list of no-no channels for command
         channelList = badIDs[command]
         channelList.append(channelID)
         badIDs.update({command:channelList})
     except KeyError:
+        #Add new entry for the given command if not present
         badIDs.update({command:[channelID]})
+    #Save new list to database
     with open(f'{path}\\badid.json',"w") as file:
         myJson = json.dumps(badIDs)
         file.write(myJson)
         file.close()
     await ctx.respond(f"Okay-Q! I've disabled the *{command}* command in the <#{channelID}> channel-Q!")
 
+#MY MAGNUM OPUS (the meme command)
 @client.slash_command(description="Makes a meme based on parameters given!", guild_ids=guilds)
-async def meme(ctx: discord.Interaction, top_text=None, bottom_text=None, image_link=None, image_upload: discord.Attachment=None): 
+async def meme(ctx: discord.Interaction, top_text=None, bottom_text=None, image_link=None, image_upload: discord.Attachment=None, wiki: discord.Option(str, choices=wikis)=None): 
         if (top_text == None) and (bottom_text != None):
-            top_text = random.choice(stringlist[str(ctx.guild.id)])
+            top_text = bottom_text
         if (bottom_text == None) and (top_text != None):
-            bottom_text = random.choice(stringlist[str(ctx.guild.id)])
+            bottom_text = top_text
+        #This specific little section was given to us by ChatGPT because it was too hard for me to do it
         if (bottom_text == None) and (top_text == None):
-            #everybody say thaaaank you chatGPT
             full_text = random.choice(stringlist[str(ctx.guild.id)])
 
             if " " in full_text:
@@ -409,17 +433,21 @@ async def meme(ctx: discord.Interaction, top_text=None, bottom_text=None, image_
                 # If there are no spaces, set both to the same full_text
                 top_text = full_text
                 bottom_text = full_text
+        #Formats the text as necessary for the meme generator API thing
         if top_text != None:
             top_text_new = memeformat(top_text)
         if bottom_text != None:
             bottom_text_new = memeformat(bottom_text)
+        #If there's no image link given, pick a random one from the choice of a few different wikis
         if image_link == None:
+            #Obviously if there's an image upload then it doesn't really matter that there's no image link
             if image_upload != None:
                 await ctx.response.defer()
-                image_link = image_upload.url
+                image_link = image_upload.url #This is currently broken for whatever reason, working on trying to mirror images to another site
             elif image_upload == None:
                 numba = random.choice(range(11))
                 if numba > 10:
+                    #Chooses two random words from the string and Googles them in order to find an image
                     words = top_text.split(" ")
                     word = f"{random.choice(words)}_{random.choice(words)}"
                     await ctx.response.defer()
@@ -434,10 +462,15 @@ async def meme(ctx: discord.Interaction, top_text=None, bottom_text=None, image_
                         image_link = memeImg["link"]
                     except IndexError:
                         image_link = "https://mario.wiki.gallery/images/f/fe/36-Diddy_Kong.png"
-                elif numba < 1:
-                    image_link = random.choice(imglist)
+                #elif numba < 1:
+                    #This list is empty right now so once I populate that list I'll add this back in
+                    #image_link = random.choice(imglist)
                 else:
-                    wiki = random.choice(wikis)
+                    if wiki == None:
+                        wiki = random.choice(wikis)
+
+                    #Definitely going to move this to a function ASAP because this code is ridiculously long and it's all the same
+                    #Once I move it to a function I will add comments but for now it would be extremely redundant lol
                     if wiki == "mario":
                         url = random.choice(mariowiki)
                         await ctx.response.defer()
@@ -473,10 +506,11 @@ async def meme(ctx: discord.Interaction, top_text=None, bottom_text=None, image_
                                 url = link.get('href')
                                 if url != None:
                                     if ".png" in url:
-                                        print(url)
+                                        #print(url)
                                         if "images" in url:
                                             urls.append(url)
                                 image_link = random.choice(urls)
+                                
                     if wiki == "minecraft":
                         url = random.choice(mcwiki)
                         await ctx.response.defer()
@@ -502,7 +536,7 @@ async def meme(ctx: discord.Interaction, top_text=None, bottom_text=None, image_
                                     if "images" in url:
                                         urls.append(url)
                         try:
-                            image_link = random.choice(urls)
+                            image_link = f"https://minecraft.wiki{random.choice(urls)}"
                         except IndexError:
                             page = f"https://minecraft.wiki{random.choice(urls)}"
                             reqsagain = requests.get(page)
@@ -513,10 +547,11 @@ async def meme(ctx: discord.Interaction, top_text=None, bottom_text=None, image_
                                 url = link.get('href')
                                 if url != None:
                                     if ".png" in url:
-                                        print(url)
+                                        #print(url)
                                         if "images" in url:
                                             urls.append(url)
-                                image_link = random.choice(urls)
+                                image_link = f"https://minecraft.wiki{random.choice(urls)}"
+
                     if wiki == "ssb":
                         url = url = random.choice(ssb)
                         await ctx.response.defer()
@@ -539,7 +574,7 @@ async def meme(ctx: discord.Interaction, top_text=None, bottom_text=None, image_
                             url = link.get('href')
                             if url != None:
                                 if ".png" in url:
-                                    print(url)
+                                    #print(url)
                                     if "images" in url:
                                         urls.append(url)
                         try:
@@ -554,10 +589,11 @@ async def meme(ctx: discord.Interaction, top_text=None, bottom_text=None, image_
                                 url = link.get('href')
                                 if url != None:
                                     if ".png" in url:
-                                        print(url)
+                                        #print(url)
                                         if "images" in url:
                                             urls.append(url)
                                 image_link = random.choice(urls)
+
                     if wiki == "cb":
                         url = url = random.choice(cb)
                         await ctx.response.defer()
@@ -580,7 +616,7 @@ async def meme(ctx: discord.Interaction, top_text=None, bottom_text=None, image_
                             url = link.get('href')
                             if url != None:
                                 if ".png" in url:
-                                    print(url)
+                                    #print(url)  
                                     if "images" in url:
                                         urls.append(url)
                         try:
@@ -595,11 +631,12 @@ async def meme(ctx: discord.Interaction, top_text=None, bottom_text=None, image_
                                 url = link.get('href')
                                 if url != None:
                                     if ".png" in url:
-                                        print(url)
+                                        #print(url)
                                         if "images" in url:
                                             urls.append(url)
                                 image_link = random.choice(urls)
-                    if wiki == "cr":
+                                
+                    if wiki == "cookierun":
                         url = url = random.choice(cr)
                         await ctx.response.defer()
                         reqs = requests.get(url)
@@ -621,7 +658,7 @@ async def meme(ctx: discord.Interaction, top_text=None, bottom_text=None, image_
                             url = link.get('href')
                             if url != None:
                                 if ".png" in url:
-                                    print(url)
+                                    #print(url)
                                     if "images" in url:
                                         urls.append(url)
                         try:
@@ -636,7 +673,7 @@ async def meme(ctx: discord.Interaction, top_text=None, bottom_text=None, image_
                                 url = link.get('href')
                                 if url != None:
                                     if ".png" in url:
-                                        print(url)
+                                        #print(url)
                                         if "images" in url:
                                             urls.append(url)
                                 image_link = random.choice(urls)
@@ -661,7 +698,7 @@ async def meme(ctx: discord.Interaction, top_text=None, bottom_text=None, image_
                             url = link.get('href')
                             if url != None:
                                 if ".png" in url:
-                                    print(url)
+                                    #print(url)
                                     if "images" in url:
                                         urls.append(url)
                         try:
@@ -676,7 +713,7 @@ async def meme(ctx: discord.Interaction, top_text=None, bottom_text=None, image_
                                 url = link.get('href')
                                 if url != None:
                                     if ".png" in url:
-                                        print(url)
+                                        #print(url)
                                         if "images" in url:
                                             urls.append(url)
                                 image_link = random.choice(urls)
