@@ -14,8 +14,8 @@ import asyncio
 status = "Cookie Run: Ovenbreak"
 #status = "Testing new features!"
 versionnum = "3.5"
-updatetime = "2024/03/01 18:54"
-changes = "**(3.5)** Added comments to most of the code, moved server list to external file for easier updating, added missing commands to /disable, added the option to choose which wiki the meme command grabs images from, fixed broken links when pulling from Minecraft wiki"
+updatetime = "2024/03/01 18:55"
+changes = "**(3.5a)** Added comments to most of the code, moved server list to external file for easier updating, added missing commands to /disable, added the option to choose which wiki the meme command grabs images from, fixed broken links when pulling from Minecraft wiki\n(a) Revised a line to be more in character for XyL-Q (Thank you JJ)"
 path = os.getcwd()
 print(f"XyL-Q v{versionnum}")
 print(updatetime)
@@ -241,7 +241,7 @@ async def on_reaction_add(reaction, user):
         author_id_str = str(reaction.message.author.id)
 
         if reaction.message.author == client.user:
-            await reaction.message.channel.send("I'm not letting you take rep away from me-Q! Never-Q!")
+            await reaction.message.channel.send("I will not permit uncleanliness on my person-Q!!")
             return
 
         # Check for self-reputation or specific user ID conditions
