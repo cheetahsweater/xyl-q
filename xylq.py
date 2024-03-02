@@ -2,6 +2,7 @@ import discord
 from discord.ext import commands
 from discord.utils import get
 from dotenv import load_dotenv
+from traceback import format_exc
 import os
 import json
 from json import JSONDecodeError
@@ -13,9 +14,9 @@ import asyncio
 
 status = "Cookie Run: Ovenbreak"
 #status = "Testing new features!"
-versionnum = "3.5"
-updatetime = "2024/03/01 18:56"
-changes = "**(3.5a)** Added comments to most of the code, moved server list to external file for easier updating, added missing commands to /disable, added the option to choose which wiki the meme command grabs images from, fixed broken links when pulling from Minecraft wiki\n(a) Revised a line to be more in character for XyL-Q (Thank you JJ)"
+versionnum = "3.5b"
+updatetime = "2024/03/01 23:17"
+changes = "**(3.5)** Added comments to most of the code, moved server list to external file for easier updating, added missing commands to /disable, added the option to choose which wiki the meme command grabs images from, fixed broken links when pulling from Minecraft wiki\n(a) Revised a line to be more in character for XyL-Q (Thank you JJ)\(b) Added error reporting for myself"
 path = os.getcwd()
 print(f"XyL-Q v{versionnum}")
 print(updatetime)
@@ -25,6 +26,7 @@ TOKEN = os.getenv('DISCORD_TOKEN')
 intents=discord.Intents.default()
 intents.message_content=True
 client = commands.Bot(intents=intents)
+report = client.get_channel(1213349040050409512)
 
 #Load Google API key
 with open(f'{path}\\secrets.txt',"r") as file:
@@ -217,6 +219,7 @@ async def on_reaction_add(reaction, user):
 
         # Update rep
         rep[guild_id_str][user_id_str][author_id_str] += 1
+        await report.send(f"Reputation given to {author_id_str} by {user_id_str} updated. It is now {rep[guild_id_str][user_id_str][author_id_str]}")
 
         # Ensure totalrep structure exists
         if guild_id_str not in totalrep:
@@ -226,6 +229,8 @@ async def on_reaction_add(reaction, user):
 
         # Update totalrep
         totalrep[guild_id_str][author_id_str] += 1
+        await report.send(f"Total reputation of {author_id_str} updated. It is now {totalrep[guild_id_str][author_id_str]}")
+    
 
         await reaction.message.channel.send(f"<@{user_id_str}> has given <@{author_id_str}> +1 reputation-Q!")
 
@@ -264,6 +269,7 @@ async def on_reaction_add(reaction, user):
 
         # Update rep
         rep[guild_id_str][user_id_str][author_id_str] -= 1
+        await report.send(f"Reputation given to {author_id_str} by {user_id_str} updated. It is now {rep[guild_id_str][user_id_str][author_id_str]}")
 
         # Ensure totalrep structure exists
         if guild_id_str not in totalrep:
@@ -277,6 +283,7 @@ async def on_reaction_add(reaction, user):
         else:
             # Update totalrep
             totalrep[guild_id_str][author_id_str] -= 1
+            await report.send(f"Total reputation of {author_id_str} updated. It is now {totalrep[guild_id_str][author_id_str]}")
 
             await reaction.message.channel.send(f"<@{user_id_str}> threw a tomato at <@{author_id_str}>-Q! Rather unclean of you-Q…")
 
@@ -312,12 +319,14 @@ async def on_message(message):
         msglist.append(message.content)
         stringlist[str(message.guild.id)] = msglist #Update the dictionary of indexed messages per server
     except KeyError:
+        exceptionstring = format_exc()
+        await report.send(f"{exceptionstring}")
         stringlist.update({str(message.guild.id): [message.content]}) #Adds a new entry to the dictionary if there's no indexed messages for the server
 
 #Mainly I just use this to make sure I'm running the latest version after I update him
 @client.slash_command(description="Returns XyL-Q version number!", guild_ids=guilds)
 async def version(ctx): 
-    await ctx.respond(f"Hello-Q! I'm XyL-Q, running version {versionnum} released on {updatetime}-Q!")
+    await ctx.respond(f"Hello-Q! I'm XyL-Q, running version {versionnum} released on {updatetime}-Q!\n\n__Changelog__\n{changes}")
 
 #Simple way for users to check reputation, also revised by ChatGPT even though I didn't ask it to revise this either
 @client.slash_command(description="Shows you your reputation and other related stats!")
@@ -391,6 +400,8 @@ async def disable(ctx, command: discord.Option(str, choices=["meme", "reputation
         channelList.append(channelID)
         badIDs.update({command:channelList})
     except KeyError:
+        exceptionstring = format_exc()
+        await report.send(f"{exceptionstring}")
         #Add new entry for the given command if not present
         badIDs.update({command:[channelID]})
     #Save new list to database
@@ -409,7 +420,12 @@ async def meme(ctx: discord.Interaction, top_text=None, bottom_text=None, image_
             bottom_text = top_text
         #This specific little section was given to us by ChatGPT because it was too hard for me to do it
         if (bottom_text == None) and (top_text == None):
-            full_text = random.choice(stringlist[str(ctx.guild.id)])
+            try:
+                full_text = random.choice(stringlist[str(ctx.guild.id)])
+            except Exception as e:
+                exceptionstring = format_exc()
+                await report.send(f"<@120396380073099264> {exceptionstring}")
+                full_text = "no messages indexed"
 
             if " " in full_text:
                 # If there are spaces, find the best place to split
@@ -461,6 +477,8 @@ async def meme(ctx: discord.Interaction, top_text=None, bottom_text=None, image_
                         memeImg = random.choice(results)
                         image_link = memeImg["link"]
                     except IndexError:
+                        exceptionstring = format_exc()
+                        await report.send(f"<@120396380073099264>\n{exceptionstring}")
                         image_link = "https://mario.wiki.gallery/images/f/fe/36-Diddy_Kong.png"
                 #elif numba < 1:
                     #This list is empty right now so once I populate that list I'll add this back in
@@ -509,7 +527,12 @@ async def meme(ctx: discord.Interaction, top_text=None, bottom_text=None, image_
                                         #print(url)
                                         if "images" in url:
                                             urls.append(url)
-                                image_link = random.choice(urls)
+                                try:
+                                    image_link = random.choice(urls)   
+                                except IndexError:
+                                    exceptionstring = format_exc()
+                                    await report.send(f"<@120396380073099264>\n{exceptionstring}")
+                                    image_link = "https://i1.wp.com/files.polldaddy.com/9b53a5da9af99125866e48003cce5675-65c92e58a003b.jpg"
                                 
                     if wiki == "minecraft":
                         url = random.choice(mcwiki)
@@ -550,7 +573,12 @@ async def meme(ctx: discord.Interaction, top_text=None, bottom_text=None, image_
                                         #print(url)
                                         if "images" in url:
                                             urls.append(url)
-                                image_link = f"https://minecraft.wiki{random.choice(urls)}"
+                                try:
+                                    image_link = f"https://minecraft.wiki{random.choice(urls)}" 
+                                except IndexError:
+                                    exceptionstring = format_exc()
+                                    await report.send(f"<@120396380073099264>\n{exceptionstring}")
+                                    image_link = "https://static.wikia.nocookie.net/logopedia/images/4/43/Sat.1_montage_-_by_Nico234.png"
 
                     if wiki == "ssb":
                         url = url = random.choice(ssb)
@@ -580,6 +608,8 @@ async def meme(ctx: discord.Interaction, top_text=None, bottom_text=None, image_
                         try:
                             image_link = random.choice(urls)   
                         except IndexError:
+                            exceptionstring = format_exc()
+                            await report.send(f"{exceptionstring}")
                             page = f"https://supersmashbros.fandom.com{random.choice(urls)}"
                             reqsagain = requests.get(page)
                             soup = BeautifulSoup(reqsagain.text, 'html.parser')
@@ -592,7 +622,12 @@ async def meme(ctx: discord.Interaction, top_text=None, bottom_text=None, image_
                                         #print(url)
                                         if "images" in url:
                                             urls.append(url)
-                                image_link = random.choice(urls)
+                                try:
+                                    image_link = random.choice(urls)   
+                                except IndexError:
+                                    exceptionstring = format_exc()
+                                    await report.send(f"<@120396380073099264>\n{exceptionstring}")
+                                    image_link = "https://static.wikia.nocookie.net/ssb/images/3/39/Super-Smash-Bros.-Ultimate-OFFICIAL-Key-Art-Wide-by-.jpg/"
 
                     if wiki == "cb":
                         url = url = random.choice(cb)
@@ -622,6 +657,8 @@ async def meme(ctx: discord.Interaction, top_text=None, bottom_text=None, image_
                         try:
                             image_link = random.choice(urls)   
                         except IndexError:
+                            exceptionstring = format_exc()
+                            await report.send(f"{exceptionstring}")
                             page = f"https://carebears.fandom.com{random.choice(urls)}"
                             reqsagain = requests.get(page)
                             soup = BeautifulSoup(reqsagain.text, 'html.parser')
@@ -634,7 +671,12 @@ async def meme(ctx: discord.Interaction, top_text=None, bottom_text=None, image_
                                         #print(url)
                                         if "images" in url:
                                             urls.append(url)
-                                image_link = random.choice(urls)
+                                try:
+                                    image_link = random.choice(urls)   
+                                except IndexError:
+                                    exceptionstring = format_exc()
+                                    await report.send(f"<@120396380073099264>\n{exceptionstring}")
+                                    image_link = "https://static.wikia.nocookie.net/carebears/images/3/30/Flower_Power_Bear_UTM.png"
                                 
                     if wiki == "cookierun":
                         url = url = random.choice(cr)
@@ -664,6 +706,8 @@ async def meme(ctx: discord.Interaction, top_text=None, bottom_text=None, image_
                         try:
                             image_link = random.choice(urls)   
                         except IndexError:
+                            exceptionstring = format_exc()
+                            await report.send(f"{exceptionstring}")
                             page = f"https://cookierun.fandom.com{random.choice(urls)}"
                             reqsagain = requests.get(page)
                             soup = BeautifulSoup(reqsagain.text, 'html.parser')
@@ -676,7 +720,12 @@ async def meme(ctx: discord.Interaction, top_text=None, bottom_text=None, image_
                                         #print(url)
                                         if "images" in url:
                                             urls.append(url)
-                                image_link = random.choice(urls)
+                                try:
+                                    image_link = random.choice(urls)   
+                                except IndexError:
+                                    exceptionstring = format_exc()
+                                    await report.send(f"<@120396380073099264>\n{exceptionstring}")
+                                    image_link = "https://static.wikia.nocookie.net/8942cb43-4ab3-498a-b9af-860b7743a226/"
                     if wiki == "logo":
                         url = url = random.choice(logo)
                         await ctx.response.defer()
@@ -704,6 +753,8 @@ async def meme(ctx: discord.Interaction, top_text=None, bottom_text=None, image_
                         try:
                             image_link = random.choice(urls)   
                         except IndexError:
+                            exceptionstring = format_exc()
+                            await report.send(f"<@120396380073099264>\n{exceptionstring}")
                             page = f"https://logos.fandom.com{random.choice(urls)}"
                             reqsagain = requests.get(page)
                             soup = BeautifulSoup(reqsagain.text, 'html.parser')
@@ -716,7 +767,12 @@ async def meme(ctx: discord.Interaction, top_text=None, bottom_text=None, image_
                                         #print(url)
                                         if "images" in url:
                                             urls.append(url)
-                                image_link = random.choice(urls)
+                                try:
+                                    image_link = random.choice(urls)   
+                                except IndexError:
+                                    exceptionstring = format_exc()
+                                    await report.send(f"<@120396380073099264>\n{exceptionstring}")
+                                    image_link = "https://static.wikia.nocookie.net/logopedia/images/4/43/Sat.1_montage_-_by_Nico234.png"
         memelink = f"https://api.memegen.link/images/custom/{top_text_new}/{bottom_text_new}.png?background={image_link}"
         await ctx.followup.send(content=memelink)
 
