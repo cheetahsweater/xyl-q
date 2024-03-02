@@ -14,9 +14,9 @@ import asyncio
 
 status = "Cookie Run: Ovenbreak"
 #status = "Testing new features!"
-versionnum = "3.5b"
-updatetime = "2024/03/01 23:17"
-changes = "**(3.5)** Added comments to most of the code, moved server list to external file for easier updating, added missing commands to /disable, added the option to choose which wiki the meme command grabs images from, fixed broken links when pulling from Minecraft wiki\n(a) Revised a line to be more in character for XyL-Q (Thank you JJ)\(b) Added error reporting for myself"
+versionnum = "3.5c"
+updatetime = "2024/03/02 09:55"
+changes = "**(3.5)** Added comments to most of the code, moved server list to external file for easier updating, added missing commands to /disable, added the option to choose which wiki the meme command grabs images from, fixed broken links when pulling from Minecraft wiki\n(a) Revised a line to be more in character for XyL-Q (Thank you JJ)\(b) Added error reporting for myself\n(c) Fixed error reporting"
 path = os.getcwd()
 print(f"XyL-Q v{versionnum}")
 print(updatetime)
@@ -26,7 +26,6 @@ TOKEN = os.getenv('DISCORD_TOKEN')
 intents=discord.Intents.default()
 intents.message_content=True
 client = commands.Bot(intents=intents)
-report = client.get_channel(1213349040050409512)
 
 #Load Google API key
 with open(f'{path}\\secrets.txt',"r") as file:
@@ -188,6 +187,8 @@ def memeformat(text: str):
 @client.event
 async def on_ready():
     await client.change_presence(activity=discord.Game(name=f"{status}"))
+    global report 
+    report = client.get_channel(1213349040050409512)
     print('Bot is online!')
 
 #Reputation giving and removing function
