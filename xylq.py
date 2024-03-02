@@ -14,7 +14,7 @@ import asyncio
 status = "Cookie Run: Ovenbreak"
 #status = "Testing new features!"
 versionnum = "3.5"
-updatetime = "2024/03/01 18:55"
+updatetime = "2024/03/01 18:56"
 changes = "**(3.5a)** Added comments to most of the code, moved server list to external file for easier updating, added missing commands to /disable, added the option to choose which wiki the meme command grabs images from, fixed broken links when pulling from Minecraft wiki\n(a) Revised a line to be more in character for XyL-Q (Thank you JJ)"
 path = os.getcwd()
 print(f"XyL-Q v{versionnum}")
