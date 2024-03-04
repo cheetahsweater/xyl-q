@@ -14,9 +14,9 @@ import asyncio
 
 status = "Cookie Run: Ovenbreak"
 #status = "Testing new features!"
-versionnum = "3.6a"
-updatetime = "2024/03/04 12:03"
-changes = "**(3.6) Added rudimentary helper function to ensure easier rolls\n(a) Reverted testing logic (whoops)"
+versionnum = "3.6b"
+updatetime = "2024/03/04 12:04"
+changes = "**(3.6) Added rudimentary helper function to ensure easier rolls\n(a) Reverted testing logic (whoops)\n(b) Revised new response to be in character with XyL-Q"
 path = os.getcwd()
 print(f"XyL-Q v{versionnum}")
 print(updatetime)
@@ -468,7 +468,7 @@ async def love_character(ctx, character: str, source: str):
         lovelist[IDstring] = userlovelist
         with open(f'{path}\\lovelist.json', "w") as file:
             json.dump(lovelist, file)
-        await ctx.respond(f"{character} from {source} loved successfully!!")
+        await ctx.respond(f"{random.choice(aff)}-Q! I've added {character} from {source} to your love list-Q!")
     except Exception as e:
         exceptionstring = format_exc()
         await report.send(f"<@120396380073099264>\n{exceptionstring}")
