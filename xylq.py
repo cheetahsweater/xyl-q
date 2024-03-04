@@ -14,9 +14,9 @@ import asyncio
 
 status = "Cookie Run: Ovenbreak"
 #status = "Testing new features!"
-versionnum = "3.5c"
-updatetime = "2024/03/02 09:55"
-changes = "**(3.5)** Added comments to most of the code, moved server list to external file for easier updating, added missing commands to /disable, added the option to choose which wiki the meme command grabs images from, fixed broken links when pulling from Minecraft wiki\n(a) Revised a line to be more in character for XyL-Q (Thank you JJ)\(b) Added error reporting for myself\n(c) Fixed error reporting"
+versionnum = "3.5d"
+updatetime = "2024/03/04 10:39"
+changes = "**(3.5)** Added comments to most of the code, moved server list to external file for easier updating, added missing commands to /disable, added the option to choose which wiki the meme command grabs images from, fixed broken links when pulling from Minecraft wiki\n(a) Revised a line to be more in character for XyL-Q (Thank you JJ)\(b) Added error reporting for myself\n(c) Fixed error reporting\n(d) Wrapped pretty much everything in try/expect blocks for more thorough error reporting"
 path = os.getcwd()
 print(f"XyL-Q v{versionnum}")
 print(updatetime)
@@ -155,7 +155,7 @@ logo = ["https://logos.fandom.com/wiki/Special:NewFiles?user=&mediatype%5B0%5D=B
 stringlist = {} #I don't remember what this even is
 aff = ["Okay", "Alright", "Got it", "Affirmative","Sounds good"] #Different affirmative phrases the bot can say when asked to do something
 selfrep = ["You're giving reputation to me-Q?? Well, thank you-Q! ^^","Oh...thank you so much for the reputation-Q! I will take good care of it-Q! ^^"] #Cutie little guy messages for when reputation is awarded to XyL-Q
-bots = [432610292342587392, 429305856241172480, 439205512425504771, 247283454440374274, 431544605209788416] #Bot IDs so XyL-Q can avoid indexing their messages
+bots = [429305856241172480, 439205512425504771, 247283454440374274, 431544605209788416] #Bot IDs so XyL-Q can avoid indexing their messages
 imglist = [] #Instantiating list for later
 
 #The API I use for the meme creation has a lot of character substitution involved so this is a command that does all of that automatically
@@ -194,135 +194,147 @@ async def on_ready():
 #Reputation giving and removing function
 @client.event
 async def on_reaction_add(reaction, user):
-    if reaction.emoji == "🏅": #Might add all the other medal emojis too just for funsies
-        #Heavily revised by ChatGPT which was not necessarily what I even wanted it to do
-        guild_id_str = str(reaction.message.guild.id)
-        user_id_str = str(user.id)
-        author_id_str = str(reaction.message.author.id)
+    try:
+        if reaction.emoji == "🏅": #Might add all the other medal emojis too just for funsies
+            #Heavily revised by ChatGPT which was not necessarily what I even wanted it to do
+            guild_id_str = str(reaction.message.guild.id)
+            user_id_str = str(user.id)
+            author_id_str = str(reaction.message.author.id)
 
-        # Check for self-reputation or specific user ID conditions
-        if reaction.message.author == client.user:
-            await reaction.message.channel.send(random.choice(selfrep))
-        elif author_id_str == "1204234942897324074":
-            await reaction.message.channel.send("My apologies, but I cannot handle giving reputation to tuppers-Q!")
-            return  # Exit for specific user conditions
-        elif user_id_str == author_id_str:
-            await reaction.message.channel.send("My apologies, but I cannot let you give reputation to yourself-Q!")
-            return  # Exit to prevent self-reputation
+            # Check for self-reputation or specific user ID conditions
+            if reaction.message.author == client.user:
+                await reaction.message.channel.send(random.choice(selfrep))
+            elif author_id_str == "1204234942897324074":
+                await reaction.message.channel.send("My apologies, but I cannot handle giving reputation to tuppers-Q!")
+                return  # Exit for specific user conditions
+            elif user_id_str == author_id_str:
+                await reaction.message.channel.send("My apologies, but I cannot let you give reputation to yourself-Q!")
+                return  # Exit to prevent self-reputation
 
-        # Ensure guild dictionary exists
-        if guild_id_str not in rep:
-            rep[guild_id_str] = {}
-        if user_id_str not in rep[guild_id_str]:
-            rep[guild_id_str][user_id_str] = {}
-        if author_id_str not in rep[guild_id_str][user_id_str]:
-            rep[guild_id_str][user_id_str][author_id_str] = 0
+            # Ensure guild dictionary exists
+            if guild_id_str not in rep:
+                rep[guild_id_str] = {}
+            if user_id_str not in rep[guild_id_str]:
+                rep[guild_id_str][user_id_str] = {}
+            if author_id_str not in rep[guild_id_str][user_id_str]:
+                rep[guild_id_str][user_id_str][author_id_str] = 0
 
-        # Update rep
-        rep[guild_id_str][user_id_str][author_id_str] += 1
-        await report.send(f"Reputation given to {author_id_str} by {user_id_str} updated. It is now {rep[guild_id_str][user_id_str][author_id_str]}")
+            # Update rep
+            rep[guild_id_str][user_id_str][author_id_str] += 1
+            await report.send(f"Reputation given to {author_id_str} by {user_id_str} updated. It is now {rep[guild_id_str][user_id_str][author_id_str]}")
 
-        # Ensure totalrep structure exists
-        if guild_id_str not in totalrep:
-            totalrep[guild_id_str] = {}
-        if author_id_str not in totalrep[guild_id_str]:
-            totalrep[guild_id_str][author_id_str] = 0
+            # Ensure totalrep structure exists
+            if guild_id_str not in totalrep:
+                totalrep[guild_id_str] = {}
+            if author_id_str not in totalrep[guild_id_str]:
+                totalrep[guild_id_str][author_id_str] = 0
 
-        # Update totalrep
-        totalrep[guild_id_str][author_id_str] += 1
-        await report.send(f"Total reputation of {author_id_str} updated. It is now {totalrep[guild_id_str][author_id_str]}")
-    
-
-        await reaction.message.channel.send(f"<@{user_id_str}> has given <@{author_id_str}> +1 reputation-Q!")
-
-        # Write to files
-        with open(f'{path}\\rep.json', "w") as file:
-            json.dump(rep, file)
-        
-        with open(f'{path}\\totalrep.json', "w") as file:
-            json.dump(totalrep, file)
-    if reaction.emoji == "🍅":
-        guild_id_str = str(reaction.message.guild.id)
-        user_id_str = str(user.id)
-        author_id_str = str(reaction.message.author.id)
-
-        if reaction.message.author == client.user:
-            await reaction.message.channel.send("I will not permit uncleanliness on my person-Q!!")
-            return
-
-        # Check for self-reputation or specific user ID conditions
-        if reaction.message.author == client.user:
-            await reaction.message.channel.send(random.choice(selfrep))
-        elif author_id_str == "1204234942897324074":
-            await reaction.message.channel.send("My apologies, but I cannot handle taking reputation from tuppers-Q!")
-            return  # Exit for specific user conditions
-        elif user_id_str == author_id_str:
-            await reaction.message.channel.send("Why would you want to take away your own rep-Q?!")
-            return  # Exit to prevent self-reputation
-
-        # Ensure guild dictionary exists
-        if guild_id_str not in rep:
-            rep[guild_id_str] = {}
-        if user_id_str not in rep[guild_id_str]:
-            rep[guild_id_str][user_id_str] = {}
-        if author_id_str not in rep[guild_id_str][user_id_str]:
-            rep[guild_id_str][user_id_str][author_id_str] = 0
-
-        # Update rep
-        rep[guild_id_str][user_id_str][author_id_str] -= 1
-        await report.send(f"Reputation given to {author_id_str} by {user_id_str} updated. It is now {rep[guild_id_str][user_id_str][author_id_str]}")
-
-        # Ensure totalrep structure exists
-        if guild_id_str not in totalrep:
-            totalrep[guild_id_str] = {}
-        if author_id_str not in totalrep[guild_id_str]:
-            totalrep[guild_id_str][author_id_str] = 0
-            await reaction.message.channel.send("This user has no rep to take away-Q!")
-        if totalrep[guild_id_str][author_id_str] <= 0:
-            totalrep[guild_id_str][author_id_str] = 0
-            await reaction.message.channel.send("This user has no rep to take away-Q!")
-        else:
             # Update totalrep
-            totalrep[guild_id_str][author_id_str] -= 1
+            totalrep[guild_id_str][author_id_str] += 1
             await report.send(f"Total reputation of {author_id_str} updated. It is now {totalrep[guild_id_str][author_id_str]}")
-
-            await reaction.message.channel.send(f"<@{user_id_str}> threw a tomato at <@{author_id_str}>-Q! Rather unclean of you-Q…")
-
-        # Write to reputation databases
-        with open(f'{path}\\rep.json', "w") as file:
-            json.dump(rep, file)
         
-        with open(f'{path}\\totalrep.json', "w") as file:
-            json.dump(totalrep, file)
+
+            await reaction.message.channel.send(f"<@{user_id_str}> has given <@{author_id_str}> +1 reputation-Q!")
+
+            # Write to files
+            with open(f'{path}\\rep.json', "w") as file:
+                json.dump(rep, file)
+            
+            with open(f'{path}\\totalrep.json', "w") as file:
+                json.dump(totalrep, file)
+        if reaction.emoji == "🍅":
+            guild_id_str = str(reaction.message.guild.id)
+            user_id_str = str(user.id)
+            author_id_str = str(reaction.message.author.id)
+
+            if reaction.message.author == client.user:
+                await reaction.message.channel.send("I will not permit uncleanliness on my person-Q!!")
+                return
+
+            # Check for self-reputation or specific user ID conditions
+            if reaction.message.author == client.user:
+                await reaction.message.channel.send(random.choice(selfrep))
+            elif author_id_str == "1204234942897324074":
+                await reaction.message.channel.send("My apologies, but I cannot handle taking reputation from tuppers-Q!")
+                return  # Exit for specific user conditions
+            elif user_id_str == author_id_str:
+                await reaction.message.channel.send("Why would you want to take away your own rep-Q?!")
+                return  # Exit to prevent self-reputation
+
+            # Ensure guild dictionary exists
+            if guild_id_str not in rep:
+                rep[guild_id_str] = {}
+            if user_id_str not in rep[guild_id_str]:
+                rep[guild_id_str][user_id_str] = {}
+            if author_id_str not in rep[guild_id_str][user_id_str]:
+                rep[guild_id_str][user_id_str][author_id_str] = 0
+
+            # Update rep
+            rep[guild_id_str][user_id_str][author_id_str] -= 1
+            await report.send(f"Reputation given to {author_id_str} by {user_id_str} updated. It is now {rep[guild_id_str][user_id_str][author_id_str]}")
+
+            # Ensure totalrep structure exists
+            if guild_id_str not in totalrep:
+                totalrep[guild_id_str] = {}
+            if author_id_str not in totalrep[guild_id_str]:
+                totalrep[guild_id_str][author_id_str] = 0
+                await reaction.message.channel.send("This user has no rep to take away-Q!")
+            if totalrep[guild_id_str][author_id_str] <= 0:
+                totalrep[guild_id_str][author_id_str] = 0
+                await reaction.message.channel.send("This user has no rep to take away-Q!")
+            else:
+                # Update totalrep
+                totalrep[guild_id_str][author_id_str] -= 1
+                await report.send(f"Total reputation of {author_id_str} updated. It is now {totalrep[guild_id_str][author_id_str]}")
+
+                await reaction.message.channel.send(f"<@{user_id_str}> threw a tomato at <@{author_id_str}>-Q! Rather unclean of you-Q…")
+
+            # Write to reputation databases
+            with open(f'{path}\\rep.json', "w") as file:
+                json.dump(rep, file)
+            
+            with open(f'{path}\\totalrep.json', "w") as file:
+                json.dump(totalrep, file)
+    except Exception as e:
+        exceptionstring = format_exc()
+        await report.send(f"<@120396380073099264>\n{exceptionstring}")
     
 #Message indexing for meme command with no parameters
 @client.event
 async def on_message(message):
-    global stringlist
-    if message.author == client.user: #Obviously don't index XyL-Q's own messages
-        return
-    if message.author.id in bots: #Don't index certain bots (probably going to revise this because it's kind of janky)
-        return
-    if len(message.content) == 0: #Don't index messages with no text in them (e.g. files or images)
-        return
-    if str(message.channel.id) in badcacheIDs: #Don't index messages from channels that are in the "don't index these" list
-        return
-    if str(message.author.id) in badcacheIDs: #Don't index messages from users that are in the "don't index these" list
-        return
-    if "||" in message.content: #Don't index messages with spoiler tags in them
-        return
     try:
-        msglist = stringlist[str(message.guild.id)] #Grabs the list of already indexed messages for the server the message is in
+        global stringlist
+        if message.author == client.user: #Obviously don't index XyL-Q's own messages
+            return
+        if message.author.id in bots: #Don't index certain bots (probably going to revise this because it's kind of janky)
+            return
+        if message.author.id == 432610292342587392:
+            if len(message.embeds) == 1:
+                roll = message.embeds[0].author.name
+        if len(message.content) == 0: #Don't index messages with no text in them (e.g. files or images)
+            return
+        if str(message.channel.id) in badcacheIDs: #Don't index messages from channels that are in the "don't index these" list
+            return
+        if str(message.author.id) in badcacheIDs: #Don't index messages from users that are in the "don't index these" list
+            return
+        if "||" in message.content: #Don't index messages with spoiler tags in them
+            return
+        else:
+            try:
+                msglist = stringlist[str(message.guild.id)] #Grabs the list of already indexed messages for the server the message is in
 
-        if len(msglist) > 100: #Index list should always be less than 100 just to make sure the little guy doesn't get too overwhelmed
-            for x in range(70):
-                msglist.pop(0) #Delete the oldest 70 messages from the list, I can't remember if this deletes the recent ones accidentally
-        msglist.append(message.content)
-        stringlist[str(message.guild.id)] = msglist #Update the dictionary of indexed messages per server
-    except KeyError:
+                if len(msglist) > 100: #Index list should always be less than 100 just to make sure the little guy doesn't get too overwhelmed
+                    for x in range(70):
+                        msglist.pop(0) #Delete the oldest 70 messages from the list, I can't remember if this deletes the recent ones accidentally
+                msglist.append(message.content)
+                stringlist[str(message.guild.id)] = msglist #Update the dictionary of indexed messages per server
+            except KeyError:
+                exceptionstring = format_exc()
+                await report.send(f"{exceptionstring}")
+            stringlist.update({str(message.guild.id): [message.content]}) #Adds a new entry to the dictionary if there's no indexed messages for the server
+    except Exception as e:
         exceptionstring = format_exc()
-        await report.send(f"{exceptionstring}")
-        stringlist.update({str(message.guild.id): [message.content]}) #Adds a new entry to the dictionary if there's no indexed messages for the server
+        await report.send(f"<@120396380073099264>\n{exceptionstring}")
 
 #Mainly I just use this to make sure I'm running the latest version after I update him
 @client.slash_command(description="Returns XyL-Q version number!", guild_ids=guilds)
@@ -332,89 +344,102 @@ async def version(ctx):
 #Simple way for users to check reputation, also revised by ChatGPT even though I didn't ask it to revise this either
 @client.slash_command(description="Shows you your reputation and other related stats!")
 async def reputation(ctx):
-    guild_id_str = str(ctx.guild.id)
-    user_id_str = str(ctx.author.id)
+    try:
+        guild_id_str = str(ctx.guild.id)
+        user_id_str = str(ctx.author.id)
 
-    embed = discord.Embed(title=f"{ctx.author.display_name}'s reputation stats-Q!",
-                          color=ctx.author.color)
-    embed.set_thumbnail(url=ctx.author.display_avatar.url)
+        embed = discord.Embed(title=f"{ctx.author.display_name}'s reputation stats-Q!",
+                            color=ctx.author.color)
+        embed.set_thumbnail(url=ctx.author.display_avatar.url)
 
-    # Adjusting for guild-specific total reputation
-    guild_totalrep = totalrep.get(guild_id_str, {})
-    user_total_rep = guild_totalrep.get(user_id_str, 0)
-    embed.add_field(name="Total reputation:", value=str(user_total_rep))
+        # Adjusting for guild-specific total reputation
+        guild_totalrep = totalrep.get(guild_id_str, {})
+        user_total_rep = guild_totalrep.get(user_id_str, 0)
+        embed.add_field(name="Total reputation:", value=str(user_total_rep))
 
-    # Adjusting for guild-specific given reputation details
-    guild_rep = rep.get(guild_id_str, {})
-    user_rep = guild_rep.get(user_id_str, {})
+        # Adjusting for guild-specific given reputation details
+        guild_rep = rep.get(guild_id_str, {})
+        user_rep = guild_rep.get(user_id_str, {})
 
-    # Handling the display for rep given
-    given_rep_str = ""
-    if user_rep:
-        # Sort by amount of rep given, descending
-        sorted_given_rep = sorted(user_rep.items(), key=lambda x: x[1], reverse=True)
-        for target_user_id, amount in sorted_given_rep[:3]:  # Get top 3
-            given_rep_str += f"<@{target_user_id}>: {amount} rep\n"
-    given_rep_str = given_rep_str or "Nobody! Does your selfishness know no bounds?!"
-    embed.add_field(name="You've given the most rep to:", value=given_rep_str, inline=False)
+        # Handling the display for rep given
+        given_rep_str = ""
+        if user_rep:
+            # Sort by amount of rep given, descending
+            sorted_given_rep = sorted(user_rep.items(), key=lambda x: x[1], reverse=True)
+            for target_user_id, amount in sorted_given_rep[:3]:  # Get top 3
+                given_rep_str += f"<@{target_user_id}>: {amount} rep\n"
+        given_rep_str = given_rep_str or "Nobody! Does your selfishness know no bounds?!"
+        embed.add_field(name="You've given the most rep to:", value=given_rep_str, inline=False)
 
-    # Adjusting for guild-specific received reputation details
-    received_rep_str = ""
-    for giver_id, given_to in guild_rep.items():
-        if user_id_str in given_to:
-            received_rep_str += f"<@{giver_id}>: {given_to[user_id_str]} rep\n"
+        # Adjusting for guild-specific received reputation details
+        received_rep_str = ""
+        for giver_id, given_to in guild_rep.items():
+            if user_id_str in given_to:
+                received_rep_str += f"<@{giver_id}>: {given_to[user_id_str]} rep\n"
 
-    received_rep_str = received_rep_str or "Nobody...I'd give you rep if I could, though :("
-    embed.add_field(name="You've received the most rep from:", value=received_rep_str, inline=False)
+        received_rep_str = received_rep_str or "Nobody...I'd give you rep if I could, though :("
+        embed.add_field(name="You've received the most rep from:", value=received_rep_str, inline=False)
 
-    await ctx.respond(embed=embed)
+        await ctx.respond(embed=embed)
+    except Exception as e:
+        exceptionstring = format_exc()
+        await report.send(f"<@120396380073099264>\n{exceptionstring}")
 
 #Disable caching for given channel or user
 @client.slash_command(description="Disables message caching in a given channel or from a given user!", guild_ids=guilds)
 async def disable_cache(ctx, channel=None, user=None): 
-    global badcacheIDs
-    if (channel == None) and (user == None):
-        await ctx.respond("Error-Q! No parameters given-Q!")
-        return
-    if channel != None:
-        channelID = channel.strip("<>#") #Remove the non-number characters present in a Discord channel ping
-        badcacheIDs.append(channelID)
-        await ctx.respond(f"{random.choice(aff)}-Q! I've disabled message caching in the <#{channelID}> channel-Q!")
-    if user != None:
-        userID = user.strip("<>@") #Remove the non-number characters present in a Discord user ping
-        badcacheIDs.append(userID)
-        await ctx.respond(f"{random.choice(aff)}-Q! I've disabled message caching for <@{userID}>-Q!")
-    #Save new list to database
-    with open(f'{path}\\badcache.txt',"w") as file:
-        for id in badcacheIDs:
-            file.write(f"{id}\n")
-        file.close()
+    try:
+        global badcacheIDs
+        if (channel == None) and (user == None):
+            await ctx.respond("Error-Q! No parameters given-Q!")
+            return
+        if channel != None:
+            channelID = channel.strip("<>#") #Remove the non-number characters present in a Discord channel ping
+            badcacheIDs.append(channelID)
+            await ctx.respond(f"{random.choice(aff)}-Q! I've disabled message caching in the <#{channelID}> channel-Q!")
+        if user != None:
+            userID = user.strip("<>@") #Remove the non-number characters present in a Discord user ping
+            badcacheIDs.append(userID)
+            await ctx.respond(f"{random.choice(aff)}-Q! I've disabled message caching for <@{userID}>-Q!")
+        #Save new list to database
+        with open(f'{path}\\badcache.txt',"w") as file:
+            for id in badcacheIDs:
+                file.write(f"{id}\n")
+            file.close()
+    except Exception as e:
+        exceptionstring = format_exc()
+        await report.send(f"<@120396380073099264>\n{exceptionstring}")
 
 #Disables a command's use in a certain channel, not really even sure what the use case for this is
 @client.slash_command(description="Disables a command in a given channel!", guild_ids=guilds)
 async def disable(ctx, command: discord.Option(str, choices=["meme", "reputation", "version"]), channel): 
-    global badIDs
-    channelID = channel.strip("<>#") #Remove the non-number characters present in a Discord channel ping
     try:
-        #Add channel to list of no-no channels for command
-        channelList = badIDs[command]
-        channelList.append(channelID)
-        badIDs.update({command:channelList})
-    except KeyError:
+        global badIDs
+        channelID = channel.strip("<>#") #Remove the non-number characters present in a Discord channel ping
+        try:
+            #Add channel to list of no-no channels for command
+            channelList = badIDs[command]
+            channelList.append(channelID)
+            badIDs.update({command:channelList})
+        except KeyError:
+            exceptionstring = format_exc()
+            await report.send(f"{exceptionstring}")
+            #Add new entry for the given command if not present
+            badIDs.update({command:[channelID]})
+        #Save new list to database
+        with open(f'{path}\\badid.json',"w") as file:
+            myJson = json.dumps(badIDs)
+            file.write(myJson)
+            file.close()
+        await ctx.respond(f"Okay-Q! I've disabled the *{command}* command in the <#{channelID}> channel-Q!")
+    except Exception as e:
         exceptionstring = format_exc()
-        await report.send(f"{exceptionstring}")
-        #Add new entry for the given command if not present
-        badIDs.update({command:[channelID]})
-    #Save new list to database
-    with open(f'{path}\\badid.json',"w") as file:
-        myJson = json.dumps(badIDs)
-        file.write(myJson)
-        file.close()
-    await ctx.respond(f"Okay-Q! I've disabled the *{command}* command in the <#{channelID}> channel-Q!")
+        await report.send(f"<@120396380073099264>\n{exceptionstring}")
 
 #MY MAGNUM OPUS (the meme command)
 @client.slash_command(description="Makes a meme based on parameters given!", guild_ids=guilds)
 async def meme(ctx: discord.Interaction, top_text=None, bottom_text=None, image_link=None, image_upload: discord.Attachment=None, wiki: discord.Option(str, choices=wikis)=None): 
+    try:
         if (top_text == None) and (bottom_text != None):
             top_text = bottom_text
         if (bottom_text == None) and (top_text != None):
@@ -776,5 +801,8 @@ async def meme(ctx: discord.Interaction, top_text=None, bottom_text=None, image_
                                     image_link = "https://static.wikia.nocookie.net/logopedia/images/4/43/Sat.1_montage_-_by_Nico234.png"
         memelink = f"https://api.memegen.link/images/custom/{top_text_new}/{bottom_text_new}.png?background={image_link}"
         await ctx.followup.send(content=memelink)
+    except Exception as e:
+        exceptionstring = format_exc()
+        await report.send(f"<@120396380073099264>\n{exceptionstring}")
 
 client.run(TOKEN)
