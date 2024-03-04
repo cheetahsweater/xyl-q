@@ -14,9 +14,9 @@ import asyncio
 
 status = "Cookie Run: Ovenbreak"
 #status = "Testing new features!"
-versionnum = "3.6c"
-updatetime = "2024/03/04 12:12"
-changes = "**(3.6) Added rudimentary helper function to ensure easier rolls\n(a) Reverted testing logic (whoops)\n(b) Revised new response to be in character with XyL-Q\n(c) Fixed bug with notification"
+versionnum = "3.6d"
+updatetime = "2024/03/04 12:16"
+changes = "**(3.6) Added rudimentary helper function to ensure easier rolls\n(a) Reverted testing logic (whoops)\n(b) Revised new response to be in character with XyL-Q\n(c) Fixed bug with notification\(d) Reverted testing logic AGAIN"
 path = os.getcwd()
 print(f"XyL-Q v{versionnum}")
 print(updatetime)
@@ -318,7 +318,7 @@ async def on_message(message):
             return
         if message.author.id in bots: #Don't index certain bots (probably going to revise this because it's kind of janky)
             return
-        if message.author.id != 432610292342587392: #Mudae notification logic
+        if message.author.id == 432610292342587392: #Mudae notification logic
             if len(message.embeds) == 1:
                 sourcelines = message.embeds[0].description.split("\n")[:-1]
                 source = ""
