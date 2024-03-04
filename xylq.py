@@ -14,9 +14,9 @@ import asyncio
 
 status = "Cookie Run: Ovenbreak"
 #status = "Testing new features!"
-versionnum = "3.5d"
-updatetime = "2024/03/04 10:39"
-changes = "**(3.5)** Added comments to most of the code, moved server list to external file for easier updating, added missing commands to /disable, added the option to choose which wiki the meme command grabs images from, fixed broken links when pulling from Minecraft wiki\n(a) Revised a line to be more in character for XyL-Q (Thank you JJ)\(b) Added error reporting for myself\n(c) Fixed error reporting\n(d) Wrapped pretty much everything in try/expect blocks for more thorough error reporting"
+versionnum = "3.6"
+updatetime = "2024/03/04 11:59"
+changes = "**(3.6) Added rudimentary helper function to ensure easier rolls"
 path = os.getcwd()
 print(f"XyL-Q v{versionnum}")
 print(updatetime)
@@ -60,6 +60,16 @@ with open(f'{path}\\badid.json',"r+") as file:
     except JSONDecodeError as e:
         print(e)
         badIDs = {}
+    file.close()
+
+#Load list of loved Mudae characters
+with open(f'{path}\\lovelist.json',"r+") as file:
+    try:
+        text = json.loads(file.read())
+        lovelist = text
+    except JSONDecodeError as e:
+        print(e)
+        lovelist = {}
     file.close()
 
 #Load list of channels in which message caching is disabled
@@ -308,9 +318,18 @@ async def on_message(message):
             return
         if message.author.id in bots: #Don't index certain bots (probably going to revise this because it's kind of janky)
             return
-        if message.author.id == 432610292342587392:
+        if message.author.id != 432610292342587392: #Mudae notification logic
             if len(message.embeds) == 1:
-                roll = message.embeds[0].author.name
+                sourcelines = message.embeds[0].description.split("\n")[:-1]
+                source = ""
+                for line in sourcelines:
+                    source += f"{line} "
+                roll = {message.embeds[0].author.name.casefold():source.strip().casefold()}
+                for userlist in lovelist.items():
+                    for entry in dict(userlist[1]).items():
+                        if roll == {entry[0]:entry[1]}:
+                            await message.channel.send(f"Loved by <@120396380073099264>")
+
         if len(message.content) == 0: #Don't index messages with no text in them (e.g. files or images)
             return
         if str(message.channel.id) in badcacheIDs: #Don't index messages from channels that are in the "don't index these" list
@@ -432,6 +451,24 @@ async def disable(ctx, command: discord.Option(str, choices=["meme", "reputation
             file.write(myJson)
             file.close()
         await ctx.respond(f"Okay-Q! I've disabled the *{command}* command in the <#{channelID}> channel-Q!")
+    except Exception as e:
+        exceptionstring = format_exc()
+        await report.send(f"<@120396380073099264>\n{exceptionstring}")
+
+#Utility for Mudae rolls, notifies a user of any character given with this command
+@client.slash_command(description="Loves a character from Mudae to notify you later if that character is rolled!", guild_ids=guilds)
+async def love_character(ctx, character: str, source: str):
+    try:
+        IDstring = str(ctx.author.id)
+        try:
+            userlovelist = lovelist[IDstring]
+        except KeyError:
+            userlovelist = {}
+        userlovelist[character.casefold().strip()] = source.casefold().strip()
+        lovelist[IDstring] = userlovelist
+        with open(f'{path}\\lovelist.json', "w") as file:
+            json.dump(lovelist, file)
+        await ctx.respond(f"{character} from {source} loved successfully!!")
     except Exception as e:
         exceptionstring = format_exc()
         await report.send(f"<@120396380073099264>\n{exceptionstring}")
