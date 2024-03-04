@@ -14,9 +14,9 @@ import asyncio
 
 status = "Cookie Run: Ovenbreak"
 #status = "Testing new features!"
-versionnum = "3.6d"
-updatetime = "2024/03/04 12:16"
-changes = "**(3.6) Added rudimentary helper function to ensure easier rolls\n(a) Reverted testing logic (whoops)\n(b) Revised new response to be in character with XyL-Q\n(c) Fixed bug with notification\(d) Reverted testing logic AGAIN"
+versionnum = "3.6e"
+updatetime = "2024/03/04 12:24"
+changes = "**(3.6)** Added rudimentary helper function to ensure easier rolls\n(a) Reverted testing logic (whoops)\n(b) Revised new response to be in character with XyL-Q\n(c) Fixed bug with notification\n(d) Reverted testing logic AGAIN\n(e) Updated lovelist notification for more clarity"
 path = os.getcwd()
 print(f"XyL-Q v{versionnum}")
 print(updatetime)
@@ -328,7 +328,7 @@ async def on_message(message):
                 for userlist in lovelist.items():
                     for entry in dict(userlist[1]).items():
                         if roll == {entry[0]:entry[1]}:
-                            await message.channel.send(f"Loved by <@{userlist[0]}>")
+                            await message.channel.send(f"{entry[0]} is loved by <@{userlist[0]}>-Q!")
 
         if len(message.content) == 0: #Don't index messages with no text in them (e.g. files or images)
             return
