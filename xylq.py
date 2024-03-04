@@ -14,9 +14,9 @@ import asyncio
 
 status = "Cookie Run: Ovenbreak"
 #status = "Testing new features!"
-versionnum = "3.6b"
-updatetime = "2024/03/04 12:04"
-changes = "**(3.6) Added rudimentary helper function to ensure easier rolls\n(a) Reverted testing logic (whoops)\n(b) Revised new response to be in character with XyL-Q"
+versionnum = "3.6c"
+updatetime = "2024/03/04 12:12"
+changes = "**(3.6) Added rudimentary helper function to ensure easier rolls\n(a) Reverted testing logic (whoops)\n(b) Revised new response to be in character with XyL-Q\n(c) Fixed bug with notification"
 path = os.getcwd()
 print(f"XyL-Q v{versionnum}")
 print(updatetime)
@@ -318,7 +318,7 @@ async def on_message(message):
             return
         if message.author.id in bots: #Don't index certain bots (probably going to revise this because it's kind of janky)
             return
-        if message.author.id == 432610292342587392: #Mudae notification logic
+        if message.author.id != 432610292342587392: #Mudae notification logic
             if len(message.embeds) == 1:
                 sourcelines = message.embeds[0].description.split("\n")[:-1]
                 source = ""
@@ -328,7 +328,7 @@ async def on_message(message):
                 for userlist in lovelist.items():
                     for entry in dict(userlist[1]).items():
                         if roll == {entry[0]:entry[1]}:
-                            await message.channel.send(f"Loved by <@120396380073099264>")
+                            await message.channel.send(f"Loved by <@{userlist[0]}>")
 
         if len(message.content) == 0: #Don't index messages with no text in them (e.g. files or images)
             return
