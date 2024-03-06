@@ -14,9 +14,9 @@ import asyncio
 
 status = "Cookie Run: Ovenbreak"
 #status = "Testing new features!"
-versionnum = "3.7b"
-updatetime = "2024/03/05 20:15"
-changes = "**(3.7)** Added temporary parameter to lovelist for personal use (will rollback)\n(a) Fixed bug with temporary param\n(b) Fixed another bug with temporary param"
+versionnum = "3.8"
+updatetime = "2024/03/05 21:43"
+changes = "**(3.8)** Added sourcelist as a companion tool to lovelist"
 path = os.getcwd()
 print(f"XyL-Q v{versionnum}")
 print(updatetime)
@@ -71,6 +71,17 @@ with open(f'{path}\\lovelist.json',"r+") as file:
         print(e)
         lovelist = {}
     file.close()
+
+#Load list of loved Mudae sources
+with open(f'{path}\\sourcelist.json',"r+") as file:
+    try:
+        text = json.loads(file.read())
+        sourcelist = text
+    except JSONDecodeError as e:
+        print(e)
+        sourcelist = {}
+    file.close()
+
 
 #Load list of channels in which message caching is disabled
 with open(f'{path}\\badcache.txt',"r+") as file:
@@ -477,6 +488,32 @@ async def love_character(ctx, character: str, source: str, user: str=None):
             await ctx.respond(f"{random.choice(aff)}-Q! I've added {character} from {source} to {member.display_name}'s love list-Q!")
         else:
             await ctx.respond(f"{random.choice(aff)}-Q! I've added {character} from {source} to your love list-Q!")
+    except Exception as e:
+        exceptionstring = format_exc()
+        await report.send(f"<@120396380073099264>\n{exceptionstring}")
+    
+#Utility for Mudae rolls, notifies a user of any character from the source given with this command
+@client.slash_command(description="Loves a source from Mudae to notify you later if any character from that source is rolled!", guild_ids=guilds)
+async def love_source(ctx, source: str, user: str=None):
+    try:
+        if user == None:
+            IDstring = str(ctx.author.id)
+        else:
+            IDstring = user.strip("<>@")
+        try:
+            usersourcelist = sourcelist[IDstring]
+        except KeyError:
+            usersourcelist = []
+        usersourcelist.append(source.casefold().strip())
+        sourcelist[IDstring] = usersourcelist
+        with open(f'{path}\\sourcelist.json', "w") as file:
+            json.dump(sourcelist, file)
+        if user != None:
+            guild: discord.Guild = ctx.guild
+            member: discord.User = await guild.fetch_member(int(IDstring))
+            await ctx.respond(f"{random.choice(aff)}-Q! I've added {source} to {member.display_name}'s love list-Q!")
+        else:
+            await ctx.respond(f"{random.choice(aff)}-Q! I've added {source} to your love list-Q!")
     except Exception as e:
         exceptionstring = format_exc()
         await report.send(f"<@120396380073099264>\n{exceptionstring}")
