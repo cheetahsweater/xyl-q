@@ -14,9 +14,9 @@ import asyncio
 
 status = "Cookie Run: Ovenbreak"
 #status = "Testing new features!"
-versionnum = "3.6e"
-updatetime = "2024/03/04 12:24"
-changes = "**(3.6)** Added rudimentary helper function to ensure easier rolls\n(a) Reverted testing logic (whoops)\n(b) Revised new response to be in character with XyL-Q\n(c) Fixed bug with notification\n(d) Reverted testing logic AGAIN\n(e) Updated lovelist notification for more clarity\n(f) Added type hints to code to make the functions show up on my IDE"
+versionnum = "3.7"
+updatetime = "2024/03/05 20:09"
+changes = "**(3.7)** Added temporary parameter to lovelist for personal use (will rollback)"
 path = os.getcwd()
 print(f"XyL-Q v{versionnum}")
 print(updatetime)
@@ -457,9 +457,12 @@ async def disable(ctx, command: discord.Option(str, choices=["meme", "reputation
 
 #Utility for Mudae rolls, notifies a user of any character given with this command
 @client.slash_command(description="Loves a character from Mudae to notify you later if that character is rolled!", guild_ids=guilds)
-async def love_character(ctx, character: str, source: str):
+async def love_character(ctx, character: str, source: str, user: str=None):
     try:
-        IDstring = str(ctx.author.id)
+        if user == None:
+            IDstring = str(ctx.author.id)
+        else:
+            IDstring = user.strip("<>@")
         try:
             userlovelist = lovelist[IDstring]
         except KeyError:
@@ -468,7 +471,12 @@ async def love_character(ctx, character: str, source: str):
         lovelist[IDstring] = userlovelist
         with open(f'{path}\\lovelist.json', "w") as file:
             json.dump(lovelist, file)
-        await ctx.respond(f"{random.choice(aff)}-Q! I've added {character} from {source} to your love list-Q!")
+        if user == None:
+            guild: discord.Guild = ctx.guild
+            member: discord.User = guild.fetch_member(int(IDstring))
+            await ctx.respond(f"{random.choice(aff)}-Q! I've added {character} from {source} to {member.display_name}'s love list-Q!")
+        else:
+            await ctx.respond(f"{random.choice(aff)}-Q! I've added {character} from {source} to your love list-Q!")
     except Exception as e:
         exceptionstring = format_exc()
         await report.send(f"<@120396380073099264>\n{exceptionstring}")
