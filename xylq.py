@@ -14,9 +14,9 @@ import asyncio
 
 status = "Cookie Run: Ovenbreak"
 #status = "Testing new features!"
-versionnum = "3.8"
-updatetime = "2024/03/05 21:43"
-changes = "**(3.8)** Added sourcelist as a companion tool to lovelist"
+versionnum = "3.8a"
+updatetime = "2024/03/05 21:51"
+changes = "**(3.8)** Added sourcelist as a companion tool to lovelist\n(a) Added other half of sourcelist function (whoops)"
 path = os.getcwd()
 print(f"XyL-Q v{versionnum}")
 print(updatetime)
@@ -340,6 +340,10 @@ async def on_message(message: discord.Message):
                     for entry in dict(userlist[1]).items():
                         if roll == {entry[0]:entry[1]}:
                             await message.channel.send(f"{entry[0]} is loved by <@{userlist[0]}>-Q!")
+                for user, userlist in sourcelist.items():
+                    for usersource in userlist:
+                        if usersource.strip().casefold() == source.strip().casefold():
+                            await message.channel.send(f"{usersource} is loved by <@{user}>-Q!")
 
         if len(message.content) == 0: #Don't index messages with no text in them (e.g. files or images)
             return
