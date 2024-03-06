@@ -16,7 +16,7 @@ status = "Cookie Run: Ovenbreak"
 #status = "Testing new features!"
 versionnum = "3.6e"
 updatetime = "2024/03/04 12:24"
-changes = "**(3.6)** Added rudimentary helper function to ensure easier rolls\n(a) Reverted testing logic (whoops)\n(b) Revised new response to be in character with XyL-Q\n(c) Fixed bug with notification\n(d) Reverted testing logic AGAIN\n(e) Updated lovelist notification for more clarity"
+changes = "**(3.6)** Added rudimentary helper function to ensure easier rolls\n(a) Reverted testing logic (whoops)\n(b) Revised new response to be in character with XyL-Q\n(c) Fixed bug with notification\n(d) Reverted testing logic AGAIN\n(e) Updated lovelist notification for more clarity\n(f) Added type hints to code to make the functions show up on my IDE"
 path = os.getcwd()
 print(f"XyL-Q v{versionnum}")
 print(updatetime)
@@ -203,7 +203,7 @@ async def on_ready():
 
 #Reputation giving and removing function
 @client.event
-async def on_reaction_add(reaction, user):
+async def on_reaction_add(reaction: discord.Reaction, user: discord.User):
     try:
         if reaction.emoji == "🏅": #Might add all the other medal emojis too just for funsies
             #Heavily revised by ChatGPT which was not necessarily what I even wanted it to do
@@ -311,7 +311,7 @@ async def on_reaction_add(reaction, user):
     
 #Message indexing for meme command with no parameters
 @client.event
-async def on_message(message):
+async def on_message(message: discord.Message):
     try:
         global stringlist
         if message.author == client.user: #Obviously don't index XyL-Q's own messages
@@ -406,7 +406,7 @@ async def reputation(ctx):
 
 #Disable caching for given channel or user
 @client.slash_command(description="Disables message caching in a given channel or from a given user!", guild_ids=guilds)
-async def disable_cache(ctx, channel=None, user=None): 
+async def disable_cache(ctx, channel: str=None, user: str=None): 
     try:
         global badcacheIDs
         if (channel == None) and (user == None):
@@ -431,7 +431,7 @@ async def disable_cache(ctx, channel=None, user=None):
 
 #Disables a command's use in a certain channel, not really even sure what the use case for this is
 @client.slash_command(description="Disables a command in a given channel!", guild_ids=guilds)
-async def disable(ctx, command: discord.Option(str, choices=["meme", "reputation", "version"]), channel): 
+async def disable(ctx, command: discord.Option(str, choices=["meme", "reputation", "version"]), channel: str): 
     try:
         global badIDs
         channelID = channel.strip("<>#") #Remove the non-number characters present in a Discord channel ping
@@ -475,7 +475,7 @@ async def love_character(ctx, character: str, source: str):
 
 #MY MAGNUM OPUS (the meme command)
 @client.slash_command(description="Makes a meme based on parameters given!", guild_ids=guilds)
-async def meme(ctx: discord.Interaction, top_text=None, bottom_text=None, image_link=None, image_upload: discord.Attachment=None, wiki: discord.Option(str, choices=wikis)=None): 
+async def meme(ctx: discord.Interaction, top_text: str=None, bottom_text: str=None, image_link: str=None, image_upload: discord.Attachment=None, wiki: discord.Option(str, choices=wikis)=None): 
     try:
         if (top_text == None) and (bottom_text != None):
             top_text = bottom_text
