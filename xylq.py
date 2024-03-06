@@ -14,9 +14,9 @@ import asyncio
 
 status = "Cookie Run: Ovenbreak"
 #status = "Testing new features!"
-versionnum = "3.7a"
-updatetime = "2024/03/05 20:12"
-changes = "**(3.7)** Added temporary parameter to lovelist for personal use (will rollback)\n(a) Fixed bug with temporary param"
+versionnum = "3.7b"
+updatetime = "2024/03/05 20:15"
+changes = "**(3.7)** Added temporary parameter to lovelist for personal use (will rollback)\n(a) Fixed bug with temporary param\n(b) Fixed another bug with temporary param"
 path = os.getcwd()
 print(f"XyL-Q v{versionnum}")
 print(updatetime)
@@ -473,7 +473,7 @@ async def love_character(ctx, character: str, source: str, user: str=None):
             json.dump(lovelist, file)
         if user != None:
             guild: discord.Guild = ctx.guild
-            member: discord.User = guild.fetch_member(int(IDstring))
+            member: discord.User = await guild.fetch_member(int(IDstring))
             await ctx.respond(f"{random.choice(aff)}-Q! I've added {character} from {source} to {member.display_name}'s love list-Q!")
         else:
             await ctx.respond(f"{random.choice(aff)}-Q! I've added {character} from {source} to your love list-Q!")
