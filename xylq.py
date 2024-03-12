@@ -14,9 +14,9 @@ import asyncio
 
 status = "Cookie Run: Ovenbreak"
 #status = "Testing new features!"
-versionnum = "3.9"
-updatetime = "2024/03/11 20:43"
-changes = "**(3.9)** Added error handling for Mudae error, improved general error handling, added logs to message indexing to diagnose meme command bug"
+versionnum = "3.9a"
+updatetime = "2024/03/11 20:48"
+changes = "**(3.9)** Added error handling for Mudae error, improved general error handling, added logs to message indexing to diagnose meme command bug\n(a) Fixed bug with message indexing logs"
 path = os.getcwd()
 print(f"XyL-Q v{versionnum}")
 print(updatetime)
@@ -368,6 +368,7 @@ async def on_message(message: discord.Message):
                         msglist.append(message.content)
                         report.send(f"MSGlist for {message.guild.name} updated-Q! Length has changed from {prevlength} to {len(msglist)}-Q!")
                 else:
+                    prevlength = len(msglist)
                     msglist.append(message.content)
                     report.send(f"MSGlist for {message.guild.name} updated-Q! Length has changed from {prevlength} to {len(msglist)}-Q!")
                 stringlist[str(message.guild.id)] = msglist #Update the dictionary of indexed messages per server
