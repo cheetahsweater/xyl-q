@@ -14,9 +14,9 @@ import asyncio
 
 status = "Cookie Run: Ovenbreak"
 #status = "Testing new features!"
-versionnum = "3.8a"
-updatetime = "2024/03/05 21:51"
-changes = "**(3.8)** Added sourcelist as a companion tool to lovelist\n(a) Added other half of sourcelist function (whoops)"
+versionnum = "3.9"
+updatetime = "2024/03/11 20:43"
+changes = "**(3.9)** Added error handling for Mudae error, improved general error handling, added logs to message indexing to diagnose meme command bug"
 path = os.getcwd()
 print(f"XyL-Q v{versionnum}")
 print(updatetime)
@@ -318,7 +318,7 @@ async def on_reaction_add(reaction: discord.Reaction, user: discord.User):
                 json.dump(totalrep, file)
     except Exception as e:
         exceptionstring = format_exc()
-        await report.send(f"<@120396380073099264>\n{exceptionstring}")
+        await report.send(f"<@120396380073099264>\n{exceptionstring}\nIn {reaction.message.guild.name}")
     
 #Message indexing for meme command with no parameters
 @client.event
@@ -335,7 +335,10 @@ async def on_message(message: discord.Message):
                 source = ""
                 for line in sourcelines:
                     source += f"{line} "
-                roll = {message.embeds[0].author.name.casefold():source.strip().casefold()}
+                try:
+                    roll = {message.embeds[0].author.name.casefold():source.strip().casefold()}
+                except AttributeError:
+                    return
                 for userlist in lovelist.items():
                     for entry in dict(userlist[1]).items():
                         if roll == {entry[0]:entry[1]}:
@@ -359,8 +362,14 @@ async def on_message(message: discord.Message):
 
                 if len(msglist) > 100: #Index list should always be less than 100 just to make sure the little guy doesn't get too overwhelmed
                     for x in range(70):
+                        prevlength = len(msglist)
                         msglist.pop(0) #Delete the oldest 70 messages from the list, I can't remember if this deletes the recent ones accidentally
-                msglist.append(message.content)
+                        report.send(f"MSGlist for {message.guild.name} updated-Q! Length has changed from {prevlength} to {len(msglist)}-Q!")
+                        msglist.append(message.content)
+                        report.send(f"MSGlist for {message.guild.name} updated-Q! Length has changed from {prevlength} to {len(msglist)}-Q!")
+                else:
+                    msglist.append(message.content)
+                    report.send(f"MSGlist for {message.guild.name} updated-Q! Length has changed from {prevlength} to {len(msglist)}-Q!")
                 stringlist[str(message.guild.id)] = msglist #Update the dictionary of indexed messages per server
             except KeyError:
                 exceptionstring = format_exc()
@@ -368,16 +377,16 @@ async def on_message(message: discord.Message):
             stringlist.update({str(message.guild.id): [message.content]}) #Adds a new entry to the dictionary if there's no indexed messages for the server
     except Exception as e:
         exceptionstring = format_exc()
-        await report.send(f"<@120396380073099264>\n{exceptionstring}")
+        await report.send(f"<@120396380073099264>\n{exceptionstring}\nIn {message.guild.name}")
 
 #Mainly I just use this to make sure I'm running the latest version after I update him
 @client.slash_command(description="Returns XyL-Q version number!", guild_ids=guilds)
-async def version(ctx): 
+async def version(ctx: discord.Interaction): 
     await ctx.respond(f"Hello-Q! I'm XyL-Q, running version {versionnum} released on {updatetime}-Q!\n\n__Changelog__\n{changes}")
 
 #Simple way for users to check reputation, also revised by ChatGPT even though I didn't ask it to revise this either
 @client.slash_command(description="Shows you your reputation and other related stats!")
-async def reputation(ctx):
+async def reputation(ctx: discord.Interaction):
     try:
         guild_id_str = str(ctx.guild.id)
         user_id_str = str(ctx.author.id)
@@ -417,11 +426,11 @@ async def reputation(ctx):
         await ctx.respond(embed=embed)
     except Exception as e:
         exceptionstring = format_exc()
-        await report.send(f"<@120396380073099264>\n{exceptionstring}")
+        await report.send(f"<@120396380073099264>\n{exceptionstring}\nIn {ctx.guild.name}")
 
 #Disable caching for given channel or user
 @client.slash_command(description="Disables message caching in a given channel or from a given user!", guild_ids=guilds)
-async def disable_cache(ctx, channel: str=None, user: str=None): 
+async def disable_cache(ctx: discord.Interaction, channel: str=None, user: str=None): 
     try:
         global badcacheIDs
         if (channel == None) and (user == None):
@@ -442,11 +451,11 @@ async def disable_cache(ctx, channel: str=None, user: str=None):
             file.close()
     except Exception as e:
         exceptionstring = format_exc()
-        await report.send(f"<@120396380073099264>\n{exceptionstring}")
+        await report.send(f"<@120396380073099264>\n{exceptionstring}\nIn {ctx.guild.name}")
 
 #Disables a command's use in a certain channel, not really even sure what the use case for this is
 @client.slash_command(description="Disables a command in a given channel!", guild_ids=guilds)
-async def disable(ctx, command: discord.Option(str, choices=["meme", "reputation", "version"]), channel: str): 
+async def disable(ctx: discord.Interaction, command: discord.Option(str, choices=["meme", "reputation", "version"]), channel: str): 
     try:
         global badIDs
         channelID = channel.strip("<>#") #Remove the non-number characters present in a Discord channel ping
@@ -468,11 +477,11 @@ async def disable(ctx, command: discord.Option(str, choices=["meme", "reputation
         await ctx.respond(f"Okay-Q! I've disabled the *{command}* command in the <#{channelID}> channel-Q!")
     except Exception as e:
         exceptionstring = format_exc()
-        await report.send(f"<@120396380073099264>\n{exceptionstring}")
+        await report.send(f"<@120396380073099264>\n{exceptionstring}\nIn {ctx.guild.name}")
 
 #Utility for Mudae rolls, notifies a user of any character given with this command
 @client.slash_command(description="Loves a character from Mudae to notify you later if that character is rolled!", guild_ids=guilds)
-async def love_character(ctx, character: str, source: str, user: str=None):
+async def love_character(ctx: discord.Interaction, character: str, source: str, user: str=None):
     try:
         if user == None:
             IDstring = str(ctx.author.id)
@@ -494,11 +503,11 @@ async def love_character(ctx, character: str, source: str, user: str=None):
             await ctx.respond(f"{random.choice(aff)}-Q! I've added {character} from {source} to your love list-Q!")
     except Exception as e:
         exceptionstring = format_exc()
-        await report.send(f"<@120396380073099264>\n{exceptionstring}")
+        await report.send(f"<@120396380073099264>\n{exceptionstring}\nIn {ctx.guild.name}")
     
 #Utility for Mudae rolls, notifies a user of any character from the source given with this command
 @client.slash_command(description="Loves a source from Mudae to notify you later if any character from that source is rolled!", guild_ids=guilds)
-async def love_source(ctx, source: str, user: str=None):
+async def love_source(ctx: discord.Interaction, source: str, user: str=None):
     try:
         if user == None:
             IDstring = str(ctx.author.id)
@@ -520,7 +529,7 @@ async def love_source(ctx, source: str, user: str=None):
             await ctx.respond(f"{random.choice(aff)}-Q! I've added {source} to your love list-Q!")
     except Exception as e:
         exceptionstring = format_exc()
-        await report.send(f"<@120396380073099264>\n{exceptionstring}")
+        await report.send(f"<@120396380073099264>\n{exceptionstring}\nIn {ctx.guild.name}")
 
 #MY MAGNUM OPUS (the meme command)
 @client.slash_command(description="Makes a meme based on parameters given!", guild_ids=guilds)
@@ -536,7 +545,7 @@ async def meme(ctx: discord.Interaction, top_text: str=None, bottom_text: str=No
                 full_text = random.choice(stringlist[str(ctx.guild.id)])
             except Exception as e:
                 exceptionstring = format_exc()
-                await report.send(f"<@120396380073099264> {exceptionstring}")
+                await report.send(f"<@120396380073099264>\n{exceptionstring}\nIn {ctx.guild.name}")
                 full_text = "no messages indexed"
 
             if " " in full_text:
