@@ -14,9 +14,9 @@ import asyncio
 
 status = "Cookie Run: Ovenbreak"
 #status = "Testing new features!"
-versionnum = "3.9b"
-updatetime = "2024/03/11 20:52"
-changes = "**(3.9)** Added error handling for Mudae error, improved general error handling, added logs to message indexing to diagnose meme command bug\n(a) Fixed bug with message indexing logs\n(b) Fixed another bug with message indexing logs"
+versionnum = "3.10"
+updatetime = "2024/03/23 17:45"
+changes = "**(3.10)** Fixed sorting for reputation command, updated reputation command to allow perpetrator to view other users' reputation"
 path = os.getcwd()
 print(f"XyL-Q v{versionnum}")
 print(updatetime)
@@ -359,18 +359,18 @@ async def on_message(message: discord.Message):
         else:
             try:
                 msglist = stringlist[str(message.guild.id)] #Grabs the list of already indexed messages for the server the message is in
-
+                await report.send(f"MSGlist is {msglist}")
                 if len(msglist) > 100: #Index list should always be less than 100 just to make sure the little guy doesn't get too overwhelmed
                     for x in range(70):
                         prevlength = len(msglist)
                         msglist.pop(0) #Delete the oldest 70 messages from the list, I can't remember if this deletes the recent ones accidentally
-                        await report.send(f"MSGlist for {message.guild.name} updated-Q! Length has changed from {prevlength} to {len(msglist)}-Q!")
+                        #await report.send(f"MSGlist for {message.guild.name} updated-Q! Length has changed from {prevlength} to {len(msglist)}-Q!")
                         msglist.append(message.content)
-                        await report.send(f"MSGlist for {message.guild.name} updated-Q! Length has changed from {prevlength} to {len(msglist)}-Q!")
+                        #await report.send(f"MSGlist for {message.guild.name} updated-Q! Length has changed from {prevlength} to {len(msglist)}-Q!")
                 else:
                     prevlength = len(msglist)
                     msglist.append(message.content)
-                    await report.send(f"MSGlist for {message.guild.name} updated-Q! Length has changed from {prevlength} to {len(msglist)}-Q!")
+                    #await report.send(f"MSGlist for {message.guild.name} updated-Q! Length has changed from {prevlength} to {len(msglist)}-Q!")
                 stringlist[str(message.guild.id)] = msglist #Update the dictionary of indexed messages per server
             except KeyError:
                 exceptionstring = format_exc()
@@ -387,14 +387,20 @@ async def version(ctx: discord.Interaction):
 
 #Simple way for users to check reputation, also revised by ChatGPT even though I didn't ask it to revise this either
 @client.slash_command(description="Shows you your reputation and other related stats!")
-async def reputation(ctx: discord.Interaction):
+async def reputation(ctx: discord.Interaction, user: str=None):
     try:
         guild_id_str = str(ctx.guild.id)
-        user_id_str = str(ctx.author.id)
+        if user == None:
+            user_id_str = str(ctx.author.id)
+            member: discord.User = ctx.author
+        else:
+            user_id_str = user.strip("<>@")
+            guild: discord.Guild = ctx.guild
+            member: discord.User = await guild.fetch_member(int(user_id_str))
 
-        embed = discord.Embed(title=f"{ctx.author.display_name}'s reputation stats-Q!",
-                            color=ctx.author.color)
-        embed.set_thumbnail(url=ctx.author.display_avatar.url)
+        embed = discord.Embed(title=f"{member.display_name}'s reputation stats-Q!",
+                            color=member.color)
+        embed.set_thumbnail(url=member.display_avatar.url)
 
         # Adjusting for guild-specific total reputation
         guild_totalrep = totalrep.get(guild_id_str, {})
@@ -417,10 +423,14 @@ async def reputation(ctx: discord.Interaction):
 
         # Adjusting for guild-specific received reputation details
         received_rep_str = ""
+        repreceivedusers = {}
         for giver_id, given_to in guild_rep.items():
             if user_id_str in given_to:
-                received_rep_str += f"<@{giver_id}>: {given_to[user_id_str]} rep\n"
-
+                repreceivedusers[giver_id] = given_to[user_id_str]
+        if len(repreceivedusers) > 0:
+            sorted_given_rep = sorted(repreceivedusers.items(), key=lambda x: x[1], reverse=True)
+            for giver_id, amount in sorted_given_rep[:3]:
+                received_rep_str += f"<@{giver_id}>: {amount} rep\n"
         received_rep_str = received_rep_str or "Nobody...I'd give you rep if I could, though :("
         embed.add_field(name="You've received the most rep from:", value=received_rep_str, inline=False)
 
