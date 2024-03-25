@@ -14,9 +14,9 @@ import asyncio
 
 status = "Cookie Run: Ovenbreak"
 #status = "Testing new features!"
-versionnum = "3.10"
-updatetime = "2024/03/23 17:45"
-changes = "**(3.10)** Fixed sorting for reputation command, updated reputation command to allow perpetrator to view other users' reputation"
+versionnum = "3.10a"
+updatetime = "2024/03/25 13:26"
+changes = "**(3.10a)** Fixed sorting for reputation command, updated reputation command to allow perpetrator to view other users' reputation\n(a) Disabled way too verbose logging on my end"
 path = os.getcwd()
 print(f"XyL-Q v{versionnum}")
 print(updatetime)
@@ -359,7 +359,7 @@ async def on_message(message: discord.Message):
         else:
             try:
                 msglist = stringlist[str(message.guild.id)] #Grabs the list of already indexed messages for the server the message is in
-                await report.send(f"MSGlist is {msglist}")
+                #await report.send(f"MSGlist is {msglist}")
                 if len(msglist) > 100: #Index list should always be less than 100 just to make sure the little guy doesn't get too overwhelmed
                     for x in range(70):
                         prevlength = len(msglist)
