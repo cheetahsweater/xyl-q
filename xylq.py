@@ -12,11 +12,11 @@ import requests
 from bs4 import BeautifulSoup
 import asyncio
 
-#status = "Cookie Run: Ovenbreak"
-status = "Testing new features!"
-versionnum = "3.10b"
-updatetime = "2024/03/29 11:24"
-changes = "**(3.10)** Fixed sorting for reputation command, updated reputation command to allow perpetrator to view other users' reputation\n(a) Disabled way too verbose logging on my end\(b) Changed lovelist to only check for character name since all names are unique, fixed meme command message indexing finally"
+status = "Cookie Run: Witch’s Castle"
+#status = "Testing new features!"
+versionnum = "3.10c"
+updatetime = "2024/03/29 13:57"
+changes = "**(3.10)** Fixed sorting for reputation command, updated reputation command to allow perpetrator to view other users' reputation\n(a) Disabled way too verbose logging on my end\n(b) Changed lovelist to only check for character name since all names are unique, fixed meme command message indexing finally\n(c) Lovelist bug fix"
 path = os.getcwd()
 print(f"XyL-Q v{versionnum}")
 print(updatetime)
@@ -341,7 +341,7 @@ async def on_message(message: discord.Message):
                     return
                 for userlist in lovelist.items():
                     for entry in dict(userlist[1]).items():
-                        if roll[0] == {entry[0]}:
+                        if message.embeds[0].author.name.casefold() == {entry[0]}:
                             await message.channel.send(f"{entry[0]} is loved by <@{userlist[0]}>-Q!")
                 for user, userlist in sourcelist.items():
                     for usersource in userlist:
