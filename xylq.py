@@ -12,11 +12,11 @@ import requests
 from bs4 import BeautifulSoup
 import asyncio
 
-status = "Cookie Run: Ovenbreak"
-#status = "Testing new features!"
-versionnum = "3.10a"
-updatetime = "2024/03/25 13:26"
-changes = "**(3.10a)** Fixed sorting for reputation command, updated reputation command to allow perpetrator to view other users' reputation\n(a) Disabled way too verbose logging on my end"
+#status = "Cookie Run: Ovenbreak"
+status = "Testing new features!"
+versionnum = "3.10b"
+updatetime = "2024/03/29 11:24"
+changes = "**(3.10)** Fixed sorting for reputation command, updated reputation command to allow perpetrator to view other users' reputation\n(a) Disabled way too verbose logging on my end\(b) Changed lovelist to only check for character name since all names are unique, fixed meme command message indexing finally"
 path = os.getcwd()
 print(f"XyL-Q v{versionnum}")
 print(updatetime)
@@ -341,7 +341,7 @@ async def on_message(message: discord.Message):
                     return
                 for userlist in lovelist.items():
                     for entry in dict(userlist[1]).items():
-                        if roll == {entry[0]:entry[1]}:
+                        if roll[0] == {entry[0]}:
                             await message.channel.send(f"{entry[0]} is loved by <@{userlist[0]}>-Q!")
                 for user, userlist in sourcelist.items():
                     for usersource in userlist:
@@ -362,20 +362,21 @@ async def on_message(message: discord.Message):
                 #await report.send(f"MSGlist is {msglist}")
                 if len(msglist) > 100: #Index list should always be less than 100 just to make sure the little guy doesn't get too overwhelmed
                     for x in range(70):
-                        prevlength = len(msglist)
-                        msglist.pop(0) #Delete the oldest 70 messages from the list, I can't remember if this deletes the recent ones accidentally
+                        msglist.pop(0) #Delete the oldest 70 messages from the list
                         #await report.send(f"MSGlist for {message.guild.name} updated-Q! Length has changed from {prevlength} to {len(msglist)}-Q!")
-                        msglist.append(message.content)
                         #await report.send(f"MSGlist for {message.guild.name} updated-Q! Length has changed from {prevlength} to {len(msglist)}-Q!")
+                    msglist.append(message.content)
+                    #print(msglist)
                 else:
                     prevlength = len(msglist)
                     msglist.append(message.content)
+                    #print(msglist)
                     #await report.send(f"MSGlist for {message.guild.name} updated-Q! Length has changed from {prevlength} to {len(msglist)}-Q!")
                 stringlist[str(message.guild.id)] = msglist #Update the dictionary of indexed messages per server
             except KeyError:
                 exceptionstring = format_exc()
                 await report.send(f"{exceptionstring}")
-            stringlist.update({str(message.guild.id): [message.content]}) #Adds a new entry to the dictionary if there's no indexed messages for the server
+                stringlist.update({str(message.guild.id): [message.content]}) #Adds a new entry to the dictionary if there's no indexed messages for the server
     except Exception as e:
         exceptionstring = format_exc()
         await report.send(f"<@120396380073099264>\n{exceptionstring}\nIn {message.guild.name}")
