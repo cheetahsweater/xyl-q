@@ -14,9 +14,9 @@ import asyncio
 
 status = "Cookie Run: Witch’s Castle"
 #status = "Testing new features!"
-versionnum = "3.10c"
-updatetime = "2024/03/29 13:57"
-changes = "**(3.10)** Fixed sorting for reputation command, updated reputation command to allow perpetrator to view other users' reputation\n(a) Disabled way too verbose logging on my end\n(b) Changed lovelist to only check for character name since all names are unique, fixed meme command message indexing finally\n(c) Lovelist bug fix"
+versionnum = "3.10d"
+updatetime = "2024/03/31 11:14"
+changes = "**(3.10)** Fixed sorting for reputation command, updated reputation command to allow perpetrator to view other users' reputation\n(a) Disabled way too verbose logging on my end\n(b) Changed lovelist to only check for character name since all names are unique, fixed meme command message indexing finally\n(c) Lovelist bug fix\n(d) Another lovelist bug fix"
 path = os.getcwd()
 print(f"XyL-Q v{versionnum}")
 print(updatetime)
@@ -332,16 +332,24 @@ async def on_message(message: discord.Message):
         if message.author.id == 432610292342587392: #Mudae notification logic
             if len(message.embeds) == 1:
                 sourcelines = message.embeds[0].description.split("\n")[:-1]
+                #print(len(sourcelines)) #TEST
                 source = ""
                 for line in sourcelines:
                     source += f"{line} "
                 try:
                     roll = {message.embeds[0].author.name.casefold():source.strip().casefold()}
+                    #print(roll) #TEST
+                    #print(str(list(roll.keys())[0])) #TEST
+                    #Testing stuff
+                    '''testvar = "reaper bird"
+                    if str(list(roll.keys())[0]) == testvar:
+                        await message.channel.send(f"{testvar} is loved by POOPMEISTER.-Q!")'''
                 except AttributeError:
                     return
                 for userlist in lovelist.items():
                     for entry in dict(userlist[1]).items():
-                        if message.embeds[0].author.name.casefold() == {entry[0]}:
+                        #print(str(list(roll.keys())[0])) #TEST
+                        if str(list(roll.keys())[0]) == {entry[0]}:
                             await message.channel.send(f"{entry[0]} is loved by <@{userlist[0]}>-Q!")
                 for user, userlist in sourcelist.items():
                     for usersource in userlist:
