@@ -14,9 +14,9 @@ import asyncio
 
 status = "Cookie Run: Witch’s Castle"
 #status = "Testing new features!"
-versionnum = "3.11"
-updatetime = "2024/04/06 23:52"
-changes = "**(3.11)** Added server parameter to lovelist to keep it from firing off in other servers\n(a) Attempt at bug fix"
+versionnum = "3.11b"
+updatetime = "2024/04/07 11:42"
+changes = "**(3.11)** Added server parameter to lovelist to keep it from firing off in other servers\n(a) Attempt at bug fix\n(b) Actually tested bug fix"
 path = os.getcwd()
 print(f"XyL-Q v{versionnum}")
 print(updatetime)
@@ -338,7 +338,8 @@ async def on_message(message: discord.Message):
                     source += f"{line} "
                 try:
                     roll = {message.embeds[0].author.name.casefold():source.strip().casefold()}
-                    #print(roll) #TEST
+                    #print(roll)
+                    #print(source)
                     #print(str(list(roll.keys())[0])) #TEST
                     #Testing stuff
                     '''testvar = "reaper bird"
@@ -347,16 +348,25 @@ async def on_message(message: discord.Message):
                 except AttributeError:
                     return
                 for key, value in lovelist.items():
+                    #print(key) #TEST
                     if int(key) == message.guild.id:
+                        #print("Check 1 succeeded") #TEST
                         guildlovelist = lovelist[str(message.guild.id)]
                         for userlist in guildlovelist.items():
                             for entry in dict(userlist[1]).items():
                                 #print(str(list(roll.keys())[0])) #TEST
-                                if str(list(roll.keys())[0]) == {entry[0]}:
-                                    await message.channel.send(f"{entry[0]} is loved by <@{userlist[0]}>-Q!")
-                        for user, userlist in sourcelist.items():
+                                if str(list(roll.keys())[0]) == entry[0]:
+                                    if "Claim Rank" not in source:
+                                        #print("Yes!") #TEST
+                                        await message.channel.send(f"{entry[0]} is loved by <@{userlist[0]}>-Q!")
+                for key, value in sourcelist.items():
+                    if int(key) == message.guild.id:
+                        #print("Test 1: passed.") #TEST
+                        guildsourcelist = sourcelist[str(message.guild.id)]
+                        for user, userlist in guildsourcelist.items():
+                            #print(f"Checking {user} list...") #TEST
                             for usersource in userlist:
-                                if usersource.strip().casefold() == source.strip().casefold():
+                                if str(usersource).strip().casefold() == source.strip().casefold():
                                     await message.channel.send(f"{usersource} is loved by <@{user}>-Q!")
         if len(message.content) == 0: #Don't index messages with no text in them (e.g. files or images)
             return
