@@ -568,6 +568,65 @@ async def love_source(ctx: discord.Interaction, source: str, user: str=None):
         exceptionstring = format_exc()
         await report.send(f"<@120396380073099264>\n{exceptionstring}\nIn {ctx.guild.name}")
 
+
+'''class prev_button(discord.ui.View):
+    @discord.ui.button(style=discord.ButtonStyle.secondary , emoji="◀️")
+    async def button_callback(self, button, interaction):
+        await interaction.response.send_message("This doesn't do anything yet SORRY")'''
+
+#Lets you check your list of loved characters
+@client.slash_command(description="Shows your list of loved characters!", guild_ids=guilds)
+async def view_lovelist(ctx: discord.Interaction, source: str=None, user: str=None):
+    try:
+        if user == None:
+            IDstring = str(ctx.author.id)
+            member: discord.User = ctx.author
+        else:
+            IDstring = user.strip("<>@")
+            guild: discord.Guild = ctx.guild
+            member: discord.User = await guild.fetch_member(int(IDstring))
+        try:
+            guildlovelist = lovelist[str(ctx.guild.id)]
+        except KeyError:
+            guildlovelist = {}
+            await ctx.send("Your lovelist is empty-Q!")
+            return
+        try:
+            userlovelist = guildlovelist[IDstring]
+        except KeyError:
+            if IDstring == str(ctx.author.id):
+                await ctx.send("Your lovelist is empty-Q!")
+                userlovelist = {}
+                return
+            else:
+                await ctx.send(f"{member.display_name}'s lovelist is empty-Q!")
+        if len(userlovelist) > 0:
+            per_page = 15
+            content = []
+            pages = (len(userlovelist) + per_page - 1) // per_page
+            user_loved = list(userlovelist.items())
+            current_page = 1
+            for page in range(pages):
+                start_index = page * per_page
+                end_index = start_index + per_page
+                page_items = user_loved[start_index:end_index]
+                page_content = ""
+                for num, (key, value) in enumerate(page_items, start=1):
+                    line = f"{num + start_index}. **{key}** | {value}" 
+                    page_content += f"{line}\n"
+                content.append(page_content)
+            embed = discord.Embed(title="",
+                            color=member.color)
+            embed.set_author(name=f"{member.display_name}'s lovelist-Q!", icon_url=member.display_avatar.url)
+            embed.add_field(name="", value=content[current_page - 1])
+            embed.set_footer(text=f"Page {current_page} / {pages}")
+            interaction: discord.Interaction = await ctx.respond(embed=embed, view=prev_button)
+            message: discord.Message = interaction.message
+            await message.add_reaction("▶️")
+    except Exception as e:
+        exceptionstring = format_exc()
+        await report.send(f"<@120396380073099264>\n{exceptionstring}\nIn {ctx.guild.name}")
+
 #MY MAGNUM OPUS (the meme command)
 @client.slash_command(description="Makes a meme based on parameters given!", guild_ids=guilds)
 async def meme(ctx: discord.Interaction, top_text: str=None, bottom_text: str=None, image_link: str=None, image_upload: discord.Attachment=None, wiki: discord.Option(str, choices=wikis)=None): 
