@@ -212,7 +212,7 @@ async def on_ready():
     report = client.get_channel(1213349040050409512)
     print('Bot is online!')
 
-#Reputation giving and removing function
+#Reputation giving and removing function + reaction role handling
 @client.event
 async def on_reaction_add(reaction: discord.Reaction, user: discord.User):
     try:
@@ -507,6 +507,25 @@ async def disable(ctx: discord.Interaction, command: discord.Option(str, choices
             file.write(myJson)
             file.close()
         await ctx.respond(f"Okay-Q! I've disabled the *{command}* command in the <#{channelID}> channel-Q!")
+    except Exception as e:
+        exceptionstring = format_exc()
+        await report.send(f"<@120396380073099264>\n{exceptionstring}\nIn {ctx.guild.name}")
+
+#Reaction roles setup
+rr = client.create_group("rr", "For setting up and managing reaction roles")
+
+@rr.command()
+#Utility for Mudae rolls, notifies a user of any character given with this command
+async def add_rr(ctx: discord.Interaction, emote: str):
+    try:
+        if emote == None:
+            await ctx.respond("Error: No emote specified!")
+        if emote[0] != "<":
+            emote_type = "unicode"
+        elif emote[0] == "<":
+            emote_id = emote.strip("<>").split(":")[2]
+            emote_type = "custom"
+            emote = ctx.guild.fetch_emoji(emote_id)
     except Exception as e:
         exceptionstring = format_exc()
         await report.send(f"<@120396380073099264>\n{exceptionstring}\nIn {ctx.guild.name}")
