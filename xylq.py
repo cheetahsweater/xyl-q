@@ -14,9 +14,9 @@ import asyncio
 
 status = "Cookie Run: Witch’s Castle"
 #status = "Testing new features!"
-versionnum = "3.10d"
-updatetime = "2024/03/31 11:14"
-changes = "**(3.10)** Fixed sorting for reputation command, updated reputation command to allow perpetrator to view other users' reputation\n(a) Disabled way too verbose logging on my end\n(b) Changed lovelist to only check for character name since all names are unique, fixed meme command message indexing finally\n(c) Lovelist bug fix\n(d) Another lovelist bug fix"
+versionnum = "3.11"
+updatetime = "2024/04/06 21:56"
+changes = "**(3.11)** Added server parameter to lovelist to keep it from firing off in other servers"
 path = os.getcwd()
 print(f"XyL-Q v{versionnum}")
 print(updatetime)
@@ -346,16 +346,17 @@ async def on_message(message: discord.Message):
                         await message.channel.send(f"{testvar} is loved by POOPMEISTER.-Q!")'''
                 except AttributeError:
                     return
-                for userlist in lovelist.items():
-                    for entry in dict(userlist[1]).items():
-                        #print(str(list(roll.keys())[0])) #TEST
-                        if str(list(roll.keys())[0]) == {entry[0]}:
-                            await message.channel.send(f"{entry[0]} is loved by <@{userlist[0]}>-Q!")
-                for user, userlist in sourcelist.items():
-                    for usersource in userlist:
-                        if usersource.strip().casefold() == source.strip().casefold():
-                            await message.channel.send(f"{usersource} is loved by <@{user}>-Q!")
-
+                for key, value in lovelist.items():
+                    if int(key) == message.guild.id:
+                        for userlist in value.items():
+                            for entry in dict(userlist[1]).items():
+                                #print(str(list(roll.keys())[0])) #TEST
+                                if str(list(roll.keys())[0]) == {entry[0]}:
+                                    await message.channel.send(f"{entry[0]} is loved by <@{userlist[0]}>-Q!")
+                        for user, userlist in sourcelist.items():
+                            for usersource in userlist:
+                                if usersource.strip().casefold() == source.strip().casefold():
+                                    await message.channel.send(f"{usersource} is loved by <@{user}>-Q!")
         if len(message.content) == 0: #Don't index messages with no text in them (e.g. files or images)
             return
         if str(message.channel.id) in badcacheIDs: #Don't index messages from channels that are in the "don't index these" list
@@ -508,19 +509,24 @@ async def love_character(ctx: discord.Interaction, character: str, source: str, 
         else:
             IDstring = user.strip("<>@")
         try:
-            userlovelist = lovelist[IDstring]
+            guildlovelist = lovelist[str(ctx.guild.id)]
+        except KeyError:
+            guildlovelist = {}
+        try:
+            userlovelist = guildlovelist[IDstring]
         except KeyError:
             userlovelist = {}
         userlovelist[character.casefold().strip()] = source.casefold().strip()
-        lovelist[IDstring] = userlovelist
+        guildlovelist[IDstring] = userlovelist
+        lovelist[str(ctx.guild.id)] = guildlovelist
         with open(f'{path}\\lovelist.json', "w") as file:
             json.dump(lovelist, file)
         if user != None:
             guild: discord.Guild = ctx.guild
             member: discord.User = await guild.fetch_member(int(IDstring))
-            await ctx.respond(f"{random.choice(aff)}-Q! I've added {character} from {source} to {member.display_name}'s love list-Q!")
+            await ctx.respond(f"{random.choice(aff)}-Q! I've added {character} from {source} to {member.display_name}'s lovelist-Q!")
         else:
-            await ctx.respond(f"{random.choice(aff)}-Q! I've added {character} from {source} to your love list-Q!")
+            await ctx.respond(f"{random.choice(aff)}-Q! I've added {character} from {source} to your lovelist-Q!")
     except Exception as e:
         exceptionstring = format_exc()
         await report.send(f"<@120396380073099264>\n{exceptionstring}\nIn {ctx.guild.name}")
