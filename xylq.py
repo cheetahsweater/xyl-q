@@ -15,8 +15,8 @@ import asyncio
 status = "Cookie Run: Witch’s Castle"
 #status = "Testing new features!"
 versionnum = "3.11"
-updatetime = "2024/04/06 21:56"
-changes = "**(3.11)** Added server parameter to lovelist to keep it from firing off in other servers"
+updatetime = "2024/04/06 23:52"
+changes = "**(3.11)** Added server parameter to lovelist to keep it from firing off in other servers\n(a) Attempt at bug fix"
 path = os.getcwd()
 print(f"XyL-Q v{versionnum}")
 print(updatetime)
@@ -348,7 +348,8 @@ async def on_message(message: discord.Message):
                     return
                 for key, value in lovelist.items():
                     if int(key) == message.guild.id:
-                        for userlist in value.items():
+                        guildlovelist = lovelist[str(message.guild.id)]
+                        for userlist in guildlovelist.items():
                             for entry in dict(userlist[1]).items():
                                 #print(str(list(roll.keys())[0])) #TEST
                                 if str(list(roll.keys())[0]) == {entry[0]}:
