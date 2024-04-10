@@ -12,8 +12,8 @@ import requests
 from bs4 import BeautifulSoup
 import asyncio
 
-status = "Cookie Run: Witch’s Castle"
-#status = "Testing new features!"
+#status = "Cookie Run: Witch’s Castle"
+status = "Testing new features!"
 versionnum = "3.11b"
 updatetime = "2024/04/07 11:42"
 changes = "**(3.11)** Added server parameter to lovelist to keep it from firing off in other servers\n(a) Attempt at bug fix\n(b) Actually tested bug fix"
@@ -405,6 +405,43 @@ async def on_message(message: discord.Message):
 @client.slash_command(description="Returns XyL-Q version number!", guild_ids=guilds)
 async def version(ctx: discord.Interaction): 
     await ctx.respond(f"Hello-Q! I'm XyL-Q, running version {versionnum} released on {updatetime}-Q!\n\n__Changelog__\n{changes}")
+
+#Command to get info on a certain Care Bear or choose a random one
+@client.slash_command(description="Get information on a random Care Bear, or a bear of your choice!", guild_ids=guilds)
+async def care_bear(ctx: discord.Interaction, bear: str=None): 
+    if bear == None:
+        await ctx.response.defer()
+        url = "https://carebears.fandom.com/wiki/Category:Care_Bears"
+        reqs = requests.get(url)
+        soup = BeautifulSoup(reqs.text, 'html.parser')
+        urls = []
+        for link in soup.find_all('a'):
+            url = link.get('href')
+            if url != None:
+                if "/wiki/" in url: 
+                    if url != "https://carebears.fandom.com/wiki/Care_Bears":
+                        if "Bear" in url:
+                            urls.append(url)
+        bear_url = f"https://carebears.fandom.com/{random.choice(urls)}"
+    else:
+        await ctx.response.defer()
+        url = f"https://carebears.fandom.com/wiki/Special:Search?query={bear}"
+        reqs = requests.get(url)
+        soup = BeautifulSoup(reqs.text, 'html.parser')
+        
+        urls = []
+        for link in soup.find_all('a'):
+            try:
+                if link['data-position'] == '1':
+                    urls.append(link)
+            except KeyError:
+                pass
+        bear_url = urls[0]["href"]
+    
+    reqs = requests.get(bear_url)
+    soup = BeautifulSoup(reqs.text, 'html.parser')
+    
+    embed = discord.Embed(title="test")
 
 #Simple way for users to check reputation, also revised by ChatGPT even though I didn't ask it to revise this either
 @client.slash_command(description="Shows you your reputation and other related stats!")
