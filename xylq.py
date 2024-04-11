@@ -12,11 +12,11 @@ import requests
 from bs4 import BeautifulSoup
 import asyncio
 
-#status = "Cookie Run: Witch’s Castle"
-status = "Testing new features!"
-versionnum = "3.11b"
-updatetime = "2024/04/07 11:42"
-changes = "**(3.11)** Added server parameter to lovelist to keep it from firing off in other servers\n(a) Attempt at bug fix\n(b) Actually tested bug fix"
+status = "Cookie Run: Witch’s Castle"
+#status = "Testing new features!"
+versionnum = "4.0"
+updatetime = "2024/04/10 22:10"
+changes = "**(4.0)** Added new command that either pulls a random Care Bear or pulls a given Care Bear from the Care Bears wiki"
 path = os.getcwd()
 print(f"XyL-Q v{versionnum}")
 print(updatetime)
@@ -409,39 +409,135 @@ async def version(ctx: discord.Interaction):
 #Command to get info on a certain Care Bear or choose a random one
 @client.slash_command(description="Get information on a random Care Bear, or a bear of your choice!", guild_ids=guilds)
 async def care_bear(ctx: discord.Interaction, bear: str=None): 
-    if bear == None:
+    try:
         await ctx.response.defer()
-        url = "https://carebears.fandom.com/wiki/Category:Care_Bears"
-        reqs = requests.get(url)
+        if bear == None:
+            url = "https://carebears.fandom.com/wiki/Category:Care_Bears"
+            reqs = requests.get(url)
+            soup = BeautifulSoup(reqs.text, 'html.parser')
+            urls = []
+            for link in soup.find_all('a'):
+                url = link.get('href')
+                if url != None:
+                    if "/wiki/" in url: 
+                        if url != "https://carebears.fandom.com/wiki/Care_Bears":
+                            if "Bear" in url:
+                                if "Category" not in url:
+                                    if "User" not in url:
+                                        urls.append(url)
+            bear_url = f"https://carebears.fandom.com{random.choice(urls)}"
+        else:
+            url = f"https://carebears.fandom.com/wiki/Special:Search?query={bear}"
+            reqs = requests.get(url)
+            soup = BeautifulSoup(reqs.text, 'html.parser')
+            
+            urls = []
+            for link in soup.find_all('a'):
+                try:
+                    if link['data-position'] == '1':
+                        urls.append(link)
+                except KeyError:
+                    pass
+            try:    
+                bear_url = urls[0]["href"]
+            except IndexError:
+                await ctx.respond(f"Bear {bear} not found!")
+                return
+        bear_url_chopped = str(bear_url).split("/")
+        bear_gallery = f"{str(bear_url)}/Gallery"
+        bear_name = bear_url_chopped[-1].replace("_", " ")
+        print(bear_name, bear_url)
+        reqs = requests.get(bear_url)
         soup = BeautifulSoup(reqs.text, 'html.parser')
-        urls = []
-        for link in soup.find_all('a'):
-            url = link.get('href')
-            if url != None:
-                if "/wiki/" in url: 
-                    if url != "https://carebears.fandom.com/wiki/Care_Bears":
-                        if "Bear" in url:
-                            urls.append(url)
-        bear_url = f"https://carebears.fandom.com/{random.choice(urls)}"
-    else:
-        await ctx.response.defer()
-        url = f"https://carebears.fandom.com/wiki/Special:Search?query={bear}"
-        reqs = requests.get(url)
-        soup = BeautifulSoup(reqs.text, 'html.parser')
-        
-        urls = []
-        for link in soup.find_all('a'):
+        p = []
+        for link in soup.find_all('p'):
+            if f"<b>{bear_name}</b>" in str(link):
+                link_text = link.get_text()
+                link_text = link_text.strip("\n")
+                p.append(link_text)
+        if len(p) == 0:
+            for link in soup.find_all('p'):
+                if f"{bear_name} is" in str(link):
+                    link_text = link.get_text()
+                    link_text = link_text.strip("\n")
+                    p.append(link_text)
+        aside_lists = []
+        aside = []
+        for link in soup.find_all('aside'):
+            aside_lists.append(link.get_text().split("\n"))
+        for list in aside_lists:
+            aside += list
+        info = {}
+        try:
+            info["Gender"] = aside[aside.index("Gender")+1]
+        except ValueError:
+            info["Gender"] = "None"
+
+        try:
+            info["Fur Colour"] = aside[aside.index("Fur Colour")+1]
+        except ValueError:
+            info["Fur Colour"] = "None"
+        backup_img = []
+        for link in soup.find_all('img'):
             try:
-                if link['data-position'] == '1':
-                    urls.append(link)
+                if (".jpg" in link["data-image-key"]) or (".png" in link["data-image-key"]) or (".webp" in link["data-image-key"]):
+                        img_link = str(link["src"]).split("/revision")[0]
+                        backup_img.append(img_link)
             except KeyError:
                 pass
-        bear_url = urls[0]["href"]
-    
-    reqs = requests.get(bear_url)
-    soup = BeautifulSoup(reqs.text, 'html.parser')
-    
-    embed = discord.Embed(title="test")
+        
+        reqs = requests.get(bear_gallery)
+        soup = BeautifulSoup(reqs.text, 'html.parser')
+        img = []
+
+        for link in soup.find_all('img'):
+            try:
+                if (".jpg" in link["data-image-key"]) or (".png" in link["data-image-key"]) or (".webp" in link["data-image-key"]):
+                        img_link = str(link["data-src"]).split("/revision")[0]
+                        img.append(img_link)
+            except KeyError:
+                pass
+        try:
+            bear_img = random.choice(img)
+        except IndexError:
+            try:
+                bear_img = random.choice(backup_img)
+                if bear_img == "https://static.wikia.nocookie.net/carebears/images/8/80/Unlock_the_Magic_Here.jpg":
+                    backup_img.pop(backup_img.index("https://static.wikia.nocookie.net/carebears/images/8/80/Unlock_the_Magic_Here.jpg"))
+                    bear_img = random.choice(backup_img)
+                if bear_img == "https://static.wikia.nocookie.net/carebears/images/1/16/Grumpy_Stub_fixed.jpg":
+                    backup_img.pop(backup_img.index("https://static.wikia.nocookie.net/carebears/images/1/16/Grumpy_Stub_fixed.jpg"))
+                    bear_img = random.choice(backup_img)
+                if "base64" in bear_img:
+                    backup_img.pop(backup_img.index(bear_img))
+                    bear_img = random.choice(backup_img)
+            except IndexError:
+                bear_img = "https://upload.wikimedia.org/wikipedia/commons/thumb/6/65/No-Image-Placeholder.svg/1665px-No-Image-Placeholder.svg.png"
+        print(bear_img)
+        if "Bear" not in bear_name:
+            await ctx.respond(f"Bear {bear} not found!")
+        else:
+            if bear_img == "https://static.wikia.nocookie.net/carebears/images/8/80/Unlock_the_Magic_Here.jpg":
+                backup_img.pop(backup_img.index("https://static.wikia.nocookie.net/carebears/images/8/80/Unlock_the_Magic_Here.jpg"))
+                bear_img = random.choice(backup_img)
+            if bear_img == "https://static.wikia.nocookie.net/carebears/images/1/16/Grumpy_Stub_fixed.jpg":
+                backup_img.pop(backup_img.index("https://static.wikia.nocookie.net/carebears/images/1/16/Grumpy_Stub_fixed.jpg"))
+                bear_img = random.choice(backup_img)
+            if "base64" in bear_img:
+                backup_img.pop(backup_img.index(bear_img))
+                bear_img = random.choice(backup_img)
+            try:
+                embed = discord.Embed(title=bear_name, description=p[0].split("\n")[-1], url=bear_url)
+            except IndexError:
+                embed = discord.Embed(title=bear_name, description=p, url=bear_url)
+            embed.set_image(url=bear_img)
+            embed.add_field(name="Gender", value=info["Gender"])
+            embed.add_field(name="Fur color", value=info["Fur Colour"])
+            await ctx.respond(embed=embed)
+            #await ctx.respond()
+    except Exception as e:
+        exceptionstring = format_exc()
+        await report.send(f"<@120396380073099264>\n{exceptionstring}\nIn {ctx.guild.name}")
 
 #Simple way for users to check reputation, also revised by ChatGPT even though I didn't ask it to revise this either
 @client.slash_command(description="Shows you your reputation and other related stats!")
