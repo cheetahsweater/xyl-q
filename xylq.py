@@ -14,9 +14,9 @@ import asyncio
 
 status = "Cookie Run: Witch’s Castle"
 #status = "Testing new features!"
-versionnum = "4.1"
-updatetime = "2024/04/11 21:39"
-changes = "**(4.1)** Added new command that pulls info on a random Cookie Run character"
+versionnum = "4.1a"
+updatetime = "2024/04/12 15:21"
+changes = "**(4.1)** Added new command that pulls info on a random Cookie Run character\(a) Fixed sourcelist bug and added command so I can refresh variables when manually editing them"
 path = os.getcwd()
 print(f"XyL-Q v{versionnum}")
 print(updatetime)
@@ -406,6 +406,98 @@ async def on_message(message: discord.Message):
 @client.slash_command(description="Returns XyL-Q version number!", guild_ids=guilds)
 async def version(ctx: discord.Interaction): 
     await ctx.respond(f"Hello-Q! I'm XyL-Q, running version {versionnum} released on {updatetime}-Q!\n\n__Changelog__\n{changes}")
+
+#For me to refresh variables
+@client.slash_command(description="Refresh all bot variables!", guild_ids=guilds)
+async def refresh_vars(ctx: discord.Interaction): 
+    if ctx.author.id == 120396380073099264:
+        #Load individual user-to-user reputation database
+        with open(f'{path}\\rep.json',"r+") as file:
+            global rep
+            try:
+                text = json.loads(file.read())
+                rep = text
+            except JSONDecodeError as e:
+                print(e)
+                rep = {}
+            file.close()
+
+        #Load user total reputation database
+        with open(f'{path}\\totalrep.json',"r+") as file:
+            global totalrep
+            try:
+                text = json.loads(file.read())
+                totalrep = text
+            except JSONDecodeError as e:
+                print(e)
+                totalrep = {}
+            file.close()
+
+        #Load list of channels in which certain commands are disabled
+        with open(f'{path}\\badid.json',"r+") as file:
+            global badIDs
+            try:
+                text = json.loads(file.read())
+                badIDs = text
+            except JSONDecodeError as e:
+                print(e)
+                badIDs = {}
+            file.close()
+
+        #Load list of loved Mudae characters
+        with open(f'{path}\\lovelist.json',"r+") as file:
+            global lovelist
+            try:
+                text = json.loads(file.read())
+                lovelist = text
+            except JSONDecodeError as e:
+                print(e)
+                lovelist = {}
+            file.close()
+
+        #Load list of loved Mudae sources
+        with open(f'{path}\\sourcelist.json',"r+") as file:
+            global sourcelist
+            try:
+                text = json.loads(file.read())
+                sourcelist = text
+            except JSONDecodeError as e:
+                print(e)
+                sourcelist = {}
+            file.close()
+
+
+        #Load list of channels in which message caching is disabled
+        with open(f'{path}\\badcache.txt',"r+") as file:
+            global badcacheIDs
+            try:
+                text = file.read()
+                if len(text) > 1:
+                    badcacheIDs = text.split("\n")
+                else:
+                    badcacheIDs = []
+            except IndexError:
+                badcacheIDs = []
+            file.close()
+
+        #Load list of guilds
+        with open(f'{path}\\guilds.txt',"r+") as file:
+            global guilds
+            try:
+                text = file.read()
+                if len(text) > 1:
+                    guilds = text.split("\n")
+                    for serverID in guilds:
+                        serverID = int(serverID)
+                else:
+                    print("Error! Guilds not loaded!")
+                    guilds = []
+            except IndexError:
+                print("Error! Guilds not loaded!")
+            file.close()
+        await ctx.respond(f"Variables refreshed-Q!")
+    else:
+        await ctx.respond("Error-Q! You cannot use this command-Q!")
 
 def check_img(img_link: str):
     #print(f"Checking {img_link}...") #TEST
@@ -858,11 +950,16 @@ async def love_source(ctx: discord.Interaction, source: str, user: str=None):
         else:
             IDstring = user.strip("<>@")
         try:
-            usersourcelist = sourcelist[IDstring]
+            guildsourcelist = lovelist[str(ctx.guild.id)]
+        except KeyError:
+            guildsourcelist = {}
+        try:
+            usersourcelist = guildsourcelist[IDstring]
         except KeyError:
             usersourcelist = []
         usersourcelist.append(source.casefold().strip())
-        sourcelist[IDstring] = usersourcelist
+        guildsourcelist[IDstring] = usersourcelist
+        sourcelist[str(ctx.guild.id)] = guildsourcelist
         with open(f'{path}\\sourcelist.json', "w") as file:
             json.dump(sourcelist, file)
         if user != None:
