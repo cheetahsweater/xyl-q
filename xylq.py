@@ -172,6 +172,7 @@ logo = ["https://logos.fandom.com/wiki/Special:NewFiles?user=&mediatype%5B0%5D=B
         "https://logos.fandom.com/wiki/Special:NewFiles?user=&mediatype%5B0%5D=BITMAP&mediatype%5B1%5D=ARCHIVE&start=&end=&wpFormIdentifier=specialnewimages&offset=20231228013637&limit=500","https://logos.fandom.com/wiki/Special:NewFiles?user=&mediatype%5B0%5D=BITMAP&mediatype%5B1%5D=ARCHIVE&start=&end=&wpFormIdentifier=specialnewimages&offset=20231223221351&limit=500","https://logos.fandom.com/wiki/Special:NewFiles?user=&mediatype%5B0%5D=BITMAP&mediatype%5B1%5D=ARCHIVE&start=&end=&wpFormIdentifier=specialnewimages&offset=20231221191611&limit=500",
         "https://logos.fandom.com/wiki/Special:NewFiles?user=&mediatype%5B0%5D=BITMAP&mediatype%5B1%5D=ARCHIVE&start=&end=&wpFormIdentifier=specialnewimages&offset=20231219172320&limit=500","https://logos.fandom.com/wiki/Special:NewFiles?user=&mediatype%5B0%5D=BITMAP&mediatype%5B1%5D=ARCHIVE&start=&end=&wpFormIdentifier=specialnewimages&offset=20231217123726&limit=500","https://logos.fandom.com/wiki/Special:NewFiles?user=&mediatype%5B0%5D=BITMAP&mediatype%5B1%5D=ARCHIVE&start=&end=&wpFormIdentifier=specialnewimages&offset=20231214070528&limit=500",
         "https://logos.fandom.com/wiki/Special:NewFiles?user=&mediatype%5B0%5D=BITMAP&mediatype%5B1%5D=ARCHIVE&start=&end=&wpFormIdentifier=specialnewimages&offset=20231210201418&limit=500","https://logos.fandom.com/wiki/Special:NewFiles?user=&mediatype%5B0%5D=BITMAP&mediatype%5B1%5D=ARCHIVE&start=&end=&wpFormIdentifier=specialnewimages&offset=20231207134742&limit=500","https://logos.fandom.com/wiki/Special:NewFiles?user=&mediatype%5B0%5D=BITMAP&mediatype%5B1%5D=ARCHIVE&start=&end=&wpFormIdentifier=specialnewimages&offset=20231203005443&limit=500"]
+cr_games = ["ovenbreak", "kingdom", "tower"]
 
 stringlist = {} #I don't remember what this even is
 aff = ["Okay", "Alright", "Got it", "Affirmative","Sounds good"] #Different affirmative phrases the bot can say when asked to do something
@@ -347,6 +348,18 @@ async def on_message(message: discord.Message):
                         await message.channel.send(f"{testvar} is loved by POOPMEISTER.-Q!")'''
                 except AttributeError:
                     return
+                try:
+                    if "Belongs to" in str(message.embeds[0].footer.text):
+                        return
+                    #print(roll)
+                    #print(source)
+                    #print(str(list(roll.keys())[0])) #TEST
+                    #Testing stuff
+                    '''testvar = "reaper bird"
+                    if str(list(roll.keys())[0]) == testvar:
+                        await message.channel.send(f"{testvar} is loved by POOPMEISTER.-Q!")'''
+                except AttributeError:
+                    return
                 for key, value in lovelist.items():
                     #print(key) #TEST
                     if int(key) == message.guild.id:
@@ -405,6 +418,404 @@ async def on_message(message: discord.Message):
 @client.slash_command(description="Returns XyL-Q version number!", guild_ids=guilds)
 async def version(ctx: discord.Interaction): 
     await ctx.respond(f"Hello-Q! I'm XyL-Q, running version {versionnum} released on {updatetime}-Q!\n\n__Changelog__\n{changes}")
+
+#For me to refresh variables
+@client.slash_command(description="Refresh all bot variables!", guild_ids=guilds)
+async def refresh_vars(ctx: discord.Interaction): 
+    if ctx.author.id == 120396380073099264:
+        #Load individual user-to-user reputation database
+        with open(f'{path}\\rep.json',"r+") as file:
+            global rep
+            try:
+                text = json.loads(file.read())
+                rep = text
+            except JSONDecodeError as e:
+                print(e)
+                rep = {}
+            file.close()
+
+        #Load user total reputation database
+        with open(f'{path}\\totalrep.json',"r+") as file:
+            global totalrep
+            try:
+                text = json.loads(file.read())
+                totalrep = text
+            except JSONDecodeError as e:
+                print(e)
+                totalrep = {}
+            file.close()
+
+        #Load list of channels in which certain commands are disabled
+        with open(f'{path}\\badid.json',"r+") as file:
+            global badIDs
+            try:
+                text = json.loads(file.read())
+                badIDs = text
+            except JSONDecodeError as e:
+                print(e)
+                badIDs = {}
+            file.close()
+
+        #Load list of loved Mudae characters
+        with open(f'{path}\\lovelist.json',"r+") as file:
+            global lovelist
+            try:
+                text = json.loads(file.read())
+                lovelist = text
+            except JSONDecodeError as e:
+                print(e)
+                lovelist = {}
+            file.close()
+
+        #Load list of loved Mudae sources
+        with open(f'{path}\\sourcelist.json',"r+") as file:
+            global sourcelist
+            try:
+                text = json.loads(file.read())
+                sourcelist = text
+            except JSONDecodeError as e:
+                print(e)
+                sourcelist = {}
+            file.close()
+
+
+        #Load list of channels in which message caching is disabled
+        with open(f'{path}\\badcache.txt',"r+") as file:
+            global badcacheIDs
+            try:
+                text = file.read()
+                if len(text) > 1:
+                    badcacheIDs = text.split("\n")
+                else:
+                    badcacheIDs = []
+            except IndexError:
+                badcacheIDs = []
+            file.close()
+
+        #Load list of guilds
+        with open(f'{path}\\guilds.txt',"r+") as file:
+            global guilds
+            try:
+                text = file.read()
+                if len(text) > 1:
+                    guilds = text.split("\n")
+                    for serverID in guilds:
+                        serverID = int(serverID)
+                else:
+                    print("Error! Guilds not loaded!")
+                    guilds = []
+            except IndexError:
+                print("Error! Guilds not loaded!")
+            file.close()
+        await ctx.respond(f"Variables refreshed-Q!")
+    else:
+        await ctx.respond("Error-Q! You cannot use this command-Q!")
+
+def check_img(img_link: str):
+    #print(f"Checking {img_link}...") #TEST
+    if img_link == "https://static.wikia.nocookie.net/carebears/images/8/80/Unlock_the_Magic_Here.jpg":
+        #print(f"UTM here detected in {img_link}") #TEST
+        return False
+    elif img_link == "https://static.wikia.nocookie.net/carebears/images/1/16/Grumpy_Stub_fixed.jpg":
+        #print(f"Grumpy stub detected in {img_link}") #TEST
+        return False
+    elif "data:image" in img_link:
+        #print(f"data:image detected in {img_link}") #TEST
+        return False
+    else:
+        return True
+
+def ovenbreak_query(url: str, game):
+    ovenbreak = {}
+    reqs = requests.get(url)
+    soup = BeautifulSoup(reqs.text, 'html.parser')
+    
+    for td in soup.find_all('td'):
+        for link in td.find_all('a'):
+            cookie_name = link.get_text()
+            if len(cookie_name) > 2:
+                ovenbreak[cookie_name] = f"https://cookierun.fandom.com{link['href']}"
+    return ovenbreak
+
+def kingdom_query(url: str, game):
+    kingdom = {}
+    reqs = requests.get(url)
+    soup = BeautifulSoup(reqs.text, 'html.parser')
+    
+    for div in soup.select('div[class*="pi-theme"]'):
+        for link in div.find_all('a'):
+            cookie_name = link.get_text()
+            if len(cookie_name) > 2:
+                kingdom[cookie_name] = f"https://cookierunkingdom.fandom.com{link['href']}"
+    return kingdom
+
+def tower_query(url: str, game: str=None, cookies: dict=None):
+    tower = {}
+    reqs = requests.get(url)
+    soup = BeautifulSoup(reqs.text, 'html.parser')
+    for div in soup.select('div[class*="mw-body-content"]'):
+        for li in div.find_all('li'):
+            for link in li.find_all('a'):
+                cookie_name = link.get_text()
+                if (("Cookie" in cookie_name) and ("Cookies" not in cookie_name)) or ("GingerBrave" in cookie_name):
+                    tower[cookie_name] = f"https://cookierun.fandom.com{link['href']}"
+    return tower
+
+#Command to get info on a certain Cookie Run cookie or choose a random one
+@client.slash_command(description="Get information on a random Cookie Run cookie!", guild_ids=guilds)
+async def cookie(ctx: discord.Interaction, game: discord.Option(str, choices=cr_games)=None): 
+    try:
+        await ctx.response.defer()
+        ovenbreak_url = "https://cookierun.fandom.com/wiki/List_of_Cookies"
+        kingdom_url = "https://cookierunkingdom.fandom.com/wiki/List_of_Cookies"
+        tower_url = "https://cookierun.fandom.com/wiki/Cookie_Run:_Tower_of_Adventures#Cookies"
+        witches_url = "https://cookierun.fandom.com/wiki/Cookie_Run:_Witch%27s_Castle#Cookies" #Don't want to use until they make pages for the new ones lol
+        if game == "ovenbreak":
+            cookies = ovenbreak_query(ovenbreak_url, game)
+        if game == "kingdom":
+            cookies = kingdom_query(kingdom_url, game)
+        if game == "tower":
+            cookies = tower_query(tower_url, game)
+        if game == None:
+            cookies = {}
+            ovenbreak = ovenbreak_query(ovenbreak_url, game)
+            kingdom = kingdom_query(kingdom_url, game)
+            tower = tower_query(tower_url, game, cookies)
+            for key, value in ovenbreak.items():
+                cookies[key] = value
+            for key, value in kingdom.items():
+                if key in cookies.keys():
+                    cookies[f"{key} (Kingdom)"] = value
+                else:
+                    cookies[key] = value
+            for key, value in tower.items():
+                if key in cookies.keys():
+                    cookies[f"{key} (Tower of Adventures)"] = value
+                else:
+                    cookies[key] = value
+            info = {}
+            cookie_url = random.choice(list(cookies.values()))
+        if game == None:
+            if cookie_url in ovenbreak.values():
+                cookie_game = "ovenbreak"
+            elif cookie_url in kingdom.values():
+                cookie_game = "kingdom"
+            elif cookie_url in tower.values():
+                cookie_game = "tower"
+        print(cookie_game)
+        cookie_url_chopped = str(cookie_url).split("/")
+        cookie_gallery = f"{str(cookie_url)}/Gallery"
+        cookie_name = cookie_url_chopped[-1].replace("_", " ")
+        info['Name'] = cookie_name
+        info['URL'] = cookie_url
+        reqs = requests.get(cookie_url)
+        soup = BeautifulSoup(reqs.text, 'html.parser')
+        p = []
+        prev_p = ""
+        for link in soup.find_all('p'):
+            if (f"<b>{cookie_name}</b>" in str(link)) or ((len(prev_p) > 0) and (len(p) == 1)):
+                link_text = link.get_text()
+                link_text = link_text.strip("\n").strip()
+                prev_p = link_text
+                p.append(link_text)
+            if len(p) == 0:
+                for link in soup.find_all('p'):
+                    if (f"{cookie_name} (" in str(link)) or ((len(prev_p) > 0) and (len(p) == 1)):
+                        link_text = link.get_text()
+                        link_text = link_text.strip("\n").strip()
+                        prev_p = link_text
+                        p.append(link_text)
+        description = ""
+        for para in p:
+            description += f"{para}\n"
+        description = description.strip().replace("  ", " ")
+        info['Description'] = description
+        for link in soup.find_all('aside'):
+            for div in link.select('div[data-source="pronouns"]'):
+                for a in div.find_all('a'):
+                    info['Pronouns'] = a.get_text()
+            if (cookie_game == 'ovenbreak') or (cookie_game == 'tower'):
+                for td in link.select('td[data-source="rarity"]'):
+                    for img in td.find_all('img'):
+                        info['Rarity'] = img['alt']
+            if cookie_game == 'kingdom':
+                for div in link.select('div[data-source="rarity"]'):
+                    for img in div.find_all('img'):
+                        info['Rarity'] = img['alt']
+        backup_img = {}
+        for link in soup.find_all('img'):
+            try:
+                if ((".jpg" in link["data-image-name"]) or (".png" in link["data-image-name"]) or (".webp" in link["data-image-name"]) and ("Cookie".casefold() in str(link["data-image-name"]).casefold())):
+                        img_link = str(link["src"]).split("/revision")[0]
+                        img_name = link["data-image-name"]
+                        img_pass = check_img(img_link)
+                        if img_pass == True:
+                            backup_img[img_name] = img_link
+            except KeyError:
+                pass
+        
+        reqs = requests.get(cookie_gallery)
+        soup = BeautifulSoup(reqs.text, 'html.parser')
+        img = {}
+
+        for link in soup.find_all('img'):
+            try:
+                if ((".jpg" in link["data-image-key"]) or (".png" in link["data-image-key"]) or (".webp" in link["data-image-key"]) and ("Cookie".casefold() in str(link["data-image-key"]).casefold())):
+                        img_link = str(link["src"]).split("/revision")[0]
+                        img_name = link["data-image-key"]
+                        img_pass = check_img(img_link)
+                        if img_pass == True:
+                            img[img_name] = img_link
+                        
+            except KeyError:
+                pass
+            try:
+                cookie_img = random.choice(list(img.values()))
+            except IndexError:
+                    try:
+                        cookie_img = random.choice(list(backup_img.values()))
+                    except IndexError:
+                        cookie_img = "https://upload.wikimedia.org/wikipedia/commons/thumb/6/65/No-Image-Placeholder.svg/1665px-No-Image-Placeholder.svg.png"
+        else:
+            try:
+                embed = discord.Embed(title=info['Name'], description=info['Description'], url=info['URL'])
+            except IndexError:
+                ctx.respond("Index error occurred!")
+            embed.set_image(url=cookie_img)
+            try:
+                embed.add_field(name="Pronouns", value=info["Pronouns"])
+            except KeyError:
+                embed.add_field(name="Pronouns", value="None")
+            try:
+                embed.add_field(name="Rarity", value=info["Rarity"])
+            except KeyError:
+                embed.add_field(name="Rarity", value="N/A")
+            await ctx.respond(embed=embed)
+            #await ctx.respond()
+    except Exception as e:
+        exceptionstring = format_exc()
+        await report.send(f"<@120396380073099264>\n{exceptionstring}\nIn {ctx.guild.name}")
+
+#Command to get info on a certain Care Bear or choose a random one
+@client.slash_command(description="Get information on a random Care Bear, or a bear of your choice!", guild_ids=guilds)
+async def care_bear(ctx: discord.Interaction, bear: str=None): 
+    try:
+        await ctx.response.defer()
+        if bear == None:
+            url = "https://carebears.fandom.com/wiki/Category:Care_Bears"
+            reqs = requests.get(url)
+            soup = BeautifulSoup(reqs.text, 'html.parser')
+            urls = []
+            for link in soup.find_all('a'):
+                url = link.get('href')
+                if url != None:
+                    if "/wiki/" in url: 
+                        if url != "https://carebears.fandom.com/wiki/Care_Bears":
+                            if "Bear" in url:
+                                if "Category" not in url:
+                                    if "User" not in url:
+                                        urls.append(url)
+            bear_url = f"https://carebears.fandom.com{random.choice(urls)}"
+        else:
+            url = f"https://carebears.fandom.com/wiki/Special:Search?query={bear}"
+            reqs = requests.get(url)
+            soup = BeautifulSoup(reqs.text, 'html.parser')
+            
+            urls = []
+            for link in soup.find_all('a'):
+                try:
+                    if link['data-position'] == '1':
+                        urls.append(link)
+                except KeyError:
+                    pass
+            try:    
+                bear_url = urls[0]["href"]
+            except IndexError:
+                await ctx.respond(f"Bear {bear} not found!")
+                return
+        bear_url_chopped = str(bear_url).split("/")
+        bear_gallery = f"{str(bear_url)}/Gallery"
+        bear_name = bear_url_chopped[-1].replace("_", " ")
+        #print(bear_name, bear_url) #TEST
+        reqs = requests.get(bear_url)
+        soup = BeautifulSoup(reqs.text, 'html.parser')
+        p = []
+        for link in soup.find_all('p'):
+            if f"<b>{bear_name}</b>" in str(link):
+                link_text = link.get_text()
+                link_text = link_text.strip("\n")
+                p.append(link_text)
+        if len(p) == 0:
+            for link in soup.find_all('p'):
+                if f"{bear_name} is" in str(link):
+                    link_text = link.get_text()
+                    link_text = link_text.strip("\n")
+                    p.append(link_text)
+        aside_lists = []
+        aside = []
+        for link in soup.find_all('aside'):
+            aside_lists.append(link.get_text().split("\n"))
+        for aside_list in aside_lists:
+            aside += aside_list
+        info = {}
+        try:
+            info["Gender"] = aside[aside.index("Gender")+1]
+        except ValueError:
+            info["Gender"] = "None"
+
+        try:
+            info["Fur Colour"] = aside[aside.index("Fur Colour")+1]
+        except ValueError:
+            info["Fur Colour"] = "None"
+        backup_img = {}
+        for link in soup.find_all('img'):
+            try:
+                if (".jpg" in link["data-image-key"]) or (".png" in link["data-image-key"]) or (".webp" in link["data-image-key"]):
+                        img_link = str(link["src"]).split("/revision")[0]
+                        img_name = link["data-image-key"]
+                        img_pass = check_img(img_link)
+                        if img_pass == True:
+                            backup_img[img_name] = img_link
+            except KeyError:
+                pass
+        
+        reqs = requests.get(bear_gallery)
+        soup = BeautifulSoup(reqs.text, 'html.parser')
+        img = {}
+
+        for link in soup.find_all('img'):
+            try:
+                if (".jpg" in link["data-image-key"]) or (".png" in link["data-image-key"]) or (".webp" in link["data-image-key"]):
+                        img_link = str(link["data-src"]).split("/revision")[0]
+                        img_name = link["data-image-key"]
+                        img_pass = check_img(img_link)
+                        if img_pass == True:
+                            img[img_name] = img_link
+            except KeyError:
+                pass
+        try:
+            bear_img = random.choice(list(img.values()))
+        except IndexError:
+                try:
+                    bear_img = random.choice(list(backup_img.values()))
+                except IndexError:
+                    bear_img = "https://upload.wikimedia.org/wikipedia/commons/thumb/6/65/No-Image-Placeholder.svg/1665px-No-Image-Placeholder.svg.png"
+        #print(bear_img) #TEST
+        if "Bear" not in bear_name:
+            await ctx.respond(f"Bear {bear} not found!")
+        else:
+            try:
+                embed = discord.Embed(title=bear_name, description=p[0].split("\n")[-1], url=bear_url)
+            except IndexError:
+                embed = discord.Embed(title=bear_name, description=p, url=bear_url)
+            embed.set_image(url=bear_img)
+            embed.add_field(name="Gender", value=info["Gender"])
+            embed.add_field(name="Fur color", value=info["Fur Colour"])
+            await ctx.respond(embed=embed)
+            #await ctx.respond()
+    except Exception as e:
+        exceptionstring = format_exc()
+        await report.send(f"<@120396380073099264>\n{exceptionstring}\nIn {ctx.guild.name}")
 
 #Simple way for users to check reputation, also revised by ChatGPT even though I didn't ask it to revise this either
 @client.slash_command(description="Shows you your reputation and other related stats!")
@@ -551,11 +962,16 @@ async def love_source(ctx: discord.Interaction, source: str, user: str=None):
         else:
             IDstring = user.strip("<>@")
         try:
-            usersourcelist = sourcelist[IDstring]
+            guildsourcelist = sourcelist[str(ctx.guild.id)]
+        except KeyError:
+            guildsourcelist = {}
+        try:
+            usersourcelist = guildsourcelist[IDstring]
         except KeyError:
             usersourcelist = []
         usersourcelist.append(source.casefold().strip())
-        sourcelist[IDstring] = usersourcelist
+        guildsourcelist[IDstring] = usersourcelist
+        sourcelist[str(ctx.guild.id)] = guildsourcelist
         with open(f'{path}\\sourcelist.json', "w") as file:
             json.dump(sourcelist, file)
         if user != None:
@@ -567,8 +983,7 @@ async def love_source(ctx: discord.Interaction, source: str, user: str=None):
     except Exception as e:
         exceptionstring = format_exc()
         await report.send(f"<@120396380073099264>\n{exceptionstring}\nIn {ctx.guild.name}")
-
-
+      
 class prev_next(discord.ui.View):
     def __init__(self, content, pages, member: discord.User):
         super().__init__()
@@ -657,10 +1072,61 @@ async def view_lovelist(ctx: discord.Interaction, user: str=None):
         exceptionstring = format_exc()
         await report.send(f"<@120396380073099264>\n{exceptionstring}\nIn {ctx.guild.name}")
 
+def get_image(url_list: str, base_url: str):
+    url = random.choice(url_list)
+    
+    reqs = requests.get(url)
+    soup = BeautifulSoup(reqs.text, 'html.parser')
+    
+    urls = []
+    for link in soup.find_all('a'):
+        url = link.get('href')
+        if url != None:
+            if ".png" in url:
+                urls.append(url)
+    page = f"{base_url}{random.choice(urls)}"
+    reqsagain = requests.get(page)
+    soup = BeautifulSoup(reqsagain.text, 'html.parser')
+    
+    urls = []
+    for link in soup.find_all('a'):
+        url = link.get('href')
+        if url != None:
+            if ".png" in url:
+                if "images" in url:
+                    urls.append(url)
+    try:
+        if url_list == mcwiki:
+            image_link = f"{base_url}{random.choice(urls)}"  
+        else:
+            image_link = random.choice(urls)
+    except IndexError:
+        page = f"{base_url}{random.choice(urls)}"
+        reqsagain = requests.get(page)
+        soup = BeautifulSoup(reqsagain.text, 'html.parser')
+        
+        urls = []
+        for link in soup.find_all('a'):
+            url = link.get('href')
+            if url != None:
+                if ".png" in url:
+                    #print(url)
+                    if "images" in url:
+                        urls.append(url)
+        try:
+            if url_list == mcwiki:
+                image_link = f"{base_url}{random.choice(urls)}"  
+            else:
+                image_link = random.choice(urls)  
+        except IndexError:
+            image_link = "https://i1.wp.com/files.polldaddy.com/9b53a5da9af99125866e48003cce5675-65c92e58a003b.jpg"
+    return image_link
+
 #MY MAGNUM OPUS (the meme command)
 @client.slash_command(description="Makes a meme based on parameters given!", guild_ids=guilds)
 async def meme(ctx: discord.Interaction, top_text: str=None, bottom_text: str=None, image_link: str=None, image_upload: discord.Attachment=None, wiki: discord.Option(str, choices=wikis)=None): 
     try:
+        await ctx.response.defer()
         if (top_text == None) and (bottom_text != None):
             top_text = bottom_text
         if (bottom_text == None) and (top_text != None):
@@ -671,7 +1137,7 @@ async def meme(ctx: discord.Interaction, top_text: str=None, bottom_text: str=No
                 full_text = random.choice(stringlist[str(ctx.guild.id)])
             except Exception as e:
                 exceptionstring = format_exc()
-                await report.send(f"<@120396380073099264>\n{exceptionstring}\nIn {ctx.guild.name}")
+                await report.send(f"{exceptionstring}\nIn {ctx.guild.name}")
                 full_text = "no messages indexed"
 
             if " " in full_text:
@@ -727,299 +1193,25 @@ async def meme(ctx: discord.Interaction, top_text: str=None, bottom_text: str=No
                         exceptionstring = format_exc()
                         await report.send(f"<@120396380073099264>\n{exceptionstring}")
                         image_link = "https://mario.wiki.gallery/images/f/fe/36-Diddy_Kong.png"
+                    
                 #elif numba < 1:
                     #This list is empty right now so once I populate that list I'll add this back in
                     #image_link = random.choice(imglist)
-                else:
+                else:   
                     if wiki == None:
-                        wiki = random.choice(wikis)
-
-                    #Definitely going to move this to a function ASAP because this code is ridiculously long and it's all the same
-                    #Once I move it to a function I will add comments but for now it would be extremely redundant lol
+                        wiki = random.choice(wikis)     
                     if wiki == "mario":
-                        url = random.choice(mariowiki)
-                        await ctx.response.defer()
-                        reqs = requests.get(url)
-                        soup = BeautifulSoup(reqs.text, 'html.parser')
-                        
-                        urls = []
-                        for link in soup.find_all('a'):
-                            url = link.get('href')
-                            if url != None:
-                                if url[-4:] == ".png":
-                                    urls.append(url)
-                        page = f"https://www.mariowiki.com{random.choice(urls)}"
-                        reqsagain = requests.get(page)
-                        soup = BeautifulSoup(reqsagain.text, 'html.parser')
-                        
-                        urls = []
-                        for link in soup.find_all('a'):
-                            url = link.get('href')
-                            if url != None:
-                                if url[-4:] == ".png":
-                                    if "images" in url:
-                                        urls.append(url)
-                        try:
-                            image_link = random.choice(urls)   
-                        except IndexError:
-                            page = f"https://www.mariowiki.com{random.choice(urls)}"
-                            reqsagain = requests.get(page)
-                            soup = BeautifulSoup(reqsagain.text, 'html.parser')
-                            
-                            urls = []
-                            for link in soup.find_all('a'):
-                                url = link.get('href')
-                                if url != None:
-                                    if ".png" in url:
-                                        #print(url)
-                                        if "images" in url:
-                                            urls.append(url)
-                                try:
-                                    image_link = random.choice(urls)   
-                                except IndexError:
-                                    exceptionstring = format_exc()
-                                    await report.send(f"<@120396380073099264>\n{exceptionstring}")
-                                    image_link = "https://i1.wp.com/files.polldaddy.com/9b53a5da9af99125866e48003cce5675-65c92e58a003b.jpg"
-                                
+                        image_link = get_image(mariowiki, "https://www.mariowiki.com")
                     if wiki == "minecraft":
-                        url = random.choice(mcwiki)
-                        await ctx.response.defer()
-                        reqs = requests.get(url)
-                        soup = BeautifulSoup(reqs.text, 'html.parser')
-                        
-                        urls = []
-                        for link in soup.find_all('a'):
-                            url = link.get('href')
-                            if url != None:
-                                if url[-4:] == ".png":
-                                    if "w/File:" in url:
-                                        urls.append(url)
-                        page = f"https://minecraft.wiki{random.choice(urls)}"
-                        reqsagain = requests.get(page)
-                        soup = BeautifulSoup(reqsagain.text, 'html.parser')
-                        
-                        urls = []
-                        for link in soup.find_all('a'):
-                            url = link.get('href')
-                            if url != None:
-                                if ".png" in url:
-                                    if "images" in url:
-                                        urls.append(url)
-                        try:
-                            image_link = f"https://minecraft.wiki{random.choice(urls)}"
-                        except IndexError:
-                            page = f"https://minecraft.wiki{random.choice(urls)}"
-                            reqsagain = requests.get(page)
-                            soup = BeautifulSoup(reqsagain.text, 'html.parser')
-                            
-                            urls = []
-                            for link in soup.find_all('a'):
-                                url = link.get('href')
-                                if url != None:
-                                    if ".png" in url:
-                                        #print(url)
-                                        if "images" in url:
-                                            urls.append(url)
-                                try:
-                                    image_link = f"https://minecraft.wiki{random.choice(urls)}" 
-                                except IndexError:
-                                    exceptionstring = format_exc()
-                                    await report.send(f"<@120396380073099264>\n{exceptionstring}")
-                                    image_link = "https://static.wikia.nocookie.net/logopedia/images/4/43/Sat.1_montage_-_by_Nico234.png"
-
+                        image_link = get_image(mcwiki, "https://minecraft.wiki")
                     if wiki == "ssb":
-                        url = url = random.choice(ssb)
-                        await ctx.response.defer()
-                        reqs = requests.get(url)
-                        soup = BeautifulSoup(reqs.text, 'html.parser')
-                        
-                        urls = []
-                        for link in soup.find_all('a'):
-                            url = link.get('href')
-                            if url != None:
-                                if url[-4:] == ".png":
-                                    if "File:" in url:
-                                        urls.append(url)
-                        page = f"https://supersmashbros.fandom.com{random.choice(urls)}"
-                        reqsagain = requests.get(page)
-                        soup = BeautifulSoup(reqsagain.text, 'html.parser')
-                        
-                        urls = []
-                        for link in soup.find_all('a'):
-                            url = link.get('href')
-                            if url != None:
-                                if ".png" in url:
-                                    #print(url)
-                                    if "images" in url:
-                                        urls.append(url)
-                        try:
-                            image_link = random.choice(urls)   
-                        except IndexError:
-                            exceptionstring = format_exc()
-                            await report.send(f"{exceptionstring}")
-                            page = f"https://supersmashbros.fandom.com{random.choice(urls)}"
-                            reqsagain = requests.get(page)
-                            soup = BeautifulSoup(reqsagain.text, 'html.parser')
-                            
-                            urls = []
-                            for link in soup.find_all('a'):
-                                url = link.get('href')
-                                if url != None:
-                                    if ".png" in url:
-                                        #print(url)
-                                        if "images" in url:
-                                            urls.append(url)
-                                try:
-                                    image_link = random.choice(urls)   
-                                except IndexError:
-                                    exceptionstring = format_exc()
-                                    await report.send(f"<@120396380073099264>\n{exceptionstring}")
-                                    image_link = "https://static.wikia.nocookie.net/ssb/images/3/39/Super-Smash-Bros.-Ultimate-OFFICIAL-Key-Art-Wide-by-.jpg/"
-
+                        image_link = get_image(ssb, "https://supersmashbros.fandom.com")
                     if wiki == "cb":
-                        url = url = random.choice(cb)
-                        await ctx.response.defer()
-                        reqs = requests.get(url)
-                        soup = BeautifulSoup(reqs.text, 'html.parser')
-                        
-                        urls = []
-                        for link in soup.find_all('a'):
-                            url = link.get('href')
-                            if url != None:
-                                if url[-4:] == ".png":
-                                    if "File:" in url:
-                                        urls.append(url)
-                        page = f"https://carebears.fandom.com{random.choice(urls)}"
-                        reqsagain = requests.get(page)
-                        soup = BeautifulSoup(reqsagain.text, 'html.parser')
-                        
-                        urls = []
-                        for link in soup.find_all('a'):
-                            url = link.get('href')
-                            if url != None:
-                                if ".png" in url:
-                                    #print(url)  
-                                    if "images" in url:
-                                        urls.append(url)
-                        try:
-                            image_link = random.choice(urls)   
-                        except IndexError:
-                            exceptionstring = format_exc()
-                            await report.send(f"{exceptionstring}")
-                            page = f"https://carebears.fandom.com{random.choice(urls)}"
-                            reqsagain = requests.get(page)
-                            soup = BeautifulSoup(reqsagain.text, 'html.parser')
-                            
-                            urls = []
-                            for link in soup.find_all('a'):
-                                url = link.get('href')
-                                if url != None:
-                                    if ".png" in url:
-                                        #print(url)
-                                        if "images" in url:
-                                            urls.append(url)
-                                try:
-                                    image_link = random.choice(urls)   
-                                except IndexError:
-                                    exceptionstring = format_exc()
-                                    await report.send(f"<@120396380073099264>\n{exceptionstring}")
-                                    image_link = "https://static.wikia.nocookie.net/carebears/images/3/30/Flower_Power_Bear_UTM.png"
-                                
+                        image_link = get_image(cb, "https://carebears.fandom.com")
                     if wiki == "cookierun":
-                        url = url = random.choice(cr)
-                        await ctx.response.defer()
-                        reqs = requests.get(url)
-                        soup = BeautifulSoup(reqs.text, 'html.parser')
-                        
-                        urls = []
-                        for link in soup.find_all('a'):
-                            url = link.get('href')
-                            if url != None:
-                                if url[-4:] == ".png":
-                                    if "File:" in url:
-                                        urls.append(url)
-                        page = f"https://cookierun.fandom.com{random.choice(urls)}"
-                        reqsagain = requests.get(page)
-                        soup = BeautifulSoup(reqsagain.text, 'html.parser')
-                        
-                        urls = []
-                        for link in soup.find_all('a'):
-                            url = link.get('href')
-                            if url != None:
-                                if ".png" in url:
-                                    #print(url)
-                                    if "images" in url:
-                                        urls.append(url)
-                        try:
-                            image_link = random.choice(urls)   
-                        except IndexError:
-                            exceptionstring = format_exc()
-                            await report.send(f"{exceptionstring}")
-                            page = f"https://cookierun.fandom.com{random.choice(urls)}"
-                            reqsagain = requests.get(page)
-                            soup = BeautifulSoup(reqsagain.text, 'html.parser')
-                            
-                            urls = []
-                            for link in soup.find_all('a'):
-                                url = link.get('href')
-                                if url != None:
-                                    if ".png" in url:
-                                        #print(url)
-                                        if "images" in url:
-                                            urls.append(url)
-                                try:
-                                    image_link = random.choice(urls)   
-                                except IndexError:
-                                    exceptionstring = format_exc()
-                                    await report.send(f"<@120396380073099264>\n{exceptionstring}")
-                                    image_link = "https://static.wikia.nocookie.net/8942cb43-4ab3-498a-b9af-860b7743a226/"
+                        image_link = get_image(cr, "https://cookierun.fandom.com")
                     if wiki == "logo":
-                        url = url = random.choice(logo)
-                        await ctx.response.defer()
-                        reqs = requests.get(url)
-                        soup = BeautifulSoup(reqs.text, 'html.parser')
-                        
-                        urls = []
-                        for link in soup.find_all('a'):
-                            url = link.get('href')
-                            if url != None:
-                                if url[-4:] == ".png":
-                                    if "File:" in url:
-                                        urls.append(url)
-                        page = f"https://logos.fandom.com{random.choice(urls)}"
-                        reqsagain = requests.get(page)
-                        soup = BeautifulSoup(reqsagain.text, 'html.parser')
-                        urls = []
-                        for link in soup.find_all('a'):
-                            url = link.get('href')
-                            if url != None:
-                                if ".png" in url:
-                                    #print(url)
-                                    if "images" in url:
-                                        urls.append(url)
-                        try:
-                            image_link = random.choice(urls)   
-                        except IndexError:
-                            exceptionstring = format_exc()
-                            await report.send(f"<@120396380073099264>\n{exceptionstring}")
-                            page = f"https://logos.fandom.com{random.choice(urls)}"
-                            reqsagain = requests.get(page)
-                            soup = BeautifulSoup(reqsagain.text, 'html.parser')
-                            
-                            urls = []
-                            for link in soup.find_all('a'):
-                                url = link.get('href')
-                                if url != None:
-                                    if ".png" in url:
-                                        #print(url)
-                                        if "images" in url:
-                                            urls.append(url)
-                                try:
-                                    image_link = random.choice(urls)   
-                                except IndexError:
-                                    exceptionstring = format_exc()
-                                    await report.send(f"<@120396380073099264>\n{exceptionstring}")
-                                    image_link = "https://static.wikia.nocookie.net/logopedia/images/4/43/Sat.1_montage_-_by_Nico234.png"
+                        image_link = get_image(logo, "https://logos.fandom.com")
         memelink = f"https://api.memegen.link/images/custom/{top_text_new}/{bottom_text_new}.png?background={image_link}"
         await ctx.followup.send(content=memelink)
     except Exception as e:
