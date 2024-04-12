@@ -14,9 +14,9 @@ import asyncio
 
 status = "Cookie Run: Witch’s Castle"
 #status = "Testing new features!"
-versionnum = "4.0"
-updatetime = "2024/04/10 22:10"
-changes = "**(4.0)** Added new command that either pulls a random Care Bear or pulls a given Care Bear from the Care Bears wiki"
+versionnum = "4.0a"
+updatetime = "2024/04/11 19:22"
+changes = "**(4.0)** Added new command that either pulls a random Care Bear or pulls a given Care Bear from the Care Bears wiki\n(a) Fixed bug with image pulling"
 path = os.getcwd()
 print(f"XyL-Q v{versionnum}")
 print(updatetime)
@@ -406,6 +406,20 @@ async def on_message(message: discord.Message):
 async def version(ctx: discord.Interaction): 
     await ctx.respond(f"Hello-Q! I'm XyL-Q, running version {versionnum} released on {updatetime}-Q!\n\n__Changelog__\n{changes}")
 
+def check_img(img_link: str):
+    #print(f"Checking {img_link}...") #TEST
+    if img_link == "https://static.wikia.nocookie.net/carebears/images/8/80/Unlock_the_Magic_Here.jpg":
+        #print(f"UTM here detected in {img_link}") #TEST
+        return False
+    elif img_link == "https://static.wikia.nocookie.net/carebears/images/1/16/Grumpy_Stub_fixed.jpg":
+        #print(f"Grumpy stub detected in {img_link}") #TEST
+        return False
+    elif "data:image" in img_link:
+        #print(f"data:image detected in {img_link}") #TEST
+        return False
+    else:
+        return True
+
 #Command to get info on a certain Care Bear or choose a random one
 @client.slash_command(description="Get information on a random Care Bear, or a bear of your choice!", guild_ids=guilds)
 async def care_bear(ctx: discord.Interaction, bear: str=None): 
@@ -446,7 +460,7 @@ async def care_bear(ctx: discord.Interaction, bear: str=None):
         bear_url_chopped = str(bear_url).split("/")
         bear_gallery = f"{str(bear_url)}/Gallery"
         bear_name = bear_url_chopped[-1].replace("_", " ")
-        print(bear_name, bear_url)
+        #print(bear_name, bear_url) #TEST
         reqs = requests.get(bear_url)
         soup = BeautifulSoup(reqs.text, 'html.parser')
         p = []
@@ -465,8 +479,8 @@ async def care_bear(ctx: discord.Interaction, bear: str=None):
         aside = []
         for link in soup.find_all('aside'):
             aside_lists.append(link.get_text().split("\n"))
-        for list in aside_lists:
-            aside += list
+        for aside_list in aside_lists:
+            aside += aside_list
         info = {}
         try:
             info["Gender"] = aside[aside.index("Gender")+1]
@@ -477,55 +491,43 @@ async def care_bear(ctx: discord.Interaction, bear: str=None):
             info["Fur Colour"] = aside[aside.index("Fur Colour")+1]
         except ValueError:
             info["Fur Colour"] = "None"
-        backup_img = []
+        backup_img = {}
         for link in soup.find_all('img'):
             try:
                 if (".jpg" in link["data-image-key"]) or (".png" in link["data-image-key"]) or (".webp" in link["data-image-key"]):
                         img_link = str(link["src"]).split("/revision")[0]
-                        backup_img.append(img_link)
+                        img_name = link["data-image-key"]
+                        img_pass = check_img(img_link)
+                        if img_pass == True:
+                            backup_img[img_name] = img_link
             except KeyError:
                 pass
         
         reqs = requests.get(bear_gallery)
         soup = BeautifulSoup(reqs.text, 'html.parser')
-        img = []
+        img = {}
 
         for link in soup.find_all('img'):
             try:
                 if (".jpg" in link["data-image-key"]) or (".png" in link["data-image-key"]) or (".webp" in link["data-image-key"]):
                         img_link = str(link["data-src"]).split("/revision")[0]
-                        img.append(img_link)
+                        img_name = link["data-image-key"]
+                        img_pass = check_img(img_link)
+                        if img_pass == True:
+                            img[img_name] = img_link
             except KeyError:
                 pass
         try:
-            bear_img = random.choice(img)
+            bear_img = random.choice(list(img.values()))
         except IndexError:
-            try:
-                bear_img = random.choice(backup_img)
-                if bear_img == "https://static.wikia.nocookie.net/carebears/images/8/80/Unlock_the_Magic_Here.jpg":
-                    backup_img.pop(backup_img.index("https://static.wikia.nocookie.net/carebears/images/8/80/Unlock_the_Magic_Here.jpg"))
-                    bear_img = random.choice(backup_img)
-                if bear_img == "https://static.wikia.nocookie.net/carebears/images/1/16/Grumpy_Stub_fixed.jpg":
-                    backup_img.pop(backup_img.index("https://static.wikia.nocookie.net/carebears/images/1/16/Grumpy_Stub_fixed.jpg"))
-                    bear_img = random.choice(backup_img)
-                if "base64" in bear_img:
-                    backup_img.pop(backup_img.index(bear_img))
-                    bear_img = random.choice(backup_img)
-            except IndexError:
-                bear_img = "https://upload.wikimedia.org/wikipedia/commons/thumb/6/65/No-Image-Placeholder.svg/1665px-No-Image-Placeholder.svg.png"
-        print(bear_img)
+                try:
+                    bear_img = random.choice(list(backup_img.values()))
+                except IndexError:
+                    bear_img = "https://upload.wikimedia.org/wikipedia/commons/thumb/6/65/No-Image-Placeholder.svg/1665px-No-Image-Placeholder.svg.png"
+        #print(bear_img) #TEST
         if "Bear" not in bear_name:
             await ctx.respond(f"Bear {bear} not found!")
         else:
-            if bear_img == "https://static.wikia.nocookie.net/carebears/images/8/80/Unlock_the_Magic_Here.jpg":
-                backup_img.pop(backup_img.index("https://static.wikia.nocookie.net/carebears/images/8/80/Unlock_the_Magic_Here.jpg"))
-                bear_img = random.choice(backup_img)
-            if bear_img == "https://static.wikia.nocookie.net/carebears/images/1/16/Grumpy_Stub_fixed.jpg":
-                backup_img.pop(backup_img.index("https://static.wikia.nocookie.net/carebears/images/1/16/Grumpy_Stub_fixed.jpg"))
-                bear_img = random.choice(backup_img)
-            if "base64" in bear_img:
-                backup_img.pop(backup_img.index(bear_img))
-                bear_img = random.choice(backup_img)
             try:
                 embed = discord.Embed(title=bear_name, description=p[0].split("\n")[-1], url=bear_url)
             except IndexError:
