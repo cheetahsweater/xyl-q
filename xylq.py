@@ -14,9 +14,9 @@ import asyncio
 
 status = "Cookie Run: Witch’s Castle"
 #status = "Testing new features!"
-versionnum = "4.0a"
-updatetime = "2024/04/11 19:22"
-changes = "**(4.0)** Added new command that either pulls a random Care Bear or pulls a given Care Bear from the Care Bears wiki\n(a) Fixed bug with image pulling"
+versionnum = "4.1"
+updatetime = "2024/04/11 21:39"
+changes = "**(4.1)** Added new command that pulls info on a random Cookie Run character"
 path = os.getcwd()
 print(f"XyL-Q v{versionnum}")
 print(updatetime)
@@ -172,6 +172,7 @@ logo = ["https://logos.fandom.com/wiki/Special:NewFiles?user=&mediatype%5B0%5D=B
         "https://logos.fandom.com/wiki/Special:NewFiles?user=&mediatype%5B0%5D=BITMAP&mediatype%5B1%5D=ARCHIVE&start=&end=&wpFormIdentifier=specialnewimages&offset=20231228013637&limit=500","https://logos.fandom.com/wiki/Special:NewFiles?user=&mediatype%5B0%5D=BITMAP&mediatype%5B1%5D=ARCHIVE&start=&end=&wpFormIdentifier=specialnewimages&offset=20231223221351&limit=500","https://logos.fandom.com/wiki/Special:NewFiles?user=&mediatype%5B0%5D=BITMAP&mediatype%5B1%5D=ARCHIVE&start=&end=&wpFormIdentifier=specialnewimages&offset=20231221191611&limit=500",
         "https://logos.fandom.com/wiki/Special:NewFiles?user=&mediatype%5B0%5D=BITMAP&mediatype%5B1%5D=ARCHIVE&start=&end=&wpFormIdentifier=specialnewimages&offset=20231219172320&limit=500","https://logos.fandom.com/wiki/Special:NewFiles?user=&mediatype%5B0%5D=BITMAP&mediatype%5B1%5D=ARCHIVE&start=&end=&wpFormIdentifier=specialnewimages&offset=20231217123726&limit=500","https://logos.fandom.com/wiki/Special:NewFiles?user=&mediatype%5B0%5D=BITMAP&mediatype%5B1%5D=ARCHIVE&start=&end=&wpFormIdentifier=specialnewimages&offset=20231214070528&limit=500",
         "https://logos.fandom.com/wiki/Special:NewFiles?user=&mediatype%5B0%5D=BITMAP&mediatype%5B1%5D=ARCHIVE&start=&end=&wpFormIdentifier=specialnewimages&offset=20231210201418&limit=500","https://logos.fandom.com/wiki/Special:NewFiles?user=&mediatype%5B0%5D=BITMAP&mediatype%5B1%5D=ARCHIVE&start=&end=&wpFormIdentifier=specialnewimages&offset=20231207134742&limit=500","https://logos.fandom.com/wiki/Special:NewFiles?user=&mediatype%5B0%5D=BITMAP&mediatype%5B1%5D=ARCHIVE&start=&end=&wpFormIdentifier=specialnewimages&offset=20231203005443&limit=500"]
+cr_games = ["ovenbreak", "kingdom", "tower"]
 
 stringlist = {} #I don't remember what this even is
 aff = ["Okay", "Alright", "Got it", "Affirmative","Sounds good"] #Different affirmative phrases the bot can say when asked to do something
@@ -419,6 +420,177 @@ def check_img(img_link: str):
         return False
     else:
         return True
+
+def ovenbreak_query(url: str, game):
+    ovenbreak = {}
+    reqs = requests.get(url)
+    soup = BeautifulSoup(reqs.text, 'html.parser')
+    
+    for td in soup.find_all('td'):
+        for link in td.find_all('a'):
+            cookie_name = link.get_text()
+            if len(cookie_name) > 2:
+                ovenbreak[cookie_name] = f"https://cookierun.fandom.com{link['href']}"
+    return ovenbreak
+
+def kingdom_query(url: str, game):
+    kingdom = {}
+    reqs = requests.get(url)
+    soup = BeautifulSoup(reqs.text, 'html.parser')
+    
+    for div in soup.select('div[class*="pi-theme"]'):
+        for link in div.find_all('a'):
+            cookie_name = link.get_text()
+            if len(cookie_name) > 2:
+                kingdom[cookie_name] = f"https://cookierunkingdom.fandom.com{link['href']}"
+    return kingdom
+
+def tower_query(url: str, game: str=None, cookies: dict=None):
+    tower = {}
+    reqs = requests.get(url)
+    soup = BeautifulSoup(reqs.text, 'html.parser')
+    for div in soup.select('div[class*="mw-body-content"]'):
+        for li in div.find_all('li'):
+            for link in li.find_all('a'):
+                cookie_name = link.get_text()
+                if (("Cookie" in cookie_name) and ("Cookies" not in cookie_name)) or ("GingerBrave" in cookie_name):
+                    tower[cookie_name] = f"https://cookierun.fandom.com{link['href']}"
+    return tower
+
+#Command to get info on a certain Cookie Run cookie or choose a random one
+@client.slash_command(description="Get information on a random Cookie Run cookie!", guild_ids=guilds)
+async def cookie(ctx: discord.Interaction, game: discord.Option(str, choices=cr_games)=None): 
+    try:
+        await ctx.response.defer()
+        ovenbreak_url = "https://cookierun.fandom.com/wiki/List_of_Cookies"
+        kingdom_url = "https://cookierunkingdom.fandom.com/wiki/List_of_Cookies"
+        tower_url = "https://cookierun.fandom.com/wiki/Cookie_Run:_Tower_of_Adventures#Cookies"
+        witches_url = "https://cookierun.fandom.com/wiki/Cookie_Run:_Witch%27s_Castle#Cookies" #Don't want to use until they make pages for the new ones lol
+        if game == "ovenbreak":
+            cookies = ovenbreak_query(ovenbreak_url, game)
+        if game == "kingdom":
+            cookies = kingdom_query(kingdom_url, game)
+        if game == "tower":
+            cookies = tower_query(tower_url, game)
+        if game == None:
+            cookies = {}
+            ovenbreak = ovenbreak_query(ovenbreak_url, game)
+            kingdom = kingdom_query(kingdom_url, game)
+            tower = tower_query(tower_url, game, cookies)
+            for key, value in ovenbreak.items():
+                cookies[key] = value
+            for key, value in kingdom.items():
+                if key in cookies.keys():
+                    cookies[f"{key} (Kingdom)"] = value
+                else:
+                    cookies[key] = value
+            for key, value in tower.items():
+                if key in cookies.keys():
+                    cookies[f"{key} (Tower of Adventures)"] = value
+                else:
+                    cookies[key] = value
+            info = {}
+            cookie_url = random.choice(list(cookies.values()))
+        if game == None:
+            if cookie_url in ovenbreak.values():
+                cookie_game = "ovenbreak"
+            elif cookie_url in kingdom.values():
+                cookie_game = "kingdom"
+            elif cookie_url in tower.values():
+                cookie_game = "tower"
+        print(cookie_game)
+        cookie_url_chopped = str(cookie_url).split("/")
+        cookie_gallery = f"{str(cookie_url)}/Gallery"
+        cookie_name = cookie_url_chopped[-1].replace("_", " ")
+        info['Name'] = cookie_name
+        info['URL'] = cookie_url
+        reqs = requests.get(cookie_url)
+        soup = BeautifulSoup(reqs.text, 'html.parser')
+        p = []
+        prev_p = ""
+        for link in soup.find_all('p'):
+            if (f"<b>{cookie_name}</b>" in str(link)) or ((len(prev_p) > 0) and (len(p) == 1)):
+                link_text = link.get_text()
+                link_text = link_text.strip("\n").strip()
+                prev_p = link_text
+                p.append(link_text)
+            if len(p) == 0:
+                for link in soup.find_all('p'):
+                    if (f"{cookie_name} (" in str(link)) or ((len(prev_p) > 0) and (len(p) == 1)):
+                        link_text = link.get_text()
+                        link_text = link_text.strip("\n").strip()
+                        prev_p = link_text
+                        p.append(link_text)
+        description = ""
+        for para in p:
+            description += f"{para}\n"
+        description = description.strip().replace("  ", " ")
+        info['Description'] = description
+        for link in soup.find_all('aside'):
+            for div in link.select('div[data-source="pronouns"]'):
+                for a in div.find_all('a'):
+                    info['Pronouns'] = a.get_text()
+            if (cookie_game == 'ovenbreak') or (cookie_game == 'tower'):
+                for td in link.select('td[data-source="rarity"]'):
+                    for img in td.find_all('img'):
+                        info['Rarity'] = img['alt']
+            if cookie_game == 'kingdom':
+                for div in link.select('div[data-source="rarity"]'):
+                    for img in div.find_all('img'):
+                        info['Rarity'] = img['alt']
+        backup_img = {}
+        for link in soup.find_all('img'):
+            try:
+                if ((".jpg" in link["data-image-name"]) or (".png" in link["data-image-name"]) or (".webp" in link["data-image-name"]) and ("Cookie".casefold() in str(link["data-image-name"]).casefold())):
+                        img_link = str(link["src"]).split("/revision")[0]
+                        img_name = link["data-image-name"]
+                        img_pass = check_img(img_link)
+                        if img_pass == True:
+                            backup_img[img_name] = img_link
+            except KeyError:
+                pass
+        
+        reqs = requests.get(cookie_gallery)
+        soup = BeautifulSoup(reqs.text, 'html.parser')
+        img = {}
+
+        for link in soup.find_all('img'):
+            try:
+                if ((".jpg" in link["data-image-key"]) or (".png" in link["data-image-key"]) or (".webp" in link["data-image-key"]) and ("Cookie".casefold() in str(link["data-image-key"]).casefold())):
+                        img_link = str(link["src"]).split("/revision")[0]
+                        img_name = link["data-image-key"]
+                        img_pass = check_img(img_link)
+                        if img_pass == True:
+                            img[img_name] = img_link
+                        
+            except KeyError:
+                pass
+            try:
+                cookie_img = random.choice(list(img.values()))
+            except IndexError:
+                    try:
+                        cookie_img = random.choice(list(backup_img.values()))
+                    except IndexError:
+                        cookie_img = "https://upload.wikimedia.org/wikipedia/commons/thumb/6/65/No-Image-Placeholder.svg/1665px-No-Image-Placeholder.svg.png"
+        else:
+            try:
+                embed = discord.Embed(title=info['Name'], description=info['Description'], url=info['URL'])
+            except IndexError:
+                ctx.respond("Index error occurred!")
+            embed.set_image(url=cookie_img)
+            try:
+                embed.add_field(name="Pronouns", value=info["Pronouns"])
+            except KeyError:
+                embed.add_field(name="Pronouns", value="None")
+            try:
+                embed.add_field(name="Rarity", value=info["Rarity"])
+            except KeyError:
+                embed.add_field(name="Rarity", value="N/A")
+            await ctx.respond(embed=embed)
+            #await ctx.respond()
+    except Exception as e:
+        exceptionstring = format_exc()
+        await report.send(f"<@120396380073099264>\n{exceptionstring}\nIn {ctx.guild.name}")
 
 #Command to get info on a certain Care Bear or choose a random one
 @client.slash_command(description="Get information on a random Care Bear, or a bear of your choice!", guild_ids=guilds)
