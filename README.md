@@ -17,6 +17,7 @@ As of right now, there are 11 commands, 10 of which can be used by all members o
 - **/care_bear** *[bear]* - This command sends an embed containing information on a random bear from Care Bears, or the first search result for whatever the user inputs in the "bear" parameter. ([April 10, 2024](https://github.com/cheetahsweater/xyl-q/commit/68e445665af878916c23e09f7b565648898128fc))
 - **/cookie** *[game]* - This command sends an embed containing information on a random character from Cookie Run: OvenBreak, Kingdom, or Tower of Adventure. ([April 11, 2024](https://github.com/cheetahsweater/xyl-q/commit/caab487f8caa4015ba0948dd204a782bd394f5a1))
 - **/refresh_vars** - This command refreshes all of the variables XyL-Q pulls from external files, just in case I've updated any of those files manually. This should only work if I'm the one using the command. ([April 12, 2024](https://github.com/cheetahsweater/xyl-q/commit/c0f576d6d1ee6ded90726f252fb0e2ac61a53a5f))
+- - **/view_lovelist** - This command outputs your lovelist split into pages of 15 characters per page. ([April 12, 2024](https://github.com/cheetahsweater/xyl-q/commit/cebb696ee90b8e0d2703c821efdc92b450991197))
 
 ## Reputation
 The reputation functionality of XyL-Q was inspired by the rep functionality in UB3R-B0T, a Discord bot that I respect very much but I disagreed with the way they implemented their rep function, so I made my own!
