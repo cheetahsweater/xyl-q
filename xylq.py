@@ -14,9 +14,9 @@ import asyncio
 
 status = "Cookie Run: Witch’s Castle"
 #status = "Testing new features!"
-versionnum = "4.1d"
-updatetime = "2024/04/12 16:23"
-changes = "**(4.1)** Added new command that pulls info on a random Cookie Run character\(a) Fixed sourcelist bug and added command so I can refresh variables when manually editing them\n(b) Added exception in lovelist for if character already claimed\n(c) Fixed sourcelist bug again\n(d) Moved meme command image grabbing to separate function to decrease redundancy"
+versionnum = "4.2"
+updatetime = "2024/04/12 17:43"
+changes = "**(4.2)** Added new command that allows users to check their lovelist"
 path = os.getcwd()
 print(f"XyL-Q v{versionnum}")
 print(updatetime)
@@ -980,6 +980,94 @@ async def love_source(ctx: discord.Interaction, source: str, user: str=None):
             await ctx.respond(f"{random.choice(aff)}-Q! I've added {source} to {member.display_name}'s love list-Q!")
         else:
             await ctx.respond(f"{random.choice(aff)}-Q! I've added {source} to your love list-Q!")
+    except Exception as e:
+        exceptionstring = format_exc()
+        await report.send(f"<@120396380073099264>\n{exceptionstring}\nIn {ctx.guild.name}")
+      
+class prev_next(discord.ui.View):
+    def __init__(self, content, pages, member: discord.User):
+        super().__init__()
+        self.value = None
+        self.page = 1
+        self.content = content
+        self.pages = pages
+        self.member = member
+    
+    @discord.ui.button(style=discord.ButtonStyle.secondary , emoji="◀️")
+    async def prev(self, button, interaction: discord.Interaction):
+        if self.page > 1:
+            self.page -= 1
+        else:
+            self.page = self.pages
+        embed = discord.Embed(title="",
+                            color=self.member.color)
+        embed.set_author(name=f"{self.member.display_name}'s lovelist-Q!", icon_url=self.member.display_avatar.url)
+        embed.add_field(name="", value=self.content[self.page - 1])
+        embed.set_footer(text=f"Page {self.page} / {self.pages}")
+        await interaction.response.edit_message(embed=embed)
+
+    @discord.ui.button(style=discord.ButtonStyle.secondary , emoji="▶️")
+    async def next(self, button, interaction: discord.Interaction):
+        if self.page < self.pages:
+            self.page += 1
+        else:
+            self.page = 1
+        embed = discord.Embed(title="",
+                            color=self.member.color)
+        embed.set_author(name=f"{self.member.display_name}'s lovelist-Q!", icon_url=self.member.display_avatar.url)
+        embed.add_field(name="", value=self.content[self.page - 1])
+        embed.set_footer(text=f"Page {self.page} / {self.pages}")
+        await interaction.response.edit_message(embed=embed)
+
+
+#Lets you check your list of loved characters
+@client.slash_command(description="Shows your list of loved characters!", guild_ids=guilds)
+async def view_lovelist(ctx: discord.Interaction, user: str=None):
+    try:
+        if user == None:
+            IDstring = str(ctx.author.id)
+            member: discord.User = ctx.author
+        else:
+            IDstring = user.strip("<>@")
+            guild: discord.Guild = ctx.guild
+            member: discord.User = await guild.fetch_member(int(IDstring))
+        try:
+            guildlovelist = lovelist[str(ctx.guild.id)]
+        except KeyError:
+            guildlovelist = {}
+            await ctx.send("Your lovelist is empty-Q!")
+            return
+        try:
+            userlovelist = guildlovelist[IDstring]
+        except KeyError:
+            if IDstring == str(ctx.author.id):
+                await ctx.send("Your lovelist is empty-Q!")
+                userlovelist = {}
+                return
+            else:
+                await ctx.send(f"{member.display_name}'s lovelist is empty-Q!")
+        if len(userlovelist) > 0:
+            per_page = 15
+            content = []
+            pages = (len(userlovelist) + per_page - 1) // per_page
+            user_loved = list(userlovelist.items())
+            current_page = 1
+            for page in range(pages):
+                start_index = page * per_page
+                end_index = start_index + per_page
+                page_items = user_loved[start_index:end_index]
+                page_content = ""
+                for num, (key, value) in enumerate(page_items, start=1):
+                    line = f"{num + start_index}. **{key}** | {value}" 
+                    page_content += f"{line}\n"
+                content.append(page_content)
+            embed = discord.Embed(title="",
+                            color=member.color)
+            embed.set_author(name=f"{member.display_name}'s lovelist-Q!", icon_url=member.display_avatar.url)
+            embed.add_field(name="", value=content[current_page - 1])
+            embed.set_footer(text=f"Page {current_page} / {pages}")
+            interaction: discord.Interaction = await ctx.respond(embed=embed, view=prev_next(content, pages, member))
+            message: discord.Message = interaction.message
     except Exception as e:
         exceptionstring = format_exc()
         await report.send(f"<@120396380073099264>\n{exceptionstring}\nIn {ctx.guild.name}")
