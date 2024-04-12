@@ -14,9 +14,9 @@ import asyncio
 
 status = "Cookie Run: Witch’s Castle"
 #status = "Testing new features!"
-versionnum = "4.1c"
-updatetime = "2024/04/12 15:42"
-changes = "**(4.1)** Added new command that pulls info on a random Cookie Run character\(a) Fixed sourcelist bug and added command so I can refresh variables when manually editing them\n(b) Added exception in lovelist for if character already claimed\n(c) Fixed sourcelist bug again"
+versionnum = "4.1d"
+updatetime = "2024/04/12 16:23"
+changes = "**(4.1)** Added new command that pulls info on a random Cookie Run character\(a) Fixed sourcelist bug and added command so I can refresh variables when manually editing them\n(b) Added exception in lovelist for if character already claimed\n(c) Fixed sourcelist bug again\n(d) Moved meme command image grabbing to separate function to decrease redundancy"
 path = os.getcwd()
 print(f"XyL-Q v{versionnum}")
 print(updatetime)
@@ -984,10 +984,61 @@ async def love_source(ctx: discord.Interaction, source: str, user: str=None):
         exceptionstring = format_exc()
         await report.send(f"<@120396380073099264>\n{exceptionstring}\nIn {ctx.guild.name}")
 
+def get_image(url_list: str, base_url: str):
+    url = random.choice(url_list)
+    
+    reqs = requests.get(url)
+    soup = BeautifulSoup(reqs.text, 'html.parser')
+    
+    urls = []
+    for link in soup.find_all('a'):
+        url = link.get('href')
+        if url != None:
+            if ".png" in url:
+                urls.append(url)
+    page = f"{base_url}{random.choice(urls)}"
+    reqsagain = requests.get(page)
+    soup = BeautifulSoup(reqsagain.text, 'html.parser')
+    
+    urls = []
+    for link in soup.find_all('a'):
+        url = link.get('href')
+        if url != None:
+            if ".png" in url:
+                if "images" in url:
+                    urls.append(url)
+    try:
+        if url_list == mcwiki:
+            image_link = f"{base_url}{random.choice(urls)}"  
+        else:
+            image_link = random.choice(urls)
+    except IndexError:
+        page = f"{base_url}{random.choice(urls)}"
+        reqsagain = requests.get(page)
+        soup = BeautifulSoup(reqsagain.text, 'html.parser')
+        
+        urls = []
+        for link in soup.find_all('a'):
+            url = link.get('href')
+            if url != None:
+                if ".png" in url:
+                    #print(url)
+                    if "images" in url:
+                        urls.append(url)
+        try:
+            if url_list == mcwiki:
+                image_link = f"{base_url}{random.choice(urls)}"  
+            else:
+                image_link = random.choice(urls)  
+        except IndexError:
+            image_link = "https://i1.wp.com/files.polldaddy.com/9b53a5da9af99125866e48003cce5675-65c92e58a003b.jpg"
+    return image_link
+
 #MY MAGNUM OPUS (the meme command)
 @client.slash_command(description="Makes a meme based on parameters given!", guild_ids=guilds)
 async def meme(ctx: discord.Interaction, top_text: str=None, bottom_text: str=None, image_link: str=None, image_upload: discord.Attachment=None, wiki: discord.Option(str, choices=wikis)=None): 
     try:
+        await ctx.response.defer()
         if (top_text == None) and (bottom_text != None):
             top_text = bottom_text
         if (bottom_text == None) and (top_text != None):
@@ -998,7 +1049,7 @@ async def meme(ctx: discord.Interaction, top_text: str=None, bottom_text: str=No
                 full_text = random.choice(stringlist[str(ctx.guild.id)])
             except Exception as e:
                 exceptionstring = format_exc()
-                await report.send(f"<@120396380073099264>\n{exceptionstring}\nIn {ctx.guild.name}")
+                await report.send(f"{exceptionstring}\nIn {ctx.guild.name}")
                 full_text = "no messages indexed"
 
             if " " in full_text:
@@ -1054,299 +1105,25 @@ async def meme(ctx: discord.Interaction, top_text: str=None, bottom_text: str=No
                         exceptionstring = format_exc()
                         await report.send(f"<@120396380073099264>\n{exceptionstring}")
                         image_link = "https://mario.wiki.gallery/images/f/fe/36-Diddy_Kong.png"
+                    
                 #elif numba < 1:
                     #This list is empty right now so once I populate that list I'll add this back in
                     #image_link = random.choice(imglist)
-                else:
+                else:   
                     if wiki == None:
-                        wiki = random.choice(wikis)
-
-                    #Definitely going to move this to a function ASAP because this code is ridiculously long and it's all the same
-                    #Once I move it to a function I will add comments but for now it would be extremely redundant lol
+                        wiki = random.choice(wikis)     
                     if wiki == "mario":
-                        url = random.choice(mariowiki)
-                        await ctx.response.defer()
-                        reqs = requests.get(url)
-                        soup = BeautifulSoup(reqs.text, 'html.parser')
-                        
-                        urls = []
-                        for link in soup.find_all('a'):
-                            url = link.get('href')
-                            if url != None:
-                                if url[-4:] == ".png":
-                                    urls.append(url)
-                        page = f"https://www.mariowiki.com{random.choice(urls)}"
-                        reqsagain = requests.get(page)
-                        soup = BeautifulSoup(reqsagain.text, 'html.parser')
-                        
-                        urls = []
-                        for link in soup.find_all('a'):
-                            url = link.get('href')
-                            if url != None:
-                                if url[-4:] == ".png":
-                                    if "images" in url:
-                                        urls.append(url)
-                        try:
-                            image_link = random.choice(urls)   
-                        except IndexError:
-                            page = f"https://www.mariowiki.com{random.choice(urls)}"
-                            reqsagain = requests.get(page)
-                            soup = BeautifulSoup(reqsagain.text, 'html.parser')
-                            
-                            urls = []
-                            for link in soup.find_all('a'):
-                                url = link.get('href')
-                                if url != None:
-                                    if ".png" in url:
-                                        #print(url)
-                                        if "images" in url:
-                                            urls.append(url)
-                                try:
-                                    image_link = random.choice(urls)   
-                                except IndexError:
-                                    exceptionstring = format_exc()
-                                    await report.send(f"<@120396380073099264>\n{exceptionstring}")
-                                    image_link = "https://i1.wp.com/files.polldaddy.com/9b53a5da9af99125866e48003cce5675-65c92e58a003b.jpg"
-                                
+                        image_link = get_image(mariowiki, "https://www.mariowiki.com")
                     if wiki == "minecraft":
-                        url = random.choice(mcwiki)
-                        await ctx.response.defer()
-                        reqs = requests.get(url)
-                        soup = BeautifulSoup(reqs.text, 'html.parser')
-                        
-                        urls = []
-                        for link in soup.find_all('a'):
-                            url = link.get('href')
-                            if url != None:
-                                if url[-4:] == ".png":
-                                    if "w/File:" in url:
-                                        urls.append(url)
-                        page = f"https://minecraft.wiki{random.choice(urls)}"
-                        reqsagain = requests.get(page)
-                        soup = BeautifulSoup(reqsagain.text, 'html.parser')
-                        
-                        urls = []
-                        for link in soup.find_all('a'):
-                            url = link.get('href')
-                            if url != None:
-                                if ".png" in url:
-                                    if "images" in url:
-                                        urls.append(url)
-                        try:
-                            image_link = f"https://minecraft.wiki{random.choice(urls)}"
-                        except IndexError:
-                            page = f"https://minecraft.wiki{random.choice(urls)}"
-                            reqsagain = requests.get(page)
-                            soup = BeautifulSoup(reqsagain.text, 'html.parser')
-                            
-                            urls = []
-                            for link in soup.find_all('a'):
-                                url = link.get('href')
-                                if url != None:
-                                    if ".png" in url:
-                                        #print(url)
-                                        if "images" in url:
-                                            urls.append(url)
-                                try:
-                                    image_link = f"https://minecraft.wiki{random.choice(urls)}" 
-                                except IndexError:
-                                    exceptionstring = format_exc()
-                                    await report.send(f"<@120396380073099264>\n{exceptionstring}")
-                                    image_link = "https://static.wikia.nocookie.net/logopedia/images/4/43/Sat.1_montage_-_by_Nico234.png"
-
+                        image_link = get_image(mcwiki, "https://minecraft.wiki")
                     if wiki == "ssb":
-                        url = url = random.choice(ssb)
-                        await ctx.response.defer()
-                        reqs = requests.get(url)
-                        soup = BeautifulSoup(reqs.text, 'html.parser')
-                        
-                        urls = []
-                        for link in soup.find_all('a'):
-                            url = link.get('href')
-                            if url != None:
-                                if url[-4:] == ".png":
-                                    if "File:" in url:
-                                        urls.append(url)
-                        page = f"https://supersmashbros.fandom.com{random.choice(urls)}"
-                        reqsagain = requests.get(page)
-                        soup = BeautifulSoup(reqsagain.text, 'html.parser')
-                        
-                        urls = []
-                        for link in soup.find_all('a'):
-                            url = link.get('href')
-                            if url != None:
-                                if ".png" in url:
-                                    #print(url)
-                                    if "images" in url:
-                                        urls.append(url)
-                        try:
-                            image_link = random.choice(urls)   
-                        except IndexError:
-                            exceptionstring = format_exc()
-                            await report.send(f"{exceptionstring}")
-                            page = f"https://supersmashbros.fandom.com{random.choice(urls)}"
-                            reqsagain = requests.get(page)
-                            soup = BeautifulSoup(reqsagain.text, 'html.parser')
-                            
-                            urls = []
-                            for link in soup.find_all('a'):
-                                url = link.get('href')
-                                if url != None:
-                                    if ".png" in url:
-                                        #print(url)
-                                        if "images" in url:
-                                            urls.append(url)
-                                try:
-                                    image_link = random.choice(urls)   
-                                except IndexError:
-                                    exceptionstring = format_exc()
-                                    await report.send(f"<@120396380073099264>\n{exceptionstring}")
-                                    image_link = "https://static.wikia.nocookie.net/ssb/images/3/39/Super-Smash-Bros.-Ultimate-OFFICIAL-Key-Art-Wide-by-.jpg/"
-
+                        image_link = get_image(ssb, "https://supersmashbros.fandom.com")
                     if wiki == "cb":
-                        url = url = random.choice(cb)
-                        await ctx.response.defer()
-                        reqs = requests.get(url)
-                        soup = BeautifulSoup(reqs.text, 'html.parser')
-                        
-                        urls = []
-                        for link in soup.find_all('a'):
-                            url = link.get('href')
-                            if url != None:
-                                if url[-4:] == ".png":
-                                    if "File:" in url:
-                                        urls.append(url)
-                        page = f"https://carebears.fandom.com{random.choice(urls)}"
-                        reqsagain = requests.get(page)
-                        soup = BeautifulSoup(reqsagain.text, 'html.parser')
-                        
-                        urls = []
-                        for link in soup.find_all('a'):
-                            url = link.get('href')
-                            if url != None:
-                                if ".png" in url:
-                                    #print(url)  
-                                    if "images" in url:
-                                        urls.append(url)
-                        try:
-                            image_link = random.choice(urls)   
-                        except IndexError:
-                            exceptionstring = format_exc()
-                            await report.send(f"{exceptionstring}")
-                            page = f"https://carebears.fandom.com{random.choice(urls)}"
-                            reqsagain = requests.get(page)
-                            soup = BeautifulSoup(reqsagain.text, 'html.parser')
-                            
-                            urls = []
-                            for link in soup.find_all('a'):
-                                url = link.get('href')
-                                if url != None:
-                                    if ".png" in url:
-                                        #print(url)
-                                        if "images" in url:
-                                            urls.append(url)
-                                try:
-                                    image_link = random.choice(urls)   
-                                except IndexError:
-                                    exceptionstring = format_exc()
-                                    await report.send(f"<@120396380073099264>\n{exceptionstring}")
-                                    image_link = "https://static.wikia.nocookie.net/carebears/images/3/30/Flower_Power_Bear_UTM.png"
-                                
+                        image_link = get_image(cb, "https://carebears.fandom.com")
                     if wiki == "cookierun":
-                        url = url = random.choice(cr)
-                        await ctx.response.defer()
-                        reqs = requests.get(url)
-                        soup = BeautifulSoup(reqs.text, 'html.parser')
-                        
-                        urls = []
-                        for link in soup.find_all('a'):
-                            url = link.get('href')
-                            if url != None:
-                                if url[-4:] == ".png":
-                                    if "File:" in url:
-                                        urls.append(url)
-                        page = f"https://cookierun.fandom.com{random.choice(urls)}"
-                        reqsagain = requests.get(page)
-                        soup = BeautifulSoup(reqsagain.text, 'html.parser')
-                        
-                        urls = []
-                        for link in soup.find_all('a'):
-                            url = link.get('href')
-                            if url != None:
-                                if ".png" in url:
-                                    #print(url)
-                                    if "images" in url:
-                                        urls.append(url)
-                        try:
-                            image_link = random.choice(urls)   
-                        except IndexError:
-                            exceptionstring = format_exc()
-                            await report.send(f"{exceptionstring}")
-                            page = f"https://cookierun.fandom.com{random.choice(urls)}"
-                            reqsagain = requests.get(page)
-                            soup = BeautifulSoup(reqsagain.text, 'html.parser')
-                            
-                            urls = []
-                            for link in soup.find_all('a'):
-                                url = link.get('href')
-                                if url != None:
-                                    if ".png" in url:
-                                        #print(url)
-                                        if "images" in url:
-                                            urls.append(url)
-                                try:
-                                    image_link = random.choice(urls)   
-                                except IndexError:
-                                    exceptionstring = format_exc()
-                                    await report.send(f"<@120396380073099264>\n{exceptionstring}")
-                                    image_link = "https://static.wikia.nocookie.net/8942cb43-4ab3-498a-b9af-860b7743a226/"
+                        image_link = get_image(cr, "https://cookierun.fandom.com")
                     if wiki == "logo":
-                        url = url = random.choice(logo)
-                        await ctx.response.defer()
-                        reqs = requests.get(url)
-                        soup = BeautifulSoup(reqs.text, 'html.parser')
-                        
-                        urls = []
-                        for link in soup.find_all('a'):
-                            url = link.get('href')
-                            if url != None:
-                                if url[-4:] == ".png":
-                                    if "File:" in url:
-                                        urls.append(url)
-                        page = f"https://logos.fandom.com{random.choice(urls)}"
-                        reqsagain = requests.get(page)
-                        soup = BeautifulSoup(reqsagain.text, 'html.parser')
-                        urls = []
-                        for link in soup.find_all('a'):
-                            url = link.get('href')
-                            if url != None:
-                                if ".png" in url:
-                                    #print(url)
-                                    if "images" in url:
-                                        urls.append(url)
-                        try:
-                            image_link = random.choice(urls)   
-                        except IndexError:
-                            exceptionstring = format_exc()
-                            await report.send(f"<@120396380073099264>\n{exceptionstring}")
-                            page = f"https://logos.fandom.com{random.choice(urls)}"
-                            reqsagain = requests.get(page)
-                            soup = BeautifulSoup(reqsagain.text, 'html.parser')
-                            
-                            urls = []
-                            for link in soup.find_all('a'):
-                                url = link.get('href')
-                                if url != None:
-                                    if ".png" in url:
-                                        #print(url)
-                                        if "images" in url:
-                                            urls.append(url)
-                                try:
-                                    image_link = random.choice(urls)   
-                                except IndexError:
-                                    exceptionstring = format_exc()
-                                    await report.send(f"<@120396380073099264>\n{exceptionstring}")
-                                    image_link = "https://static.wikia.nocookie.net/logopedia/images/4/43/Sat.1_montage_-_by_Nico234.png"
+                        image_link = get_image(logo, "https://logos.fandom.com")
         memelink = f"https://api.memegen.link/images/custom/{top_text_new}/{bottom_text_new}.png?background={image_link}"
         await ctx.followup.send(content=memelink)
     except Exception as e:
