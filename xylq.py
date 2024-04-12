@@ -14,9 +14,9 @@ import asyncio
 
 status = "Cookie Run: Witch’s Castle"
 #status = "Testing new features!"
-versionnum = "3.11b"
-updatetime = "2024/04/07 11:42"
-changes = "**(3.11)** Added server parameter to lovelist to keep it from firing off in other servers\n(a) Attempt at bug fix\n(b) Actually tested bug fix"
+versionnum = "4.2"
+updatetime = "2024/04/12 17:43"
+changes = "**(4.2)** Added new command that allows users to check their lovelist"
 path = os.getcwd()
 print(f"XyL-Q v{versionnum}")
 print(updatetime)
@@ -569,14 +569,45 @@ async def love_source(ctx: discord.Interaction, source: str, user: str=None):
         await report.send(f"<@120396380073099264>\n{exceptionstring}\nIn {ctx.guild.name}")
 
 
-'''class prev_button(discord.ui.View):
+class prev_next(discord.ui.View):
+    def __init__(self, content, pages, member: discord.User):
+        super().__init__()
+        self.value = None
+        self.page = 1
+        self.content = content
+        self.pages = pages
+        self.member = member
+    
     @discord.ui.button(style=discord.ButtonStyle.secondary , emoji="◀️")
-    async def button_callback(self, button, interaction):
-        await interaction.response.send_message("This doesn't do anything yet SORRY")'''
+    async def prev(self, button, interaction: discord.Interaction):
+        if self.page > 1:
+            self.page -= 1
+        else:
+            self.page = self.pages
+        embed = discord.Embed(title="",
+                            color=self.member.color)
+        embed.set_author(name=f"{self.member.display_name}'s lovelist-Q!", icon_url=self.member.display_avatar.url)
+        embed.add_field(name="", value=self.content[self.page - 1])
+        embed.set_footer(text=f"Page {self.page} / {self.pages}")
+        await interaction.response.edit_message(embed=embed)
+
+    @discord.ui.button(style=discord.ButtonStyle.secondary , emoji="▶️")
+    async def next(self, button, interaction: discord.Interaction):
+        if self.page < self.pages:
+            self.page += 1
+        else:
+            self.page = 1
+        embed = discord.Embed(title="",
+                            color=self.member.color)
+        embed.set_author(name=f"{self.member.display_name}'s lovelist-Q!", icon_url=self.member.display_avatar.url)
+        embed.add_field(name="", value=self.content[self.page - 1])
+        embed.set_footer(text=f"Page {self.page} / {self.pages}")
+        await interaction.response.edit_message(embed=embed)
+
 
 #Lets you check your list of loved characters
 @client.slash_command(description="Shows your list of loved characters!", guild_ids=guilds)
-async def view_lovelist(ctx: discord.Interaction, source: str=None, user: str=None):
+async def view_lovelist(ctx: discord.Interaction, user: str=None):
     try:
         if user == None:
             IDstring = str(ctx.author.id)
@@ -620,9 +651,8 @@ async def view_lovelist(ctx: discord.Interaction, source: str=None, user: str=No
             embed.set_author(name=f"{member.display_name}'s lovelist-Q!", icon_url=member.display_avatar.url)
             embed.add_field(name="", value=content[current_page - 1])
             embed.set_footer(text=f"Page {current_page} / {pages}")
-            interaction: discord.Interaction = await ctx.respond(embed=embed, view=prev_button)
+            interaction: discord.Interaction = await ctx.respond(embed=embed, view=prev_next(content, pages, member))
             message: discord.Message = interaction.message
-            await message.add_reaction("▶️")
     except Exception as e:
         exceptionstring = format_exc()
         await report.send(f"<@120396380073099264>\n{exceptionstring}\nIn {ctx.guild.name}")
