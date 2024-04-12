@@ -14,9 +14,9 @@ import asyncio
 
 status = "Cookie Run: Witch’s Castle"
 #status = "Testing new features!"
-versionnum = "4.1b"
-updatetime = "2024/04/12 15:37"
-changes = "**(4.1)** Added new command that pulls info on a random Cookie Run character\(a) Fixed sourcelist bug and added command so I can refresh variables when manually editing them\n(b) Added exception in lovelist for if character already claimed"
+versionnum = "4.1c"
+updatetime = "2024/04/12 15:42"
+changes = "**(4.1)** Added new command that pulls info on a random Cookie Run character\(a) Fixed sourcelist bug and added command so I can refresh variables when manually editing them\n(b) Added exception in lovelist for if character already claimed\n(c) Fixed sourcelist bug again"
 path = os.getcwd()
 print(f"XyL-Q v{versionnum}")
 print(updatetime)
@@ -962,7 +962,7 @@ async def love_source(ctx: discord.Interaction, source: str, user: str=None):
         else:
             IDstring = user.strip("<>@")
         try:
-            guildsourcelist = lovelist[str(ctx.guild.id)]
+            guildsourcelist = sourcelist[str(ctx.guild.id)]
         except KeyError:
             guildsourcelist = {}
         try:
