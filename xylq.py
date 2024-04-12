@@ -14,9 +14,9 @@ import asyncio
 
 status = "Cookie Run: Witch’s Castle"
 #status = "Testing new features!"
-versionnum = "4.1a"
-updatetime = "2024/04/12 15:21"
-changes = "**(4.1)** Added new command that pulls info on a random Cookie Run character\(a) Fixed sourcelist bug and added command so I can refresh variables when manually editing them"
+versionnum = "4.1b"
+updatetime = "2024/04/12 15:37"
+changes = "**(4.1)** Added new command that pulls info on a random Cookie Run character\(a) Fixed sourcelist bug and added command so I can refresh variables when manually editing them\n(b) Added exception in lovelist for if character already claimed"
 path = os.getcwd()
 print(f"XyL-Q v{versionnum}")
 print(updatetime)
@@ -339,6 +339,18 @@ async def on_message(message: discord.Message):
                     source += f"{line} "
                 try:
                     roll = {message.embeds[0].author.name.casefold():source.strip().casefold()}
+                    #print(roll)
+                    #print(source)
+                    #print(str(list(roll.keys())[0])) #TEST
+                    #Testing stuff
+                    '''testvar = "reaper bird"
+                    if str(list(roll.keys())[0]) == testvar:
+                        await message.channel.send(f"{testvar} is loved by POOPMEISTER.-Q!")'''
+                except AttributeError:
+                    return
+                try:
+                    if "Belongs to" in str(message.embeds[0].footer.text):
+                        return
                     #print(roll)
                     #print(source)
                     #print(str(list(roll.keys())[0])) #TEST
