@@ -14,9 +14,9 @@ import asyncio
 
 status = "Cookie Run: Witch’s Castle"
 #status = "Testing new features!"
-versionnum = "4.2"
-updatetime = "2024/04/12 17:43"
-changes = "**(4.2)** Added new command that allows users to check their lovelist"
+versionnum = "4.2a"
+updatetime = "2024/04/13 13:23"
+changes = "**(4.2)** Added new command that allows users to check their lovelist\n(a) Added ability to check list of loved sources as well"
 path = os.getcwd()
 print(f"XyL-Q v{versionnum}")
 print(updatetime)
@@ -1022,7 +1022,7 @@ class prev_next(discord.ui.View):
 
 #Lets you check your list of loved characters
 @client.slash_command(description="Shows your list of loved characters!", guild_ids=guilds)
-async def view_lovelist(ctx: discord.Interaction, user: str=None):
+async def view_lovelist(ctx: discord.Interaction, list_to_view: discord.Option(str, choices=["characters", "sources"]), user: str=None):
     try:
         if user == None:
             IDstring = str(ctx.author.id)
@@ -1031,43 +1031,82 @@ async def view_lovelist(ctx: discord.Interaction, user: str=None):
             IDstring = user.strip("<>@")
             guild: discord.Guild = ctx.guild
             member: discord.User = await guild.fetch_member(int(IDstring))
-        try:
-            guildlovelist = lovelist[str(ctx.guild.id)]
-        except KeyError:
-            guildlovelist = {}
-            await ctx.send("Your lovelist is empty-Q!")
-            return
-        try:
-            userlovelist = guildlovelist[IDstring]
-        except KeyError:
-            if IDstring == str(ctx.author.id):
-                await ctx.send("Your lovelist is empty-Q!")
-                userlovelist = {}
+        if list_to_view == "characters":
+            try:
+                guildlovelist = lovelist[str(ctx.guild.id)]
+            except KeyError:
+                guildlovelist = {}
+                await ctx.send("Your characters lovelist is empty-Q!")
                 return
-            else:
-                await ctx.send(f"{member.display_name}'s lovelist is empty-Q!")
-        if len(userlovelist) > 0:
-            per_page = 15
-            content = []
-            pages = (len(userlovelist) + per_page - 1) // per_page
-            user_loved = list(userlovelist.items())
-            current_page = 1
-            for page in range(pages):
-                start_index = page * per_page
-                end_index = start_index + per_page
-                page_items = user_loved[start_index:end_index]
-                page_content = ""
-                for num, (key, value) in enumerate(page_items, start=1):
-                    line = f"{num + start_index}. **{key}** | {value}" 
-                    page_content += f"{line}\n"
-                content.append(page_content)
-            embed = discord.Embed(title="",
-                            color=member.color)
-            embed.set_author(name=f"{member.display_name}'s lovelist-Q!", icon_url=member.display_avatar.url)
-            embed.add_field(name="", value=content[current_page - 1])
-            embed.set_footer(text=f"Page {current_page} / {pages}")
-            interaction: discord.Interaction = await ctx.respond(embed=embed, view=prev_next(content, pages, member))
-            message: discord.Message = interaction.message
+            try:
+                userlovelist: dict = guildlovelist[IDstring]
+            except KeyError:
+                if IDstring == str(ctx.author.id):
+                    await ctx.send("Your characters lovelist is empty-Q!")
+                    userlovelist: dict = {}
+                    return
+                else:
+                    await ctx.send(f"{member.display_name}'s characters lovelist is empty-Q!")
+            if len(userlovelist) > 0:
+                per_page = 15
+                content = []
+                pages = (len(userlovelist) + per_page - 1) // per_page
+                user_loved = list(userlovelist.items())
+                current_page = 1
+                for page in range(pages):
+                    start_index = page * per_page
+                    end_index = start_index + per_page
+                    page_items = user_loved[start_index:end_index]
+                    page_content = ""
+                    for num, (key, value) in enumerate(page_items, start=1):
+                        line = f"{num + start_index}. **{key}** | {value}" 
+                        page_content += f"{line}\n"
+                    content.append(page_content)
+                embed = discord.Embed(title="",
+                                color=member.color)
+                embed.set_author(name=f"{member.display_name}'s characters lovelist-Q!", icon_url=member.display_avatar.url)
+                embed.add_field(name="", value=content[current_page - 1])
+                embed.set_footer(text=f"Page {current_page} / {pages}")
+                interaction: discord.Interaction = await ctx.respond(embed=embed, view=prev_next(content, pages, member))
+                message: discord.Message = interaction.message
+        elif list_to_view == "sources":
+            try:
+                guildlovelist = sourcelist[str(ctx.guild.id)]
+            except KeyError:
+                guildlovelist = {}
+                await ctx.send("Your sources lovelist is empty-Q!")
+                return
+            try:
+                userlovelist: list = guildlovelist[IDstring]
+            except KeyError:
+                if IDstring == str(ctx.author.id):
+                    await ctx.send("Your sources lovelist is empty-Q!")
+                    userlovelist = []
+                    return
+                else:
+                    await ctx.send(f"{member.display_name}'s sources lovelist is empty-Q!")
+            if len(userlovelist) > 0:
+                per_page = 15
+                content = []
+                pages = (len(userlovelist) + per_page - 1) // per_page
+                user_loved = list(userlovelist)
+                current_page = 1
+                for page in range(pages):
+                    start_index = page * per_page
+                    end_index = start_index + per_page
+                    page_items = user_loved[start_index:end_index]
+                    page_content = ""
+                    for num, source in enumerate(page_items, start=1):
+                        line = f"{num + start_index}. **{source}**" 
+                        page_content += f"{line}\n"
+                    content.append(page_content)
+                embed = discord.Embed(title="",
+                                color=member.color)
+                embed.set_author(name=f"{member.display_name}'s sources lovelist-Q!", icon_url=member.display_avatar.url)
+                embed.add_field(name="", value=content[current_page - 1])
+                embed.set_footer(text=f"Page {current_page} / {pages}")
+                interaction: discord.Interaction = await ctx.respond(embed=embed, view=prev_next(content, pages, member))
+                message: discord.Message = interaction.message
     except Exception as e:
         exceptionstring = format_exc()
         await report.send(f"<@120396380073099264>\n{exceptionstring}\nIn {ctx.guild.name}")
