@@ -15,9 +15,9 @@ import asyncio
 
 status = "Cookie Run: Witch’s Castle"
 #status = "Testing new features!"
-versionnum = "4.2b"
-updatetime = "2024/04/19 16:07"
-changes = "**(4.2)** Added new command that allows users to check their lovelist\n(a) Added ability to check list of loved sources as well\n(b) Added error handling in rep command for if the command user doesn't ping the target user, added test bot capability, added error handling for lack of channel permissions"
+versionnum = "4.2c"
+updatetime = "2024/04/19 16:10"
+changes = "**(4.2)** Added new command that allows users to check their lovelist\n(a) Added ability to check list of loved sources as well\n(b) Added error handling in rep command for if the command user doesn't ping the target user, added test bot capability, added error handling for lack of channel permissions\n(c) Added ability for my alt account to be able to use refresh vars command"
 path = os.getcwd()
 print(f"XyL-Q v{versionnum}")
 print(updatetime)
@@ -426,7 +426,7 @@ async def version(ctx: discord.Interaction):
 #For me to refresh variables
 @client.slash_command(description="Refresh all bot variables!", guild_ids=guilds)
 async def refresh_vars(ctx: discord.Interaction): 
-    if ctx.author.id == 120396380073099264:
+    if ctx.author.id in [120396380073099264, 1189313967831646278]:
         #Load individual user-to-user reputation database
         with open(f'{path}\\rep.json',"r+") as file:
             global rep
