@@ -1,6 +1,7 @@
 import discord
 from discord.ext import commands
 from discord.utils import get
+from discord.errors import Forbidden
 from dotenv import load_dotenv
 from traceback import format_exc
 import os
@@ -14,15 +15,16 @@ import asyncio
 
 status = "Cookie Run: Witch’s Castle"
 #status = "Testing new features!"
-versionnum = "4.2a"
-updatetime = "2024/04/13 13:23"
-changes = "**(4.2)** Added new command that allows users to check their lovelist\n(a) Added ability to check list of loved sources as well"
+versionnum = "4.2b"
+updatetime = "2024/04/19 16:07"
+changes = "**(4.2)** Added new command that allows users to check their lovelist\n(a) Added ability to check list of loved sources as well\n(b) Added error handling in rep command for if the command user doesn't ping the target user, added test bot capability, added error handling for lack of channel permissions"
 path = os.getcwd()
 print(f"XyL-Q v{versionnum}")
 print(updatetime)
 print("womp womp")
 load_dotenv()
 TOKEN = os.getenv('DISCORD_TOKEN')
+#TOKEN = os.getenv('TEST_TOKEN')
 intents=discord.Intents.default()
 intents.message_content=True
 client = commands.Bot(intents=intents)
@@ -217,100 +219,102 @@ async def on_ready():
 @client.event
 async def on_reaction_add(reaction: discord.Reaction, user: discord.User):
     try:
-        if reaction.emoji == "🏅": #Might add all the other medal emojis too just for funsies
-            #Heavily revised by ChatGPT which was not necessarily what I even wanted it to do
-            guild_id_str = str(reaction.message.guild.id)
-            user_id_str = str(user.id)
-            author_id_str = str(reaction.message.author.id)
+        try:
+            if reaction.emoji == "🏅": #Might add all the other medal emojis too just for funsies
+                #Heavily revised by ChatGPT which was not necessarily what I even wanted it to do
+                guild_id_str = str(reaction.message.guild.id)
+                user_id_str = str(user.id)
+                author_id_str = str(reaction.message.author.id)
 
-            # Check for self-reputation or specific user ID conditions
-            if reaction.message.author == client.user:
-                await reaction.message.channel.send(random.choice(selfrep))
-            elif author_id_str == "1204234942897324074":
-                await reaction.message.channel.send("My apologies, but I cannot handle giving reputation to tuppers-Q!")
-                return  # Exit for specific user conditions
-            elif user_id_str == author_id_str:
-                await reaction.message.channel.send("My apologies, but I cannot let you give reputation to yourself-Q!")
-                return  # Exit to prevent self-reputation
+                # Check for self-reputation or specific user ID conditions
+                if reaction.message.author == client.user:
+                    await reaction.message.channel.send(random.choice(selfrep))
+                elif author_id_str == "1204234942897324074":
+                    await reaction.message.channel.send("My apologies, but I cannot handle giving reputation to tuppers-Q!")
+                    return  # Exit for specific user conditions
+                elif user_id_str == author_id_str:
+                    await reaction.message.channel.send("My apologies, but I cannot let you give reputation to yourself-Q!")
+                    return  # Exit to prevent self-reputation
 
-            # Ensure guild dictionary exists
-            if guild_id_str not in rep:
-                rep[guild_id_str] = {}
-            if user_id_str not in rep[guild_id_str]:
-                rep[guild_id_str][user_id_str] = {}
-            if author_id_str not in rep[guild_id_str][user_id_str]:
-                rep[guild_id_str][user_id_str][author_id_str] = 0
+                # Ensure guild dictionary exists
+                if guild_id_str not in rep:
+                    rep[guild_id_str] = {}
+                if user_id_str not in rep[guild_id_str]:
+                    rep[guild_id_str][user_id_str] = {}
+                if author_id_str not in rep[guild_id_str][user_id_str]:
+                    rep[guild_id_str][user_id_str][author_id_str] = 0
 
-            # Update rep
-            rep[guild_id_str][user_id_str][author_id_str] += 1
-            await report.send(f"Reputation given to {author_id_str} by {user_id_str} updated. It is now {rep[guild_id_str][user_id_str][author_id_str]}")
+                # Update rep
+                rep[guild_id_str][user_id_str][author_id_str] += 1
+                await report.send(f"Reputation given to {author_id_str} by {user_id_str} updated. It is now {rep[guild_id_str][user_id_str][author_id_str]}")
 
-            # Ensure totalrep structure exists
-            if guild_id_str not in totalrep:
-                totalrep[guild_id_str] = {}
-            if author_id_str not in totalrep[guild_id_str]:
-                totalrep[guild_id_str][author_id_str] = 0
+                # Ensure totalrep structure exists
+                if guild_id_str not in totalrep:
+                    totalrep[guild_id_str] = {}
+                if author_id_str not in totalrep[guild_id_str]:
+                    totalrep[guild_id_str][author_id_str] = 0
 
-            # Update totalrep
-            totalrep[guild_id_str][author_id_str] += 1
-            await report.send(f"Total reputation of {author_id_str} updated. It is now {totalrep[guild_id_str][author_id_str]}")
-        
-
-            await reaction.message.channel.send(f"<@{user_id_str}> has given <@{author_id_str}> +1 reputation-Q!")
-
-            # Write to files
-            with open(f'{path}\\rep.json', "w") as file:
-                json.dump(rep, file)
-            
-            with open(f'{path}\\totalrep.json', "w") as file:
-                json.dump(totalrep, file)
-        if reaction.emoji == "🍅":
-            guild_id_str = str(reaction.message.guild.id)
-            user_id_str = str(user.id)
-            author_id_str = str(reaction.message.author.id)
-
-            if reaction.message.author == client.user:
-                await reaction.message.channel.send("I will not permit uncleanliness on my person-Q!!")
-                return
-
-            # Check for self-reputation or specific user ID conditions
-            if reaction.message.author == client.user:
-                await reaction.message.channel.send(random.choice(selfrep))
-            elif author_id_str == "1204234942897324074":
-                await reaction.message.channel.send("My apologies, but I cannot handle taking reputation from tuppers-Q!")
-                return  # Exit for specific user conditions
-            elif user_id_str == author_id_str:
-                await reaction.message.channel.send("Why would you want to take away your own rep-Q?!")
-                return  # Exit to prevent self-reputation
-
-            # Ensure guild dictionary exists
-            if guild_id_str not in rep:
-                rep[guild_id_str] = {}
-            if user_id_str not in rep[guild_id_str]:
-                rep[guild_id_str][user_id_str] = {}
-            if author_id_str not in rep[guild_id_str][user_id_str]:
-                rep[guild_id_str][user_id_str][author_id_str] = 0
-
-            # Update rep
-            rep[guild_id_str][user_id_str][author_id_str] -= 1
-            await report.send(f"Reputation given to {author_id_str} by {user_id_str} updated. It is now {rep[guild_id_str][user_id_str][author_id_str]}")
-
-            # Ensure totalrep structure exists
-            if guild_id_str not in totalrep:
-                totalrep[guild_id_str] = {}
-            if author_id_str not in totalrep[guild_id_str]:
-                totalrep[guild_id_str][author_id_str] = 0
-                await reaction.message.channel.send("This user has no rep to take away-Q!")
-            if totalrep[guild_id_str][author_id_str] <= 0:
-                totalrep[guild_id_str][author_id_str] = 0
-                await reaction.message.channel.send("This user has no rep to take away-Q!")
-            else:
                 # Update totalrep
-                totalrep[guild_id_str][author_id_str] -= 1
+                totalrep[guild_id_str][author_id_str] += 1
                 await report.send(f"Total reputation of {author_id_str} updated. It is now {totalrep[guild_id_str][author_id_str]}")
+            
 
-                await reaction.message.channel.send(f"<@{user_id_str}> threw a tomato at <@{author_id_str}>-Q! Rather unclean of you-Q…")
+                await reaction.message.channel.send(f"<@{user_id_str}> has given <@{author_id_str}> +1 reputation-Q!")
 
+                # Write to files
+                with open(f'{path}\\rep.json', "w") as file:
+                    json.dump(rep, file)
+                
+                with open(f'{path}\\totalrep.json', "w") as file:
+                    json.dump(totalrep, file)
+            if reaction.emoji == "🍅":
+                guild_id_str = str(reaction.message.guild.id)
+                user_id_str = str(user.id)
+                author_id_str = str(reaction.message.author.id)
+
+                if reaction.message.author == client.user:
+                    await reaction.message.channel.send("I will not permit uncleanliness on my person-Q!!")
+                    return
+
+                # Check for self-reputation or specific user ID conditions
+                if reaction.message.author == client.user:
+                    await reaction.message.channel.send(random.choice(selfrep))
+                elif author_id_str == "1204234942897324074":
+                    await reaction.message.channel.send("My apologies, but I cannot handle taking reputation from tuppers-Q!")
+                    return  # Exit for specific user conditions
+                elif user_id_str == author_id_str:
+                    await reaction.message.channel.send("Why would you want to take away your own rep-Q?!")
+                    return  # Exit to prevent self-reputation
+
+                # Ensure guild dictionary exists
+                if guild_id_str not in rep:
+                    rep[guild_id_str] = {}
+                if user_id_str not in rep[guild_id_str]:
+                    rep[guild_id_str][user_id_str] = {}
+                if author_id_str not in rep[guild_id_str][user_id_str]:
+                    rep[guild_id_str][user_id_str][author_id_str] = 0
+
+                # Update rep
+                rep[guild_id_str][user_id_str][author_id_str] -= 1
+                await report.send(f"Reputation given to {author_id_str} by {user_id_str} updated. It is now {rep[guild_id_str][user_id_str][author_id_str]}")
+
+                # Ensure totalrep structure exists
+                if guild_id_str not in totalrep:
+                    totalrep[guild_id_str] = {}
+                if author_id_str not in totalrep[guild_id_str]:
+                    totalrep[guild_id_str][author_id_str] = 0
+                    await reaction.message.channel.send("This user has no rep to take away-Q!")
+                if totalrep[guild_id_str][author_id_str] <= 0:
+                    totalrep[guild_id_str][author_id_str] = 0
+                    await reaction.message.channel.send("This user has no rep to take away-Q!")
+                else:
+                    # Update totalrep
+                    totalrep[guild_id_str][author_id_str] -= 1
+                    await report.send(f"Total reputation of {author_id_str} updated. It is now {totalrep[guild_id_str][author_id_str]}")
+
+                    await reaction.message.channel.send(f"<@{user_id_str}> threw a tomato at <@{author_id_str}>-Q! Rather unclean of you-Q…")
+        except Forbidden:
+            return
             # Write to reputation databases
             with open(f'{path}\\rep.json', "w") as file:
                 json.dump(rep, file)
@@ -320,7 +324,7 @@ async def on_reaction_add(reaction: discord.Reaction, user: discord.User):
     except Exception as e:
         exceptionstring = format_exc()
         await report.send(f"<@120396380073099264>\n{exceptionstring}\nIn {reaction.message.guild.name}")
-    
+
 #Message indexing for meme command with no parameters
 @client.event
 async def on_message(message: discord.Message):
@@ -828,7 +832,10 @@ async def reputation(ctx: discord.Interaction, user: str=None):
         else:
             user_id_str = user.strip("<>@")
             guild: discord.Guild = ctx.guild
-            member: discord.User = await guild.fetch_member(int(user_id_str))
+            try:
+                member: discord.User = await guild.fetch_member(int(user_id_str))
+            except ValueError:
+                await ctx.respond("Error-Q! Please input the user by @-ing them-Q!")
 
         embed = discord.Embed(title=f"{member.display_name}'s reputation stats-Q!",
                             color=member.color)
