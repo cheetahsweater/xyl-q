@@ -7,17 +7,15 @@ from traceback import format_exc
 import os
 import json
 from json import JSONDecodeError
-import math
 import random
 import requests
 from bs4 import BeautifulSoup
-import asyncio
 
-status = "Cookie Run: Witch’s Castle"
-#status = "Testing new features!"
-versionnum = "4.2c"
-updatetime = "2024/04/19 16:10"
-changes = "**(4.2)** Added new command that allows users to check their lovelist\n(a) Added ability to check list of loved sources as well\n(b) Added error handling in rep command for if the command user doesn't ping the target user, added test bot capability, added error handling for lack of channel permissions\n(c) Added ability for my alt account to be able to use refresh vars command"
+#status = "Cookie Run: Witch’s Castle"
+status = "Testing new features!"
+versionnum = "4.2d"
+updatetime = "2024/05/05 14:14"
+changes = "**(4.2)** Added new command that allows users to check their lovelist\n(a) Added ability to check list of loved sources as well\n(b) Added error handling in rep command for if the command user doesn't ping the target user, added test bot capability, added error handling for lack of channel permissions\n(c) Added ability for my alt account to be able to use refresh vars command\n(d) Improved error reporting, added Cookie Run: Kingdom to possible meme wikis, made rep still get updated even if XyL-Q can't send update message"
 path = os.getcwd()
 print(f"XyL-Q v{versionnum}")
 print(updatetime)
@@ -113,7 +111,7 @@ with open(f'{path}\\guilds.txt',"r+") as file:
     file.close()
 
 #List of possible wikis that meme command can grab images from        
-wikis = ["mario","minecraft","ssb","cookierun","logo"]
+wikis = ["mario","minecraft","ssb","cookierun", "cookierunkingdom", "logo"]
 
 #List of image pages from each wiki (ideally this will be replaced with something that just grabs all of the possible ones instead of this mess)
 mariowiki = ["https://www.mariowiki.com/index.php?title=Category:Character_artwork&fileuntil=AlolanExeggutorUltimate.png#mw-category-media","https://www.mariowiki.com/index.php?title=Category:Character_artwork&filefrom=AlolanExeggutorUltimate.png#mw-category-media",
@@ -315,12 +313,12 @@ async def on_reaction_add(reaction: discord.Reaction, user: discord.User):
                     await reaction.message.channel.send(f"<@{user_id_str}> threw a tomato at <@{author_id_str}>-Q! Rather unclean of you-Q…")
         except Forbidden:
             return
-            # Write to reputation databases
-            with open(f'{path}\\rep.json', "w") as file:
-                json.dump(rep, file)
-            
-            with open(f'{path}\\totalrep.json', "w") as file:
-                json.dump(totalrep, file)
+        # Write to reputation databases
+        with open(f'{path}\\rep.json', "w") as file:
+            json.dump(rep, file)
+        
+        with open(f'{path}\\totalrep.json', "w") as file:
+            json.dump(totalrep, file)
     except Exception as e:
         exceptionstring = format_exc()
         await report.send(f"<@120396380073099264>\n{exceptionstring}\nIn {reaction.message.guild.name}")
@@ -412,7 +410,7 @@ async def on_message(message: discord.Message):
                 stringlist[str(message.guild.id)] = msglist #Update the dictionary of indexed messages per server
             except KeyError:
                 exceptionstring = format_exc()
-                await report.send(f"{exceptionstring}")
+                await report.send(f"{exceptionstring}\nIn {message.guild.name}")
                 stringlist.update({str(message.guild.id): [message.content]}) #Adds a new entry to the dictionary if there's no indexed messages for the server
     except Exception as e:
         exceptionstring = format_exc()
@@ -916,7 +914,7 @@ async def disable(ctx: discord.Interaction, command: discord.Option(str, choices
             badIDs.update({command:channelList})
         except KeyError:
             exceptionstring = format_exc()
-            await report.send(f"{exceptionstring}")
+            await report.send(f"{exceptionstring}\nIn {ctx.guild.name}")
             #Add new entry for the given command if not present
             badIDs.update({command:[channelID]})
         #Save new list to database
@@ -1237,7 +1235,7 @@ async def meme(ctx: discord.Interaction, top_text: str=None, bottom_text: str=No
                         image_link = memeImg["link"]
                     except IndexError:
                         exceptionstring = format_exc()
-                        await report.send(f"<@120396380073099264>\n{exceptionstring}")
+                        await report.send(f"<@120396380073099264>\n{exceptionstring}\nIn {ctx.guild.name}")
                         image_link = "https://mario.wiki.gallery/images/f/fe/36-Diddy_Kong.png"
                     
                 #elif numba < 1:
@@ -1256,12 +1254,14 @@ async def meme(ctx: discord.Interaction, top_text: str=None, bottom_text: str=No
                         image_link = get_image(cb, "https://carebears.fandom.com")
                     if wiki == "cookierun":
                         image_link = get_image(cr, "https://cookierun.fandom.com")
+                    if wiki == "cookierunkingdom":
+                        image_link = get_image(crk, "https://cookierunkingdom.fandom.com")
                     if wiki == "logo":
                         image_link = get_image(logo, "https://logos.fandom.com")
         memelink = f"https://api.memegen.link/images/custom/{top_text_new}/{bottom_text_new}.png?background={image_link}"
         await ctx.followup.send(content=memelink)
     except Exception as e:
         exceptionstring = format_exc()
-        await report.send(f"<@120396380073099264>\n{exceptionstring}")
+        await report.send(f"<@120396380073099264>\n{exceptionstring}\nIn {ctx.guild.name}")
 
 client.run(TOKEN)
