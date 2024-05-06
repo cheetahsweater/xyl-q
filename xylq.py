@@ -15,7 +15,7 @@ import asyncio
 
 status = "Cookie Run: Witch’s Castle"
 #status = "Testing new features!"
-versionnum = "4.2c"
+versionnum = "4.2 test"
 updatetime = "2024/04/19 16:10"
 changes = "**(4.2)** Added new command that allows users to check their lovelist\n(a) Added ability to check list of loved sources as well\n(b) Added error handling in rep command for if the command user doesn't ping the target user, added test bot capability, added error handling for lack of channel permissions\n(c) Added ability for my alt account to be able to use refresh vars command"
 path = os.getcwd()
@@ -23,8 +23,8 @@ print(f"XyL-Q v{versionnum}")
 print(updatetime)
 print("womp womp")
 load_dotenv()
-TOKEN = os.getenv('DISCORD_TOKEN')
-#TOKEN = os.getenv('TEST_TOKEN')
+#TOKEN = os.getenv('DISCORD_TOKEN')
+TOKEN = os.getenv('TEST_TOKEN')
 intents=discord.Intents.default()
 intents.message_content=True
 client = commands.Bot(intents=intents)
@@ -417,6 +417,19 @@ async def on_message(message: discord.Message):
     except Exception as e:
         exceptionstring = format_exc()
         await report.send(f"<@120396380073099264>\n{exceptionstring}\nIn {message.guild.name}")
+
+#Wikipedia Mudae ripoff...this is a big one folks
+@client.group()
+async def wikigame(guild_ids=guilds):
+    pass
+
+@client.slash_command(guild_ids=guilds)
+async def roll(ctx: discord.Interaction, category=None): 
+    await ctx.response.defer()
+    awesome = requests.get(f"https://en.wikipedia.org/w/api.php?action=query&list=categorymembers&cmtitle=Category:Video_game_characters&format=json")
+    resultsDict = awesome.json()
+    ctx.respond(str(resultsDict))
+
 
 #Mainly I just use this to make sure I'm running the latest version after I update him
 @client.slash_command(description="Returns XyL-Q version number!", guild_ids=guilds)
