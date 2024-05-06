@@ -1117,6 +1117,7 @@ async def view_lovelist(ctx: discord.Interaction, list_to_view: discord.Option(s
         await report.send(f"<@120396380073099264>\n{exceptionstring}\nIn {ctx.guild.name}")
 
 def get_image(url_list: str, base_url: str):
+    print("-"*50)
     url = random.choice(url_list)
     
     reqs = requests.get(url)
@@ -1126,44 +1127,31 @@ def get_image(url_list: str, base_url: str):
     for link in soup.find_all('a'):
         url = link.get('href')
         if url != None:
-            if ".png" in url:
-                urls.append(url)
+            if (".png" in url) or (".jpg" in url):
+                if "File:" in url:
+                    urls.append(url)
     page = f"{base_url}{random.choice(urls)}"
     reqsagain = requests.get(page)
     soup = BeautifulSoup(reqsagain.text, 'html.parser')
-    
     urls = []
     for link in soup.find_all('a'):
         url = link.get('href')
         if url != None:
-            if ".png" in url:
-                if "images" in url:
-                    urls.append(url)
+            if (".png" in url) or (".jpg" in url):
+                    if "images" in url:
+                        print("images", url)
+                        urls.append(url)
     try:
         if url_list == mcwiki:
             image_link = f"{base_url}{random.choice(urls)}"  
         else:
-            image_link = random.choice(urls)
-    except IndexError:
-        page = f"{base_url}{random.choice(urls)}"
-        reqsagain = requests.get(page)
-        soup = BeautifulSoup(reqsagain.text, 'html.parser')
-        
-        urls = []
-        for link in soup.find_all('a'):
-            url = link.get('href')
-            if url != None:
-                if ".png" in url:
-                    #print(url)
-                    if "images" in url:
-                        urls.append(url)
-        try:
-            if url_list == mcwiki:
-                image_link = f"{base_url}{random.choice(urls)}"  
+            image_url = random.choice(urls)
+            if image_url[0:7] != "https://":
+                image_link = f"{base_url}{image_url}" 
             else:
-                image_link = random.choice(urls)  
-        except IndexError:
-            image_link = "https://i1.wp.com/files.polldaddy.com/9b53a5da9af99125866e48003cce5675-65c92e58a003b.jpg"
+                image_link = image_url
+    except IndexError:
+        image_link = "https://i1.wp.com/files.polldaddy.com/9b53a5da9af99125866e48003cce5675-65c92e58a003b.jpg"
     return image_link
 
 #MY MAGNUM OPUS (the meme command)
@@ -1262,6 +1250,7 @@ async def meme(ctx: discord.Interaction, top_text: str=None, bottom_text: str=No
         await ctx.followup.send(content=memelink)
     except Exception as e:
         exceptionstring = format_exc()
+        await ctx.respond("An error has occurred! Please try again!")
         await report.send(f"<@120396380073099264>\n{exceptionstring}\nIn {ctx.guild.name}")
 
 client.run(TOKEN)
