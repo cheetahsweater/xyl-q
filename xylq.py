@@ -1,3 +1,4 @@
+from datetime import datetime
 import discord
 from discord.ext import commands
 from discord.utils import get
@@ -10,12 +11,14 @@ from json import JSONDecodeError
 import random
 import requests
 from bs4 import BeautifulSoup
+import asyncio
+import pytz
 
 #status = "Cookie Run: Witch’s Castle"
 status = "Testing new features!"
-versionnum = "4.3"
-updatetime = "2024/05/06 14:03"
-changes = "**(4.3)** Added more wiki support to meme generator command"
+versionnum = "5.0"
+updatetime = "2024/05/10 18:26"
+changes = "**(5.0)** Added ability to set user-defined reminders!"
 path = os.getcwd()
 print(f"XyL-Q v{versionnum}")
 print(updatetime)
@@ -82,6 +85,16 @@ with open(f'{path}\\sourcelist.json',"r+") as file:
         sourcelist = {}
     file.close()
 
+#Load list of reminders
+with open(f'{path}\\reminders.json',"r+") as file:
+    try:
+        text = json.loads(file.read())
+        reminders = text
+    except JSONDecodeError as e:
+        print(e)
+        reminders = {}
+    file.close()
+
 
 #Load list of channels in which message caching is disabled
 with open(f'{path}\\badcache.txt',"r+") as file:
@@ -113,6 +126,46 @@ with open(f'{path}\\guilds.txt',"r+") as file:
 #List of possible wikis that meme command can grab images from        
 wikis = ["Mario","Minecraft","Super Smash Bros.","Cookie Run", "Regretevator", "Undertale AUs", "Roblox",
          "Vocaloid", "NiGHTS"]
+
+common_timezones = [
+    "Etc/GMT+12",   # GMT-12
+    "Pacific/Midway",  # GMT-11
+    "Pacific/Honolulu",  # GMT-10
+    "America/Anchorage",  # GMT-9
+    "America/Los_Angeles",  # GMT-8
+    "America/Denver",  # GMT-7
+    "America/Chicago",  # GMT-6
+    "America/New_York",  # GMT-5
+    "America/Caracas",  # GMT-4
+    "America/Sao_Paulo",  # GMT-3
+    "Atlantic/Cape_Verde",  # GMT-2
+    "Atlantic/Azores",  # GMT-1
+    "UTC",  # GMT+0
+    "Europe/London",  # GMT+1
+    "Europe/Paris",  # GMT+2
+    "Europe/Moscow",  # GMT+3
+    "Asia/Dubai",  # GMT+4
+    "Asia/Karachi",  # GMT+5
+    "Asia/Dhaka",  # GMT+6
+    "Asia/Bangkok",  # GMT+7
+    "Asia/Hong_Kong",  # GMT+8
+    "Asia/Tokyo",  # GMT+9
+    "Australia/Sydney",  # GMT+10
+    "Pacific/Noumea"  # GMT+11
+]
+
+months = ['January',
+ 'February',
+ 'March',
+ 'April',
+ 'May',
+ 'June',
+ 'July',
+ 'August',
+ 'September',
+ 'October',
+ 'November',
+ 'December']
 
 #List of image pages from each wiki (ideally this will be replaced with something that just grabs all of the possible ones instead of this mess)
 mariowiki = ["https://www.mariowiki.com/index.php?title=Category:Character_artwork&fileuntil=AlolanExeggutorUltimate.png#mw-category-media","https://www.mariowiki.com/index.php?title=Category:Character_artwork&filefrom=AlolanExeggutorUltimate.png#mw-category-media",
@@ -245,10 +298,11 @@ def memeformat(text: str):
 #Changes bot's status and announces (to me) that it's online
 @client.event
 async def on_ready():
-    await client.change_presence(activity=discord.Game(name=f"{status}"))
     global report 
     report = client.get_channel(1213349040050409512)
+    await client.change_presence(activity=discord.Game(name=f"{status}"))
     print('Bot is online!')
+    await client.loop.create_task(check_time())
 
 #Reputation giving and removing function
 @client.event
@@ -452,6 +506,36 @@ async def on_message(message: discord.Message):
     except Exception as e:
         exceptionstring = format_exc()
         await report.send(f"<@120396380073099264>\n{exceptionstring}\nIn {message.guild.name}")
+
+#Check time every minute for reminder purposes
+async def check_time():
+    try:
+        while True:
+            now = datetime.now()
+            flying_month = now.month
+            flying_day = now.day
+            flying_hour = now.hour
+            flying_minute = now.minute
+            flying_weekday = now.weekday()
+            flying_datetime = [flying_month, flying_day, flying_hour, flying_minute, flying_weekday]
+            for guild in guilds:
+                try:
+                    guild_reminders: dict = reminders[guild]
+                except KeyError:
+                    continue
+                for user, reminder_list in guild_reminders.items():
+                    user_reminders: dict = reminder_list
+                    user_id = str(user)
+                    for channel, channel_reminders in user_reminders.items():
+                        for reason, date_time in channel_reminders.items():
+                            if date_time == flying_datetime:
+                                reminder_channel = await client.fetch_channel(int(channel))
+                                await reminder_channel.send(f"<@{user_id}> reminding you about \"{reason}!\"")
+            await asyncio.sleep(60)
+    except Exception as e:
+        exceptionstring = format_exc()
+        current_guild: discord.Guild = client.fetch_guild(guild)
+        await report.send(f"<@120396380073099264>\n{exceptionstring}\nIn {current_guild.name}")
 
 #Mainly I just use this to make sure I'm running the latest version after I update him
 @client.slash_command(description="Returns XyL-Q version number!", guild_ids=guilds)
@@ -934,6 +1018,82 @@ async def disable_cache(ctx: discord.Interaction, channel: str=None, user: str=N
             for id in badcacheIDs:
                 file.write(f"{id}\n")
             file.close()
+    except Exception as e:
+        exceptionstring = format_exc()
+        await report.send(f"<@120396380073099264>\n{exceptionstring}\nIn {ctx.guild.name}")
+
+#Disables a command's use in a certain channel, not really even sure what the use case for this is
+@client.slash_command(description="Disables a command in a given channel!", guild_ids=guilds)
+async def set_reminder(ctx: discord.Interaction, timezone: discord.Option(str, choices=common_timezones), month: discord.Option(str, choices=months), day: int, time: str, year:int=datetime.now().year, reason: str=None): 
+    try:
+        global reminders
+        user = str(ctx.user.id)
+        guild = str(ctx.guild.id)
+        try:
+            guild_reminders = reminders[guild]
+        except KeyError:
+            reminders[guild] = {}
+            guild_reminders = {}
+        try:
+            user_reminders = guild_reminders[user]
+        except KeyError:
+            guild_reminders[user] = {}
+            user_reminders = {}
+        channel = str(ctx.channel.id)
+        try:
+            channel_reminders = user_reminders[channel]
+        except KeyError:
+            user_reminders[channel] = {}
+            channel_reminders = {}
+        if any(elem in time.casefold() for elem in ["am", "pm"]):
+            timesplitters = time.split(":")
+            if any(elem in timesplitters[1].casefold() for elem in ["am", "pm"]):
+                am_or_pm = timesplitters[1][-2:].strip()
+                print(am_or_pm)
+                timesplitters[1] = timesplitters[1][:-2]
+                if am_or_pm.casefold() == "am":
+                    hour = int(timesplitters[0])
+                if am_or_pm.casefold() == "pm":
+                    hour = int(timesplitters[0]) + 12
+                else:
+                    await ctx.respond("Error: Invalid time entry-Q! Examples of accepted formats are: '16:50', '4:50PM', or '4:50 PM'-Q!")
+                    return
+                minute = timesplitters[1]
+            else:
+                timesplitters.append(timesplitters[1].split(" "))
+        else:
+            timesplitters = time.split(":")
+            try:
+                hour = int(timesplitters[0])
+                minute = timesplitters[1]
+            except ValueError:
+                ctx.respond("Error: Invalid time entry-Q! Examples of accepted formats are: '16:50', '4:50PM', or '4:50 PM'-Q!")
+                return
+        now = datetime.now()
+        num_month = months.index(month)+1
+        date_time = datetime(year=int(year), month=num_month, day=int(day), hour=int(hour), minute=int(minute))
+        timezone: pytz.tzinfo.DstTzInfo = pytz.timezone(timezone)
+        localized: datetime = timezone.localize(date_time)
+        output = [localized.month, localized.day, localized.hour, localized.minute, localized.weekday()]
+        if reason != None:
+            channel_reminders[reason] = output
+            user_reminders[channel] = channel_reminders
+            guild_reminders[user] = user_reminders
+            reminders[guild] = guild_reminders
+            await ctx.respond(f"Got it-Q! I've set a reminder for '{reason}' at {hour}:{minute} on {month} {day}, {year}!")
+        else:
+            key = f"{now.year} {now.month} {now.day} {now.hour} {now.minute} {now.second}"
+            channel_reminders[key] = output
+            print(channel_reminders)
+            user_reminders[channel] = channel_reminders
+            print(user_reminders)
+            guild_reminders[user] = user_reminders
+            print(guild_reminders)
+            reminders[guild] = guild_reminders
+            print(reminders)
+            await ctx.respond(f"Got it-Q! I've set a reminder at {hour}:{minute} on {month} {day}, {year}!")
+        with open(f'{path}\\reminders.json', "w") as file:
+            json.dump(reminders, file)
     except Exception as e:
         exceptionstring = format_exc()
         await report.send(f"<@120396380073099264>\n{exceptionstring}\nIn {ctx.guild.name}")
