@@ -16,9 +16,9 @@ import pytz
 
 #status = "Cookie Run: Witch’s Castle"
 status = "Testing new features!"
-versionnum = "5.1"
-updatetime = "2024/05/15 16:12"
-changes = "**(5.1)** Added SIX(!!!) new wikis to meme gen feature!"
+versionnum = "5.1a"
+updatetime = "2024/05/15 16:32"
+changes = "**(5.1)** Added SIX(!!!) new wikis to meme gen feature!\n(a) Made the wikis choosable lol whoops"
 path = os.getcwd()
 print(f"XyL-Q v{versionnum}")
 print(updatetime)
@@ -125,7 +125,8 @@ with open(f'{path}\\guilds.txt',"r+") as file:
 
 #List of possible wikis that meme command can grab images from        
 wikis = ["Mario","Minecraft","Super Smash Bros.","Cookie Run", "Regretevator", "Undertale AUs", "Roblox",
-         "Vocaloid", "NiGHTS", "My Singing Monsters"]
+         "Vocaloid", "NiGHTS", "My Singing Monsters", "PHIGHTING!", "Fortnite", "Animal Crossing", "Hazbin Hotel",
+         "Urusei Yatsura"]
 
 common_timezones = [
     "Etc/GMT+12",   # GMT-12
