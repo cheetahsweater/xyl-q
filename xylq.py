@@ -16,9 +16,9 @@ import pytz
 
 #status = "Cookie Run: Witch’s Castle"
 status = "Testing new features!"
-versionnum = "5.1a"
-updatetime = "2024/05/15 16:32"
-changes = "**(5.1)** Added SIX(!!!) new wikis to meme gen feature!\n(a) Made the wikis choosable lol whoops"
+versionnum = "5.2"
+updatetime = "2024/05/15 17:15"
+changes = "**(5.2)** Made image picking more persistent to decrease chances of background images, added more backup pictures"
 path = os.getcwd()
 print(f"XyL-Q v{versionnum}")
 print(updatetime)
@@ -127,6 +127,12 @@ with open(f'{path}\\guilds.txt',"r+") as file:
 wikis = ["Mario","Minecraft","Super Smash Bros.","Cookie Run", "Regretevator", "Undertale AUs", "Roblox",
          "Vocaloid", "NiGHTS", "My Singing Monsters", "PHIGHTING!", "Fortnite", "Animal Crossing", "Hazbin Hotel",
          "Urusei Yatsura"]
+
+backup_img = ["https://files.catbox.moe/5k42ay.jpg", "https://files.catbox.moe/blscgw.jpg", "https://files.catbox.moe/p4d6xv.png",
+              "https://lastfm.freetls.fastly.net/i/u/770x0/d1761236c12379d3e1dfce76023231f6.jpg","https://lastfm.freetls.fastly.net/i/u/770x0/9f06d6f7dc349a246a9d70127b9ad070.jpg",
+              "https://lastfm.freetls.fastly.net/i/u/770x0/4386a469e620103f8436b3e969075959.jpg","https://lastfm.freetls.fastly.net/i/u/770x0/73b95651e23dd27638bed35eb12ccdd0.jpg",
+              "https://lastfm.freetls.fastly.net/i/u/770x0/5c50b8fb0d6073befc75e62e3aa938cf.jpg","https://lastfm.freetls.fastly.net/i/u/770x0/9ab8ee8d7a7ff8bfb0c00afb89a38c16.jpg",
+              "https://lastfm.freetls.fastly.net/i/u/770x0/0845c2a12bafb49cd9a6ffa8dbbb2978.jpg"]
 
 common_timezones = [
     "Etc/GMT+12",   # GMT-12
@@ -1397,6 +1403,8 @@ def get_image(url_list: str, base_url: str):
                     if "images" in url:
                         print("images", url)
                         urls.append(url)
+        if not urls:  # If no images are found, restart the loop
+            continue
     try:
         if url_list == mcwiki:
             image_link = f"{base_url}{random.choice(urls)}"  
@@ -1408,7 +1416,7 @@ def get_image(url_list: str, base_url: str):
             else:
                 image_link = image_url
     except IndexError:
-        image_link = "https://i1.wp.com/files.polldaddy.com/9b53a5da9af99125866e48003cce5675-65c92e58a003b.jpg"
+        image_link = random.choice(backup_img)
     return image_link
 
 #MY MAGNUM OPUS (the meme command)
