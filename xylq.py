@@ -16,9 +16,9 @@ import pytz
 
 #status = "Cookie Run: Witch’s Castle"
 status = "Testing new features!"
-versionnum = "5.3"
-updatetime = "2024/05/19 12:13"
-changes = "**(5.3)** Updated reminder function to not require date and fixed AM time handling and 12PM bug"
+versionnum = "5.4"
+updatetime = "2024/05/19 12:14"
+changes = "**(5.4)** Updated reminder function to not require date and fixed AM time handling and 12PM bug"
 path = os.getcwd()
 print(f"XyL-Q v{versionnum}")
 print(updatetime)
