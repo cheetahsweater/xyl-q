@@ -125,8 +125,8 @@ with open(f'{path}\\guilds.txt',"r+") as file:
 
 #List of possible wikis that meme command can grab images from        
 wikis = ["Mario","Minecraft","Super Smash Bros.","Cookie Run", "Regretevator", "Undertale AUs", "Roblox",
-         "Vocaloid", "NiGHTS", "My Singing Monsters", "PHIGHTING!", "Fortnite", "Animal Crossing", "Hazbin Hotel",
-         "Urusei Yatsura"]
+         "Vocaloid", "NiGHTS", "My Singing Monsters", "PHIGHTING!", "Fortnite", "Animal Crossing",
+         "Urusei Yatsura", "Yaoi Wiki", "Gender Wiki"]
 
 backup_img = ["https://files.catbox.moe/5k42ay.jpg", "https://files.catbox.moe/blscgw.jpg", "https://files.catbox.moe/p4d6xv.png",
               "https://lastfm.freetls.fastly.net/i/u/770x0/d1761236c12379d3e1dfce76023231f6.jpg","https://lastfm.freetls.fastly.net/i/u/770x0/9f06d6f7dc349a246a9d70127b9ad070.jpg",
@@ -326,6 +326,27 @@ uruseiyatsura = ["https://uruseiyatsura.fandom.com/wiki/Special:NewFiles?user=&m
       "https://uruseiyatsura.fandom.com/wiki/Special:NewFiles?user=&mediatype%5B0%5D=BITMAP&mediatype%5B1%5D=ARCHIVE&start=&end=&wpFormIdentifier=specialnewimages&offset=20230220193258&limit=500","https://uruseiyatsura.fandom.com/wiki/Special:NewFiles?user=&mediatype%5B0%5D=BITMAP&mediatype%5B1%5D=ARCHIVE&start=&end=&wpFormIdentifier=specialnewimages&offset=20230113040240&limit=500",
       "https://uruseiyatsura.fandom.com/wiki/Special:NewFiles?user=&mediatype%5B0%5D=BITMAP&mediatype%5B1%5D=ARCHIVE&start=&end=&wpFormIdentifier=specialnewimages&offset=20221208211322&limit=500","https://uruseiyatsura.fandom.com/wiki/Special:NewFiles?user=&mediatype%5B0%5D=BITMAP&mediatype%5B1%5D=ARCHIVE&start=&end=&wpFormIdentifier=specialnewimages&offset=20221207114228&limit=500",
       "https://uruseiyatsura.fandom.com/wiki/Special:NewFiles?user=&mediatype%5B0%5D=BITMAP&mediatype%5B1%5D=ARCHIVE&start=&end=&wpFormIdentifier=specialnewimages&offset=20221129030150&limit=500"]
+
+yaoi = ["https://yaoi.fandom.com/wiki/Special:NewFiles?user=&mediatype%5B0%5D=BITMAP&mediatype%5B1%5D=ARCHIVE&start=&end=&wpFormIdentifier=specialnewimages&limit=500&offset=","https://yaoi.fandom.com/wiki/Special:NewFiles?user=&mediatype%5B0%5D=BITMAP&mediatype%5B1%5D=ARCHIVE&start=&end=&wpFormIdentifier=specialnewimages&offset=20231228065602&limit=500",
+      "https://yaoi.fandom.com/wiki/Special:NewFiles?user=&mediatype%5B0%5D=BITMAP&mediatype%5B1%5D=ARCHIVE&start=&end=&wpFormIdentifier=specialnewimages&offset=20231128052630&limit=500","https://yaoi.fandom.com/wiki/Special:NewFiles?user=&mediatype%5B0%5D=BITMAP&mediatype%5B1%5D=ARCHIVE&start=&end=&wpFormIdentifier=specialnewimages&offset=20231018125513&limit=500",
+      "https://yaoi.fandom.com/wiki/Special:NewFiles?user=&mediatype%5B0%5D=BITMAP&mediatype%5B1%5D=ARCHIVE&start=&end=&wpFormIdentifier=specialnewimages&offset=20230919050858&limit=500","https://yaoi.fandom.com/wiki/Special:NewFiles?user=&mediatype%5B0%5D=BITMAP&mediatype%5B1%5D=ARCHIVE&start=&end=&wpFormIdentifier=specialnewimages&offset=20230808081127&limit=500",
+      "https://yaoi.fandom.com/wiki/Special:NewFiles?user=&mediatype%5B0%5D=BITMAP&mediatype%5B1%5D=ARCHIVE&start=&end=&wpFormIdentifier=specialnewimages&offset=20230627091113&limit=500","https://yaoi.fandom.com/wiki/Special:NewFiles?user=&mediatype%5B0%5D=BITMAP&mediatype%5B1%5D=ARCHIVE&start=&end=&wpFormIdentifier=specialnewimages&offset=20230613171215&limit=500",
+      "https://yaoi.fandom.com/wiki/Special:NewFiles?user=&mediatype%5B0%5D=BITMAP&mediatype%5B1%5D=ARCHIVE&start=&end=&wpFormIdentifier=specialnewimages&offset=20230602165331&limit=500","https://yaoi.fandom.com/wiki/Special:NewFiles?user=&mediatype%5B0%5D=BITMAP&mediatype%5B1%5D=ARCHIVE&start=&end=&wpFormIdentifier=specialnewimages&offset=20230429190940&limit=500",
+      "https://yaoi.fandom.com/wiki/Special:NewFiles?user=&mediatype%5B0%5D=BITMAP&mediatype%5B1%5D=ARCHIVE&start=&end=&wpFormIdentifier=specialnewimages&offset=20230330212318&limit=500","https://yaoi.fandom.com/wiki/Special:NewFiles?user=&mediatype%5B0%5D=BITMAP&mediatype%5B1%5D=ARCHIVE&start=&end=&wpFormIdentifier=specialnewimages&offset=20230314014930&limit=500",
+      "https://yaoi.fandom.com/wiki/Special:NewFiles?user=&mediatype%5B0%5D=BITMAP&mediatype%5B1%5D=ARCHIVE&start=&end=&wpFormIdentifier=specialnewimages&offset=20230220193258&limit=500","https://yaoi.fandom.com/wiki/Special:NewFiles?user=&mediatype%5B0%5D=BITMAP&mediatype%5B1%5D=ARCHIVE&start=&end=&wpFormIdentifier=specialnewimages&offset=20230113040240&limit=500",
+      "https://yaoi.fandom.com/wiki/Special:NewFiles?user=&mediatype%5B0%5D=BITMAP&mediatype%5B1%5D=ARCHIVE&start=&end=&wpFormIdentifier=specialnewimages&offset=20221208211322&limit=500","https://yaoi.fandom.com/wiki/Special:NewFiles?user=&mediatype%5B0%5D=BITMAP&mediatype%5B1%5D=ARCHIVE&start=&end=&wpFormIdentifier=specialnewimages&offset=20221207114228&limit=500",
+      "https://yaoi.fandom.com/wiki/Special:NewFiles?user=&mediatype%5B0%5D=BITMAP&mediatype%5B1%5D=ARCHIVE&start=&end=&wpFormIdentifier=specialnewimages&offset=20221129030150&limit=500"]
+
+gender = ["https://gender.fandom.com/wiki/Special:NewFiles?user=&mediatype%5B0%5D=BITMAP&mediatype%5B1%5D=ARCHIVE&start=&end=&wpFormIdentifier=specialnewimages&limit=500&offset=","https://gender.fandom.com/wiki/Special:NewFiles?user=&mediatype%5B0%5D=BITMAP&mediatype%5B1%5D=ARCHIVE&start=&end=&wpFormIdentifier=specialnewimages&offset=20231228065602&limit=500",
+      "https://gender.fandom.com/wiki/Special:NewFiles?user=&mediatype%5B0%5D=BITMAP&mediatype%5B1%5D=ARCHIVE&start=&end=&wpFormIdentifier=specialnewimages&offset=20231128052630&limit=500","https://gender.fandom.com/wiki/Special:NewFiles?user=&mediatype%5B0%5D=BITMAP&mediatype%5B1%5D=ARCHIVE&start=&end=&wpFormIdentifier=specialnewimages&offset=20231018125513&limit=500",
+      "https://gender.fandom.com/wiki/Special:NewFiles?user=&mediatype%5B0%5D=BITMAP&mediatype%5B1%5D=ARCHIVE&start=&end=&wpFormIdentifier=specialnewimages&offset=20230919050858&limit=500","https://gender.fandom.com/wiki/Special:NewFiles?user=&mediatype%5B0%5D=BITMAP&mediatype%5B1%5D=ARCHIVE&start=&end=&wpFormIdentifier=specialnewimages&offset=20230808081127&limit=500",
+      "https://gender.fandom.com/wiki/Special:NewFiles?user=&mediatype%5B0%5D=BITMAP&mediatype%5B1%5D=ARCHIVE&start=&end=&wpFormIdentifier=specialnewimages&offset=20230627091113&limit=500","https://gender.fandom.com/wiki/Special:NewFiles?user=&mediatype%5B0%5D=BITMAP&mediatype%5B1%5D=ARCHIVE&start=&end=&wpFormIdentifier=specialnewimages&offset=20230613171215&limit=500",
+      "https://gender.fandom.com/wiki/Special:NewFiles?user=&mediatype%5B0%5D=BITMAP&mediatype%5B1%5D=ARCHIVE&start=&end=&wpFormIdentifier=specialnewimages&offset=20230602165331&limit=500","https://gender.fandom.com/wiki/Special:NewFiles?user=&mediatype%5B0%5D=BITMAP&mediatype%5B1%5D=ARCHIVE&start=&end=&wpFormIdentifier=specialnewimages&offset=20230429190940&limit=500",
+      "https://gender.fandom.com/wiki/Special:NewFiles?user=&mediatype%5B0%5D=BITMAP&mediatype%5B1%5D=ARCHIVE&start=&end=&wpFormIdentifier=specialnewimages&offset=20230330212318&limit=500","https://gender.fandom.com/wiki/Special:NewFiles?user=&mediatype%5B0%5D=BITMAP&mediatype%5B1%5D=ARCHIVE&start=&end=&wpFormIdentifier=specialnewimages&offset=20230314014930&limit=500",
+      "https://gender.fandom.com/wiki/Special:NewFiles?user=&mediatype%5B0%5D=BITMAP&mediatype%5B1%5D=ARCHIVE&start=&end=&wpFormIdentifier=specialnewimages&offset=20230220193258&limit=500","https://gender.fandom.com/wiki/Special:NewFiles?user=&mediatype%5B0%5D=BITMAP&mediatype%5B1%5D=ARCHIVE&start=&end=&wpFormIdentifier=specialnewimages&offset=20230113040240&limit=500",
+      "https://gender.fandom.com/wiki/Special:NewFiles?user=&mediatype%5B0%5D=BITMAP&mediatype%5B1%5D=ARCHIVE&start=&end=&wpFormIdentifier=specialnewimages&offset=20221208211322&limit=500","https://gender.fandom.com/wiki/Special:NewFiles?user=&mediatype%5B0%5D=BITMAP&mediatype%5B1%5D=ARCHIVE&start=&end=&wpFormIdentifier=specialnewimages&offset=20221207114228&limit=500",
+      "https://gender.fandom.com/wiki/Special:NewFiles?user=&mediatype%5B0%5D=BITMAP&mediatype%5B1%5D=ARCHIVE&start=&end=&wpFormIdentifier=specialnewimages&offset=20221129030150&limit=500"]
+
 
 cr_games = ["ovenbreak", "kingdom", "tower"]
 
@@ -1387,37 +1408,40 @@ async def view_lovelist(ctx: discord.Interaction, list_to_view: discord.Option(s
 
 def get_image(url_list: str, base_url: str):
     print("-"*50)
-    url = random.choice(url_list)
-    
-    reqs = requests.get(url)
-    soup = BeautifulSoup(reqs.text, 'html.parser')
-    
-    urls = []
-    for link in soup.find_all('a'):
-        url = link.get('href')
-        if url != None:
-            if (".png" in url) or (".jpg" in url):
-                if "File:" in url:
-                    urls.append(url)
-    page = f"{base_url}{random.choice(urls)}"
-    reqsagain = requests.get(page)
-    soup = BeautifulSoup(reqsagain.text, 'html.parser')
-    urls = []
-    for link in soup.find_all('a'):
-        url = link.get('href')
-        if url != None:
-            if (".png" in url) or (".jpg" in url):
-                    if "images" in url:
-                        print("images", url)
+    print(f"Searching {base_url}...")
+    while True:
+        url = random.choice(url_list)
+        
+        reqs = requests.get(url)
+        soup = BeautifulSoup(reqs.text, 'html.parser')
+        
+        urls = []
+        for link in soup.find_all('a'):
+            url = link.get('href')
+            if url != None:
+                if (".png" in url) or (".jpg" in url):
+                    if "File:" in url:
                         urls.append(url)
-        if not urls:  # If no images are found, restart the loop
-            continue
+        page = f"{base_url}{random.choice(urls)}"
+        reqsagain = requests.get(page)
+        soup = BeautifulSoup(reqsagain.text, 'html.parser')
+        urls = []
+        for link in soup.find_all('a'):
+            url = link.get('href')
+            if url != None:
+                if (".png" in url) or (".jpg" in url):
+                        if "images" in url:
+                            urls.append(url)
+        if len(urls) < 1:  # If no images are found, restart the loop
+            print(f"No URLs found, restarting function...")
+        else:
+            print(f"{len(urls)} URLs found! Moving on...")
+            break
     try:
         if url_list == mcwiki:
             image_link = f"{base_url}{random.choice(urls)}"  
         else:
             image_url = random.choice(urls)
-            print(image_url[0:8])
             if image_url[0:8] != "https://":
                 image_link = f"{base_url}{image_url}" 
             else:
@@ -1510,15 +1534,14 @@ async def meme(ctx: discord.Interaction, top_text: str=None, bottom_text: str=No
                         image_link = get_image(mcwiki, "https://minecraft.wiki")
                     if wiki == "Super Smash Bros.":
                         image_link = get_image(ssb, "https://supersmashbros.fandom.com")
-                    if wiki == "cb":
+                    if wiki == "Care Bears":
                         image_link = get_image(cb, "https://carebears.fandom.com")
                     if wiki == "Cookie Run":
-                        image_link = get_image(cr, "https://cookierun.fandom.com")
-                        '''cookie = random.choice(["cr", "crk"])
+                        cookie = random.choice(["cr", "crk"])
                         if cookie == "cr":
                             image_link = get_image(cr, "https://cookierun.fandom.com")
                         if cookie == "crk":
-                            image_link = get_image(crk, "https://cookierunkingdom.fandom.com")'''
+                            image_link = get_image(crk, "https://cookierunkingdom.fandom.com")
                     if wiki == "Regretevator":
                         image_link = get_image(regretevator, "https://regretevator.fandom.com")
                     if wiki == "Undertale AUs":
@@ -1537,10 +1560,14 @@ async def meme(ctx: discord.Interaction, top_text: str=None, bottom_text: str=No
                         image_link = get_image(fortnite, "https://fortnite.fandom.com")
                     if wiki == "Animal Crossing":
                         image_link = get_image(animalcrossing, "https://animalcrossing.fandom.com")
-                    if wiki == "Hazbin Hotel":
-                        image_link = get_image(hazbinhotel, "https://hazbinhotel.fandom.com")
+                    """ if wiki == "Hazbin Hotel":
+                        image_link = get_image(hazbinhotel, "https://hazbinhotel.fandom.com") """
                     if wiki == "Urusei Yatsura":
                         image_link = get_image(uruseiyatsura, "https://uruseiyatsura.fandom.com")
+                    if wiki == "Yaoi Wiki":
+                        image_link = get_image(yaoi, "https://yaoi.fandom.com")
+                    if wiki == "Gender Wiki":
+                        image_link = get_image(gender, "https://gender.fandom.com")
         memelink = f"https://api.memegen.link/images/custom/{top_text_new}/{bottom_text_new}.png?background={image_link}"
         await ctx.followup.send(content=memelink)
     except Exception as e:
