@@ -16,9 +16,9 @@ import pytz
 
 #status = "Cookie Run: Witch’s Castle"
 status = "Testing new features!"
-versionnum = "5.2"
-updatetime = "2024/05/15 17:15"
-changes = "**(5.2)** Made image picking more persistent to decrease chances of background images, added more backup pictures"
+versionnum = "5.3"
+updatetime = "2024/05/19 12:13"
+changes = "**(5.3)** Updated reminder function to not require date and fixed AM time handling and 12PM bug"
 path = os.getcwd()
 print(f"XyL-Q v{versionnum}")
 print(updatetime)
@@ -1087,9 +1087,9 @@ async def disable_cache(ctx: discord.Interaction, channel: str=None, user: str=N
         exceptionstring = format_exc()
         await report.send(f"<@120396380073099264>\n{exceptionstring}\nIn {ctx.guild.name}")
 
-#Disables a command's use in a certain channel, not really even sure what the use case for this is
-@client.slash_command(description="Disables a command in a given channel!", guild_ids=guilds)
-async def set_reminder(ctx: discord.Interaction, timezone: discord.Option(str, choices=common_timezones), month: discord.Option(str, choices=months), day: int, time: str, year:int=datetime.now().year, reason: str=None): 
+#Set reminder for user
+@client.slash_command(description="Sets a reminder based on user input!", guild_ids=guilds)
+async def set_reminder(ctx: discord.Interaction, timezone: discord.Option(str, choices=common_timezones), time: str, month: discord.Option(str, choices=months)=datetime.now().month, day: int=datetime.now().day, year:int=datetime.now().year, reason: str=None): 
     try:
         global reminders
         user = str(ctx.user.id)
@@ -1118,8 +1118,14 @@ async def set_reminder(ctx: discord.Interaction, timezone: discord.Option(str, c
                 timesplitters[1] = timesplitters[1][:-2]
                 if am_or_pm.casefold() == "am":
                     hour = int(timesplitters[0])
-                if am_or_pm.casefold() == "pm":
-                    hour = int(timesplitters[0]) + 12
+                elif am_or_pm.casefold() == "pm":
+                    hour = int(timesplitters[0])
+                    if hour < 12:
+                        hour = hour + 12
+                    elif hour == 12:
+                        hour = 12
+                    else:
+                       await ctx.respond("Error: Invalid hour given-Q! Accepted hours are 0-23!") 
                 else:
                     await ctx.respond("Error: Invalid time entry-Q! Examples of accepted formats are: '16:50', '4:50PM', or '4:50 PM'-Q!")
                     return
@@ -1135,7 +1141,12 @@ async def set_reminder(ctx: discord.Interaction, timezone: discord.Option(str, c
                 ctx.respond("Error: Invalid time entry-Q! Examples of accepted formats are: '16:50', '4:50PM', or '4:50 PM'-Q!")
                 return
         now = datetime.now()
-        num_month = months.index(month)+1
+        if type(month) == str:
+            num_month = months.index(month)+1
+            word_month = month
+        else:
+            num_month = month
+            word_month = months[num_month-1]
         date_time = datetime(year=int(year), month=num_month, day=int(day), hour=int(hour), minute=int(minute))
         timezone: pytz.tzinfo.DstTzInfo = pytz.timezone(timezone)
         localized: datetime = timezone.localize(date_time)
@@ -1145,18 +1156,14 @@ async def set_reminder(ctx: discord.Interaction, timezone: discord.Option(str, c
             user_reminders[channel] = channel_reminders
             guild_reminders[user] = user_reminders
             reminders[guild] = guild_reminders
-            await ctx.respond(f"Got it-Q! I've set a reminder for '{reason}' at {hour}:{minute} on {month} {day}, {year}!")
+            await ctx.respond(f"Got it-Q! I've set a reminder for '{reason}' at {time} on {month} {day}, {year}!")
         else:
             key = f"{now.year} {now.month} {now.day} {now.hour} {now.minute} {now.second}"
             channel_reminders[key] = output
-            print(channel_reminders)
             user_reminders[channel] = channel_reminders
-            print(user_reminders)
             guild_reminders[user] = user_reminders
-            print(guild_reminders)
             reminders[guild] = guild_reminders
-            print(reminders)
-            await ctx.respond(f"Got it-Q! I've set a reminder at {hour}:{minute} on {month} {day}, {year}!")
+            await ctx.respond(f"Got it-Q! I've set a reminder at {hour}:{minute} on {word_month} {day}, {year}!")
         with open(f'{path}\\reminders.json', "w") as file:
             json.dump(reminders, file)
     except Exception as e:
