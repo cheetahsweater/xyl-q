@@ -13,12 +13,14 @@ import requests
 from bs4 import BeautifulSoup
 import asyncio
 import pytz
+from PIL import Image, ImageDraw, ImageFont
+from io import BytesIO
 
-#status = "Cookie Run: Witch’s Castle"
-status = "Testing new features!"
-versionnum = "5.4"
-updatetime = "2024/05/19 12:14"
-changes = "**(5.4)** Updated reminder function to not require date and fixed AM time handling and 12PM bug"
+status = "Cookie Run: Witch’s Castle"
+#status = "Testing new features!"
+versionnum = "5.5"
+updatetime = "2024/05/22 23:24"
+changes = "**(5.5)** Temporarily disabled meme command (big things going on!) and added command specifically for my own personal use"
 path = os.getcwd()
 print(f"XyL-Q v{versionnum}")
 print(updatetime)
@@ -1279,7 +1281,7 @@ async def love_source(ctx: discord.Interaction, source: str, user: str=None):
         exceptionstring = format_exc()
         await report.send(f"<@120396380073099264>\n{exceptionstring}\nIn {ctx.guild.name}")
       
-class prev_next(discord.ui.View):
+class lovelist_prev_next(discord.ui.View):
     def __init__(self, content, pages, member: discord.User):
         super().__init__()
         self.value = None
@@ -1362,7 +1364,7 @@ async def view_lovelist(ctx: discord.Interaction, list_to_view: discord.Option(s
                 embed.set_author(name=f"{member.display_name}'s characters lovelist-Q!", icon_url=member.display_avatar.url)
                 embed.add_field(name="", value=content[current_page - 1])
                 embed.set_footer(text=f"Page {current_page} / {pages}")
-                interaction: discord.Interaction = await ctx.respond(embed=embed, view=prev_next(content, pages, member))
+                interaction: discord.Interaction = await ctx.respond(embed=embed, view=lovelist_prev_next(content, pages, member))
                 message: discord.Message = interaction.message
         elif list_to_view == "sources":
             try:
@@ -1400,7 +1402,7 @@ async def view_lovelist(ctx: discord.Interaction, list_to_view: discord.Option(s
                 embed.set_author(name=f"{member.display_name}'s sources lovelist-Q!", icon_url=member.display_avatar.url)
                 embed.add_field(name="", value=content[current_page - 1])
                 embed.set_footer(text=f"Page {current_page} / {pages}")
-                interaction: discord.Interaction = await ctx.respond(embed=embed, view=prev_next(content, pages, member))
+                interaction: discord.Interaction = await ctx.respond(embed=embed, view=lovelist_prev_next(content, pages, member))
                 message: discord.Message = interaction.message
     except Exception as e:
         exceptionstring = format_exc()
@@ -1450,7 +1452,18 @@ def get_image(url_list: str, base_url: str):
         image_link = random.choice(backup_img)
     return image_link
 
-#MY MAGNUM OPUS (the meme command)
+def get_font_size(draw: ImageDraw.ImageDraw, text, image_width, max_height):
+    font_size = 1
+    font = ImageFont.truetype("c:\\Windows\\Fonts\\IMPACT.TTF", font_size)
+    while True:
+        bbox = draw.textbbox((0, 0), text, font=font)
+        if bbox[2] > image_width or bbox[3] > max_height:
+            break
+        font_size += 1
+        font = ImageFont.truetype("c:\\Windows\\Fonts\\IMPACT.TTF", font_size)
+    return font_size - 1
+
+""" #MY MAGNUM OPUS (the meme command) 
 @client.slash_command(description="Makes a meme based on parameters given!", guild_ids=guilds)
 async def meme(ctx: discord.Interaction, top_text: str=None, bottom_text: str=None, image_link: str=None, image_upload: discord.Attachment=None, wiki: discord.Option(str, choices=wikis)=None): 
     try:
@@ -1490,86 +1503,150 @@ async def meme(ctx: discord.Interaction, top_text: str=None, bottom_text: str=No
                 # If there are no spaces, set both to the same full_text
                 top_text = full_text
                 bottom_text = full_text
-        #Formats the text as necessary for the meme generator API thing
-        if top_text != None:
-            top_text_new = memeformat(top_text)
-        if bottom_text != None:
-            bottom_text_new = memeformat(bottom_text)
         #If there's no image link given, pick a random one from the choice of a few different wikis
         if image_link == None:
             #Obviously if there's an image upload then it doesn't really matter that there's no image link
             if image_upload != None:
-                await ctx.response.defer()
-                image_link = image_upload.url #This is currently broken for whatever reason, working on trying to mirror images to another site
+                image = await image_upload.read()
             elif image_upload == None:
-                numba = random.choice(range(11))
-                if numba > 10:
-                    #Chooses two random words from the string and Googles them in order to find an image
-                    words = top_text.split(" ")
-                    word = f"{random.choice(words)}_{random.choice(words)}"
-                    await ctx.response.defer()
-                    response = requests.get(f"https://www.googleapis.com/customsearch/v1?key={gapi}&cx=25b1c3996753d4bb9&q={word}&searchType=image")
-                    resultsDict = response.json()
-                    results = []
-                    for key, value in resultsDict.items():
-                        if key == "items":
-                            results = value
-                    try:
-                        memeImg = random.choice(results)
-                        image_link = memeImg["link"]
-                    except IndexError:
-                        exceptionstring = format_exc()
-                        await report.send(f"<@120396380073099264>\n{exceptionstring}\nIn {ctx.guild.name}")
-                        image_link = "https://mario.wiki.gallery/images/f/fe/36-Diddy_Kong.png"
-                    
-                #elif numba < 1:
-                    #This list is empty right now so once I populate that list I'll add this back in
-                    #image_link = random.choice(imglist)
-                else:   
-                    if wiki == None:
-                        wiki = random.choice(wikis)     
-                    if wiki == "Mario":
-                        image_link = get_image(mariowiki, "https://www.mariowiki.com")
-                    if wiki == "Minecraft":
-                        image_link = get_image(mcwiki, "https://minecraft.wiki")
-                    if wiki == "Super Smash Bros.":
-                        image_link = get_image(ssb, "https://supersmashbros.fandom.com")
-                    if wiki == "Care Bears":
-                        image_link = get_image(cb, "https://carebears.fandom.com")
-                    if wiki == "Cookie Run":
-                        cookie = random.choice(["cr", "crk"])
-                        if cookie == "cr":
-                            image_link = get_image(cr, "https://cookierun.fandom.com")
-                        if cookie == "crk":
-                            image_link = get_image(crk, "https://cookierunkingdom.fandom.com")
-                    if wiki == "Regretevator":
-                        image_link = get_image(regretevator, "https://regretevator.fandom.com")
-                    if wiki == "Undertale AUs":
-                        image_link = get_image(undertale_au, "https://undertale-au-fanon.fandom.com")
-                    if wiki == "Roblox":
-                        image_link = get_image(roblox, "https://roblox.fandom.com")
-                    if wiki == "Vocaloid":
-                        image_link = get_image(vocaloid, "https://vocaloid.fandom.com")
-                    if wiki == "NiGHTS":
-                        image_link = get_image(nights, "https://nights.fandom.com")
-                    if wiki == "My Singing Monsters":
-                        image_link = get_image(msm, "https://mysingingmonsters.fandom.com")
-                    if wiki == "PHIGHTING!":
-                        image_link = get_image(phighting, "https://phighting.fandom.com")
-                    if wiki == "Fortnite":
-                        image_link = get_image(fortnite, "https://fortnite.fandom.com")
-                    if wiki == "Animal Crossing":
-                        image_link = get_image(animalcrossing, "https://animalcrossing.fandom.com")
-                    """ if wiki == "Hazbin Hotel":
-                        image_link = get_image(hazbinhotel, "https://hazbinhotel.fandom.com") """
-                    if wiki == "Urusei Yatsura":
-                        image_link = get_image(uruseiyatsura, "https://uruseiyatsura.fandom.com")
-                    if wiki == "Yaoi Wiki":
-                        image_link = get_image(yaoi, "https://yaoi.fandom.com")
-                    if wiki == "Gender Wiki":
-                        image_link = get_image(gender, "https://gender.fandom.com")
-        memelink = f"https://api.memegen.link/images/custom/{top_text_new}/{bottom_text_new}.png?background={image_link}"
-        await ctx.followup.send(content=memelink)
+                if wiki == None:
+                    wiki = random.choice(wikis)     
+                if wiki == "Mario":
+                    image_link = get_image(mariowiki, "https://www.mariowiki.com")
+                if wiki == "Minecraft":
+                    image_link = get_image(mcwiki, "https://minecraft.wiki")
+                if wiki == "Super Smash Bros.":
+                    image_link = get_image(ssb, "https://supersmashbros.fandom.com")
+                if wiki == "Care Bears":
+                    image_link = get_image(cb, "https://carebears.fandom.com")
+                if wiki == "Cookie Run":
+                    cookie = random.choice(["cr", "crk"])
+                    if cookie == "cr":
+                        image_link = get_image(cr, "https://cookierun.fandom.com")
+                    if cookie == "crk":
+                        image_link = get_image(crk, "https://cookierunkingdom.fandom.com")
+                if wiki == "Regretevator":
+                    image_link = get_image(regretevator, "https://regretevator.fandom.com")
+                if wiki == "Undertale AUs":
+                    image_link = get_image(undertale_au, "https://undertale-au-fanon.fandom.com")
+                if wiki == "Roblox":
+                    image_link = get_image(roblox, "https://roblox.fandom.com")
+                if wiki == "Vocaloid":
+                    image_link = get_image(vocaloid, "https://vocaloid.fandom.com")
+                if wiki == "NiGHTS":
+                    image_link = get_image(nights, "https://nights.fandom.com")
+                if wiki == "My Singing Monsters":
+                    image_link = get_image(msm, "https://mysingingmonsters.fandom.com")
+                if wiki == "PHIGHTING!":
+                    image_link = get_image(phighting, "https://phighting.fandom.com")
+                if wiki == "Fortnite":
+                    image_link = get_image(fortnite, "https://fortnite.fandom.com")
+                if wiki == "Animal Crossing":
+                    image_link = get_image(animalcrossing, "https://animalcrossing.fandom.com")
+                if wiki == "Hazbin Hotel":
+                    image_link = get_image(hazbinhotel, "https://hazbinhotel.fandom.com")
+                if wiki == "Urusei Yatsura":
+                    image_link = get_image(uruseiyatsura, "https://uruseiyatsura.fandom.com")
+                if wiki == "Yaoi Wiki":
+                    image_link = get_image(yaoi, "https://yaoi.fandom.com")
+                if wiki == "Gender Wiki":
+                    image_link = get_image(gender, "https://gender.fandom.com")
+                image = requests.get(image_link).content
+        else:
+            image = requests.get(image_link).content
+        #New meme generator implementation
+        image_obj = Image.open(BytesIO(image)).convert('RGB')
+        draw = ImageDraw.Draw(image_obj)
+        image_width, image_height = image_obj.size
+        top_max_height = image_height // 10
+        bottom_max_height = image_height // 10
+        top_font_size = get_font_size(draw, top_text, image_width - image_width // 25, top_max_height)
+        bottom_font_size = get_font_size(draw, bottom_text, image_width - image_width // 25, bottom_max_height)
+        top_font = ImageFont.truetype("c:\\Windows\\Fonts\\IMPACT.TTF", top_font_size)
+        bottom_font = ImageFont.truetype("c:\\Windows\\Fonts\\IMPACT.TTF", bottom_font_size)
+        _, _, top_text_width, top_text_height = draw.textbbox((0, 0), text=top_text, font=top_font)
+        _, _, bottom_text_width, bottom_text_height = draw.textbbox((0, 0), text=bottom_text, font=bottom_font)
+        top_text_position = ((image_width - top_text_width) // 2, 10)
+        bottom_text_position = ((image_width - bottom_text_width) // 2, image_height - bottom_text_height - 10)
+        draw.text(top_text_position, top_text, font=top_font, fill="white")
+        draw.text(bottom_text_position, bottom_text, font=bottom_font, fill="white")
+        b = BytesIO()
+        image_obj.save(b, format='JPEG')
+        b.seek(0)
+        await ctx.respond(file=discord.File(b, f"memegen_{ctx.user.name}_{datetime.now().year}{datetime.now().month}{datetime.now().day}{datetime.now().hour}{datetime.now().minute}.jpg"))
+    except Exception as e:
+        exceptionstring = format_exc()
+        await ctx.respond("An error has occurred! Please try again!")
+        await report.send(f"<@120396380073099264>\n{exceptionstring}\nIn {ctx.guild.name}") """
+
+class acbjd_prev_next(discord.ui.View):
+    def __init__(self, content, pages, member: discord.User):
+        super().__init__()
+        self.value = None
+        self.page = 1
+        self.content = content
+        self.pages = pages
+        self.member = member
+    
+    @discord.ui.button(style=discord.ButtonStyle.secondary , emoji="◀️")
+    async def prev(self, button, interaction: discord.Interaction):
+        if self.page > 1:
+            self.page -= 1
+        else:
+            self.page = self.pages
+        embed = discord.Embed(title="",
+                            color=self.member.color)
+        embed.set_author(name=f"{self.member.display_name}'s lovelist-Q!", icon_url=self.member.display_avatar.url)
+        embed.add_field(name="", value=self.content[self.page - 1])
+        embed.set_footer(text=f"Page {self.page} / {self.pages}")
+        await interaction.response.edit_message(embed=embed)
+
+    @discord.ui.button(style=discord.ButtonStyle.secondary , emoji="▶️")
+    async def next(self, button, interaction: discord.Interaction):
+        if self.page < self.pages:
+            self.page += 1
+        else:
+            self.page = 1
+        embed = discord.Embed(title="",
+                            color=self.member.color)
+        embed.set_author(name=f"{self.member.display_name}'s lovelist-Q!", icon_url=self.member.display_avatar.url)
+        embed.add_field(name="", value=self.content[self.page - 1])
+        embed.set_footer(text=f"Page {self.page} / {self.pages}")
+        await interaction.response.edit_message(embed=embed)
+
+#Utility for Mudae rolls, notifies a user of any character from the source given with this command
+@client.slash_command(description="Loves a source from Mudae to notify you later if any character from that source is rolled!", guild_ids=guilds)
+async def acbjd_embed(ctx: discord.Interaction, link: str):
+    try:
+        reqs = requests.get(link)
+        soup = BeautifulSoup(reqs.text, 'html.parser')
+        
+        main_image_div = soup.find('div', id='productMainImage')
+        main_image_element = main_image_div.find('img')
+        main_image = f"https://www.acbjd.com/{main_image_element.get('src')}"
+        img = [main_image]
+        other_image_div = soup.find('div', class_='descriptimage')
+        other_img_elements = other_image_div.find_all('img')
+        for image in other_img_elements:
+            image_link = image.get('src')
+            img.append(image_link)
+
+        title = soup.find('h1', id='productName').get_text()
+        product_div = soup.find('div', id='productGeneral')
+        try:
+            price = product_div.find('h2', id='productPrices').get_text()
+        except AttributeError:
+            normal_price = product_div.find('span', class_='normalprice').get_text()
+            special_price = product_div.find('span', class_='productSpecialPrice').get_text()
+            if len(special_price) > 1:
+                price = special_price
+            else:
+                price = normal_price
+        member: discord.User = ctx.user
+        embed = discord.Embed(title=title, url=link)
+        embed.add_field(name="Price", value=price)
+        embed.set_image(url=main_image)
+        await ctx.respond(embed=embed)
     except Exception as e:
         exceptionstring = format_exc()
         await ctx.respond("An error has occurred! Please try again!")
