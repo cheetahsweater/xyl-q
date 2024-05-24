@@ -18,9 +18,9 @@ from io import BytesIO
 
 status = "Cookie Run: Witch’s Castle"
 #status = "Testing new features!"
-versionnum = "5.5"
+versionnum = "5.5a"
 updatetime = "2024/05/22 23:24"
-changes = "**(5.5)** Temporarily disabled meme command (big things going on!) and added command specifically for my own personal use"
+changes = "**(5.5)** Temporarily disabled meme command (big things going on!) and added command specifically for my own personal use\n(a) Generalized personal use command"
 path = os.getcwd()
 print(f"XyL-Q v{versionnum}")
 print(updatetime)
@@ -1614,34 +1614,61 @@ class acbjd_prev_next(discord.ui.View):
         embed.set_footer(text=f"Page {self.page} / {self.pages}")
         await interaction.response.edit_message(embed=embed)
 
-#Utility for Mudae rolls, notifies a user of any character from the source given with this command
-@client.slash_command(description="Loves a source from Mudae to notify you later if any character from that source is rolled!", guild_ids=guilds)
-async def acbjd_embed(ctx: discord.Interaction, link: str):
+#Utility command to fix embeds of various BJD marketplace websites!
+@client.slash_command(description="Utility command to fix embeds of various BJD marketplace websites!", guild_ids=guilds)
+async def bjd_embed(ctx: discord.Interaction, link: str):
     try:
-        reqs = requests.get(link)
-        soup = BeautifulSoup(reqs.text, 'html.parser')
-        
-        main_image_div = soup.find('div', id='productMainImage')
-        main_image_element = main_image_div.find('img')
-        main_image = f"https://www.acbjd.com/{main_image_element.get('src')}"
-        img = [main_image]
-        other_image_div = soup.find('div', class_='descriptimage')
-        other_img_elements = other_image_div.find_all('img')
-        for image in other_img_elements:
-            image_link = image.get('src')
-            img.append(image_link)
+        if "acbjd.com" in link:
+            reqs = requests.get(link)
+            soup = BeautifulSoup(reqs.text, 'html.parser')
+            
+            main_image_div = soup.find('div', id='productMainImage')
+            main_image_element = main_image_div.find('img')
+            main_image = f"https://www.acbjd.com/{main_image_element.get('src')}"
+            img = [main_image]
+            other_image_div = soup.find('div', class_='descriptimage')
+            other_img_elements = other_image_div.find_all('img')
+            for image in other_img_elements:
+                image_link = image.get('src')
+                img.append(image_link)
 
-        title = soup.find('h1', id='productName').get_text()
-        product_div = soup.find('div', id='productGeneral')
-        try:
-            price = product_div.find('h2', id='productPrices').get_text()
-        except AttributeError:
-            normal_price = product_div.find('span', class_='normalprice').get_text()
-            special_price = product_div.find('span', class_='productSpecialPrice').get_text()
-            if len(special_price) > 1:
-                price = special_price
-            else:
-                price = normal_price
+            title = soup.find('h1', id='productName').get_text()
+            product_div = soup.find('div', id='productGeneral')
+            try:
+                price = product_div.find('h2', id='productPrices').get_text()
+            except AttributeError:
+                normal_price = product_div.find('span', class_='normalprice').get_text()
+                special_price = product_div.find('span', class_='productSpecialPrice').get_text()
+                if len(special_price) > 1:
+                    price = special_price
+                else:
+                    price = normal_price
+        elif "denverdoll.com" in link:
+            reqs = requests.get(link)
+            soup = BeautifulSoup(reqs.text, 'html.parser')
+
+            gallery_div = soup.find('div', class_="woocommerce-product-gallery__wrapper")
+            images_elements = gallery_div.find_all('a')
+            images = []
+            for image_element in images_elements:
+                images.append(image_element.get('href'))
+            main_image = images[0]
+            title = soup.find('h1', class_='product_title').get_text()
+            product_div = soup.find('div', class_='summary entry-summary')
+            price = product_div.find('span', class_='amount').get_text()
+        elif "dolkbjd.com" in link:
+            reqs = requests.get(link)
+            soup = BeautifulSoup(reqs.text, 'html.parser')
+
+            main_image_div = soup.find('div', class_='product-image-main')
+            main_image_element = main_image_div.find('img')
+            main_image = f"https:{main_image_element.get('data-photoswipe-src')}"
+            img = [main_image]
+            title = soup.find('h1', class_='h2 product-single__title').get_text()
+            price_split = soup.find('span', class_='product__price').get_text().split()
+            for line in price_split:
+                if "." in line:
+                    price = line
         member: discord.User = ctx.user
         embed = discord.Embed(title=title, url=link)
         embed.add_field(name="Price", value=price)
