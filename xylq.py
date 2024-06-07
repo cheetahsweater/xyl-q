@@ -18,9 +18,9 @@ from io import BytesIO
 
 status = "Cookie Run: Witch’s Castle"
 #status = "Testing new features!"
-versionnum = "5.5a"
-updatetime = "2024/05/22 23:24"
-changes = "**(5.5)** Temporarily disabled meme command (big things going on!) and added command specifically for my own personal use\n(a) Generalized personal use command"
+versionnum = "5.5b"
+updatetime = "2024/06/06 22:29"
+changes = "**(5.5)** Temporarily disabled meme command (big things going on!) and added command specifically for my own personal use\n(a) Generalized personal use command\n(b)Made rep command placeholder text more in-character (thank you JJ)"
 path = os.getcwd()
 print(f"XyL-Q v{versionnum}")
 print(updatetime)
