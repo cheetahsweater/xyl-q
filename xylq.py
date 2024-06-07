@@ -358,31 +358,6 @@ selfrep = ["You're giving reputation to me-Q?? Well, thank you-Q! ^^","Oh...than
 bots = [429305856241172480, 439205512425504771, 247283454440374274, 431544605209788416] #Bot IDs so XyL-Q can avoid indexing their messages
 imglist = [] #Instantiating list for later
 
-#The API I use for the meme creation has a lot of character substitution involved so this is a command that does all of that automatically
-def memeformat(text: str):
-    formatlist = {
-        "-":"--",
-        "_":"__",
-        " ":"_",
-        "?":"~q",
-        "&":"~a",
-        "%":"~p",
-        "#":"~h",
-        "/":"~s",
-        "\\":"~b",
-        "<":"~l",
-        ">":"~g",
-        "\n":"~n",
-        '"':"''",
-        "‘":"'",
-        "’":"'",
-        "“":'"',
-        "”":'"'
-    }
-    for key, value in formatlist.items():
-        text = text.replace(key, value)
-    return text
-
 #Changes bot's status and announces (to me) that it's online
 @client.event
 async def on_ready():
@@ -1064,7 +1039,7 @@ async def reputation(ctx: discord.Interaction, user: str=None):
             sorted_given_rep = sorted(user_rep.items(), key=lambda x: x[1], reverse=True)
             for target_user_id, amount in sorted_given_rep[:3]:  # Get top 3
                 given_rep_str += f"<@{target_user_id}>: {amount} rep\n"
-        given_rep_str = given_rep_str or "Nobody! Does your selfishness know no bounds?!"
+        given_rep_str = given_rep_str or "Nobody-Q! Perhaps you should pay more attention to your fellow citizens-Q? Or perhaps they just aren’t humorous enough-Q..."
         embed.add_field(name="You've given the most rep to:", value=given_rep_str, inline=False)
 
         # Adjusting for guild-specific received reputation details
@@ -1077,7 +1052,7 @@ async def reputation(ctx: discord.Interaction, user: str=None):
             sorted_given_rep = sorted(repreceivedusers.items(), key=lambda x: x[1], reverse=True)
             for giver_id, amount in sorted_given_rep[:3]:
                 received_rep_str += f"<@{giver_id}>: {amount} rep\n"
-        received_rep_str = received_rep_str or "Nobody...I'd give you rep if I could, though :("
+        received_rep_str = received_rep_str or "Nobody-Q! But I’m sure we have some in our reserves on Xylitol Planet for you-Q!"
         embed.add_field(name="You've received the most rep from:", value=received_rep_str, inline=False)
 
         await ctx.respond(embed=embed)
@@ -1579,7 +1554,7 @@ async def meme(ctx: discord.Interaction, top_text: str=None, bottom_text: str=No
         await ctx.respond("An error has occurred! Please try again!")
         await report.send(f"<@120396380073099264>\n{exceptionstring}\nIn {ctx.guild.name}") """
 
-class acbjd_prev_next(discord.ui.View):
+class bjd_prev_next(discord.ui.View):
     def __init__(self, content, pages, member: discord.User):
         super().__init__()
         self.value = None
