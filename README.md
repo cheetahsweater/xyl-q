@@ -17,7 +17,9 @@ As of right now, there are 11 commands, 10 of which can be used by all members o
 - **/care_bear** *[bear]* - This command sends an embed containing information on a random bear from Care Bears, or the first search result for whatever the user inputs in the "bear" parameter. ([April 10, 2024](https://github.com/cheetahsweater/xyl-q/commit/68e445665af878916c23e09f7b565648898128fc))
 - **/cookie** *[game]* - This command sends an embed containing information on a random character from Cookie Run: OvenBreak, Kingdom, or Tower of Adventure. ([April 11, 2024](https://github.com/cheetahsweater/xyl-q/commit/caab487f8caa4015ba0948dd204a782bd394f5a1))
 - **/refresh_vars** - This command refreshes all of the variables XyL-Q pulls from external files, just in case I've updated any of those files manually. This should only work if I'm the one using the command. ([April 12, 2024](https://github.com/cheetahsweater/xyl-q/commit/c0f576d6d1ee6ded90726f252fb0e2ac61a53a5f))
-- - **/view_lovelist** - This command outputs your lovelist split into pages of 15 characters per page. ([April 12, 2024](https://github.com/cheetahsweater/xyl-q/commit/cebb696ee90b8e0d2703c821efdc92b450991197))
+- **/view_lovelist** - This command outputs your lovelist or sourcelist split into pages of 15 characters per page. ([April 12, 2024](https://github.com/cheetahsweater/xyl-q/commit/cebb696ee90b8e0d2703c821efdc92b450991197))
+- **/set_reminder** - This command allows you to set a reminder on any given date at any given time. ([May 10, 2024](https://github.com/cheetahsweater/xyl-q/commit/6067d8aa233f5d30e04d6c2cb4371b0fbfff23e0))
+- **/bjd_embed** - Personal use command that fixes faulty embedding on some ball-jointed doll merchant websites, specifically acbjd.com and dolkbjd.com, with probably more on the way. ([May 22, 2024](https://github.com/cheetahsweater/xyl-q/commit/db2103c0a0403176880903fc033a60f786932943))
 
 ## Reputation
 The reputation functionality of XyL-Q was inspired by the rep functionality in UB3R-B0T, a Discord bot that I respect very much but I disagreed with the way they implemented their rep function, so I made my own!
@@ -34,6 +36,6 @@ Here are some things I'm hoping to add soon!
 - [ ]   Commands that allow setup of a starboard feature with custom emojis
 - [ ]   A command that searches Urban Dictionary for definitions
 - [ ]   A more thorough version of fm-bot's affinity feature
-- [ ]   A command to pet XyL-Q for his good work :)
+- [ ]   A command to pet XyL-Q for his good work :0)
 
 Thank you for reading this! I'm glad I finally put it together!!! :3
