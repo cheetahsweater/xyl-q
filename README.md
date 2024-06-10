@@ -6,7 +6,7 @@ Hello-Q! XyL-Q is a multiple utility Discord bot designed for general use in ser
 ## Commands
 (Note: *italicized* parameters are optional, regular parameters are mandatory)
 
-As of right now, there are 11 commands, 10 of which can be used by all members of any server XyL-Q is in:
+As of right now, there are 13 commands, 12 of which can be used by all members of any server XyL-Q is in:
 - ~~**/meme** *[top_text]* *[bottom_text]* *[image_link]* *[image_upload]* *[wiki]*  - This command generates a meme. If given top_text, bottom_text, or both, this will be the text on the bottom and bottom of the meme. If not, the text will be randomly chosen from a list of indexed messages in the server that the command is being used in. If given an image_link or image_upload, then that image will be the background of the meme. If not, then a random image will be chosen from one of the list of wikis available, unless a specific one is chosen by the user. ([Jan. 27, 2024](https://github.com/cheetahsweater/xyl-q/commit/38eefcdcae4c547d9b2a855148977a54e99d527b))~~ **Temporarily disabled for major updates**
 - **/disable** [command] [channel] - Disables use of a certain command in a certain channel. This command is extremely out of date and should probably be updated or removed. ([Jan. 27, 2024](https://github.com/cheetahsweater/xyl-q/commit/ccb9d0640720c46fd9aa1e33f645e6c20e5f17cb))
 - **/disable_cache** [channel] OR [user] - Disables message caching (for use in /meme command) for messages in the given channel or by the given user. ([Jan. 27, 2024](https://github.com/cheetahsweater/xyl-q/commit/ccb9d0640720c46fd9aa1e33f645e6c20e5f17cb))
@@ -20,6 +20,7 @@ As of right now, there are 11 commands, 10 of which can be used by all members o
 - **/view_lovelist** - This command outputs your lovelist or sourcelist split into pages of 15 characters per page. ([April 12, 2024](https://github.com/cheetahsweater/xyl-q/commit/cebb696ee90b8e0d2703c821efdc92b450991197))
 - **/set_reminder** - This command allows you to set a reminder on any given date at any given time. ([May 10, 2024](https://github.com/cheetahsweater/xyl-q/commit/6067d8aa233f5d30e04d6c2cb4371b0fbfff23e0))
 - **/bjd_embed** - Personal use command that fixes faulty embedding on some ball-jointed doll merchant websites, specifically acbjd.com and dolkbjd.com, with probably more on the way. ([May 22, 2024](https://github.com/cheetahsweater/xyl-q/commit/db2103c0a0403176880903fc033a60f786932943))
+- **/urban_dictionary** - This command allows you to search for the definition of a word on Urban Dictionary. ([June 10, 2024](https://github.com/cheetahsweater/xyl-q/commit/4534d44e4fc9d6dbeeb324fd0ae98a4e83784bc8))
 
 ## Reputation
 The reputation functionality of XyL-Q was inspired by the rep functionality in UB3R-B0T, a Discord bot that I respect very much but I disagreed with the way they implemented their rep function, so I made my own!
