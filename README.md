@@ -35,7 +35,7 @@ Here are some things I'm hoping to add soon!
 - [x]   A way for users to check their lovelist
 - [ ]   Commands that allow configuration of reaction roles (Inspired by Carl-bot)
 - [ ]   Commands that allow setup of a starboard feature with custom emojis
-- [ ]   A command that searches Urban Dictionary for definitions
+- [x]   A command that searches Urban Dictionary for definitions
 - [ ]   A more thorough version of fm-bot's affinity feature
 - [ ]   A command to pet XyL-Q for his good work :)
 
