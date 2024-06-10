@@ -16,11 +16,11 @@ import pytz
 from PIL import Image, ImageDraw, ImageFont
 from io import BytesIO
 
-status = "Cookie Run: Witch’s Castle"
-#status = "Testing new features!"
-versionnum = "5.5b"
-updatetime = "2024/06/06 22:29"
-changes = "**(5.5)** Temporarily disabled meme command (big things going on!) and added command specifically for my own personal use\n(a) Generalized personal use command\n(b)Made rep command placeholder text more in-character (thank you JJ)"
+#status = "Cookie Run: Witch’s Castle"
+status = "Testing new features!"
+versionnum = "6.0"
+updatetime = "2024/06/10 18:45"
+changes = "**(6.0)** Added a command that lets you search the definition of a word on Urban Dictionary, fixed reminder command to calculate current date correctly"
 path = os.getcwd()
 print(f"XyL-Q v{versionnum}")
 print(updatetime)
@@ -1087,11 +1087,17 @@ async def disable_cache(ctx: discord.Interaction, channel: str=None, user: str=N
 
 #Set reminder for user
 @client.slash_command(description="Sets a reminder based on user input!", guild_ids=guilds)
-async def set_reminder(ctx: discord.Interaction, timezone: discord.Option(str, choices=common_timezones), time: str, month: discord.Option(str, choices=months)=datetime.now().month, day: int=datetime.now().day, year:int=datetime.now().year, reason: str=None): 
+async def set_reminder(ctx: discord.Interaction, timezone: discord.Option(str, choices=common_timezones), time: str, month: discord.Option(str, choices=months)=None, day: int=None, year:int=None, reason: str=None): 
     try:
         global reminders
         user = str(ctx.user.id)
         guild = str(ctx.guild.id)
+        if month == None:
+            month = datetime.now().month
+        if day == None:
+            day = datetime.now().day
+        if year == None:
+            year = datetime.now().year
         try:
             guild_reminders = reminders[guild]
         except KeyError:
@@ -1382,6 +1388,59 @@ async def view_lovelist(ctx: discord.Interaction, list_to_view: discord.Option(s
     except Exception as e:
         exceptionstring = format_exc()
         await report.send(f"<@120396380073099264>\n{exceptionstring}\nIn {ctx.guild.name}")
+
+class urban_prev_next(discord.ui.View):
+    def __init__(self, content, pages, member: discord.User):
+        super().__init__()
+        self.value = None
+        self.page = 1
+        self.content = content
+        self.pages = pages
+        self.member = member
+    
+    @discord.ui.button(style=discord.ButtonStyle.secondary , emoji="◀️")
+    async def prev(self, button, interaction: discord.Interaction):
+        if self.page > 1:
+            self.page -= 1
+        else:
+            self.page = self.pages
+        embed = discord.Embed(title="",
+                            color=self.member.color)
+        embed.set_author(name=f"{self.member.display_name}'s lovelist-Q!", icon_url=self.member.display_avatar.url)
+        embed.add_field(name="", value=self.content[self.page - 1])
+        embed.set_footer(text=f"Page {self.page} / {self.pages}")
+        await interaction.response.edit_message(embed=embed)
+
+    @discord.ui.button(style=discord.ButtonStyle.secondary , emoji="▶️")
+    async def next(self, button, interaction: discord.Interaction):
+        if self.page < self.pages:
+            self.page += 1
+        else:
+            self.page = 1
+        embed = discord.Embed(title="",
+                            color=self.member.color)
+        embed.set_author(name=f"{self.member.display_name}'s lovelist-Q!", icon_url=self.member.display_avatar.url)
+        embed.add_field(name="", value=self.content[self.page - 1])
+        embed.set_footer(text=f"Page {self.page} / {self.pages}")
+        await interaction.response.edit_message(embed=embed)
+
+#Search Urban Dictionary for word definition
+@client.slash_command(description="Searches the definition of a term in Urban Dictionary!", guild_ids=guilds)
+async def urban_dictionary(ctx: discord.Interaction, term: str):
+    response = requests.get(f"https://api.urbandictionary.com/v0/define?term={term}").json()
+    description = str(response["list"][0]["definition"])
+    example = str(response["list"][0]["example"])
+    title = str(response["list"][0]["word"])
+    if len(description) > 4000:
+        description = description[0:4000]
+    link = str(response["list"][0]["permalink"])
+    date = datetime.strptime(str(response["list"][0]["written_on"]), "%Y-%m-%dT%H:%M:%S.%fZ")
+    author = str(response["list"][0]["author"])
+    embed = discord.Embed(title=title, timestamp=date, url=link)
+    embed.set_author(name=author)
+    embed.add_field(name="Description", value=description)
+    embed.add_field(name="Example", value=f"*{example}*")
+    await ctx.respond(embed=embed)
 
 def get_image(url_list: str, base_url: str):
     print("-"*50)
