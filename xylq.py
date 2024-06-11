@@ -16,8 +16,8 @@ import pytz
 from PIL import Image, ImageDraw, ImageFont
 from io import BytesIO
 
-#status = "Cookie Run: Witch’s Castle"
-status = "Testing new features!"
+status = "Cookie Run: Witch’s Castle"
+#status = "Testing new features!"
 versionnum = "6.0"
 updatetime = "2024/06/10 18:45"
 changes = "**(6.0)** Added a command that lets you search the definition of a word on Urban Dictionary, fixed reminder command to calculate current date correctly"
