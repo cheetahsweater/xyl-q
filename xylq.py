@@ -18,9 +18,9 @@ from io import BytesIO
 
 status = "Cookie Run: Witch’s Castle"
 #status = "Testing new features!"
-versionnum = "6.0"
-updatetime = "2024/06/10 18:45"
-changes = "**(6.0)** Added a command that lets you search the definition of a word on Urban Dictionary, fixed reminder command to calculate current date correctly"
+versionnum = "7.0"
+updatetime = "2024/06/28 00:02"
+changes = "**(7.0)** Added commands that let you import lovelist and sourcelist from other servers, fixed date handling in reminder function AGAIN, fixed testing status accidentally pushed to main"
 path = os.getcwd()
 print(f"XyL-Q v{versionnum}")
 print(updatetime)
@@ -1129,7 +1129,7 @@ async def set_reminder(ctx: discord.Interaction, timezone: discord.Option(str, c
                     elif hour == 12:
                         hour = 12
                     else:
-                       await ctx.respond("Error: Invalid hour given-Q! Accepted hours are 0-23!") 
+                       await ctx.respond("Error: Invalid hour given-Q! Accepted hours are 0 through 23-Q!") 
                 else:
                     await ctx.respond("Error: Invalid time entry-Q! Examples of accepted formats are: '16:50', '4:50PM', or '4:50 PM'-Q!")
                     return
@@ -1160,14 +1160,14 @@ async def set_reminder(ctx: discord.Interaction, timezone: discord.Option(str, c
             user_reminders[channel] = channel_reminders
             guild_reminders[user] = user_reminders
             reminders[guild] = guild_reminders
-            await ctx.respond(f"Got it-Q! I've set a reminder for '{reason}' at {time} on {month} {day}, {year}!")
+            await ctx.respond(f"Got it-Q! I've set a reminder for '{reason}' at {time} on {word_month} {day}, {year}-Q!")
         else:
             key = f"{now.year} {now.month} {now.day} {now.hour} {now.minute} {now.second}"
             channel_reminders[key] = output
             user_reminders[channel] = channel_reminders
             guild_reminders[user] = user_reminders
             reminders[guild] = guild_reminders
-            await ctx.respond(f"Got it-Q! I've set a reminder at {hour}:{minute} on {word_month} {day}, {year}!")
+            await ctx.respond(f"Got it-Q! I've set a reminder at {hour}:{minute} on {word_month} {day}, {year}-Q!")
         with open(f'{path}\\reminders.json', "w") as file:
             json.dump(reminders, file)
     except Exception as e:
@@ -1314,17 +1314,17 @@ async def view_lovelist(ctx: discord.Interaction, list_to_view: discord.Option(s
                 guildlovelist = lovelist[str(ctx.guild.id)]
             except KeyError:
                 guildlovelist = {}
-                await ctx.send("Your characters lovelist is empty-Q!")
+                await ctx.respond("Your characters lovelist is empty-Q!")
                 return
             try:
                 userlovelist: dict = guildlovelist[IDstring]
             except KeyError:
                 if IDstring == str(ctx.author.id):
-                    await ctx.send("Your characters lovelist is empty-Q!")
+                    await ctx.respond("Your characters lovelist is empty-Q!")
                     userlovelist: dict = {}
                     return
                 else:
-                    await ctx.send(f"{member.display_name}'s characters lovelist is empty-Q!")
+                    await ctx.respond(f"{member.display_name}'s characters lovelist is empty-Q!")
             if len(userlovelist) > 0:
                 per_page = 15
                 content = []
@@ -1352,17 +1352,17 @@ async def view_lovelist(ctx: discord.Interaction, list_to_view: discord.Option(s
                 guildlovelist = sourcelist[str(ctx.guild.id)]
             except KeyError:
                 guildlovelist = {}
-                await ctx.send("Your sources lovelist is empty-Q!")
+                await ctx.respond("Your sources lovelist is empty-Q!")
                 return
             try:
                 userlovelist: list = guildlovelist[IDstring]
             except KeyError:
                 if IDstring == str(ctx.author.id):
-                    await ctx.send("Your sources lovelist is empty-Q!")
+                    await ctx.respond("Your sources lovelist is empty-Q!")
                     userlovelist = []
                     return
                 else:
-                    await ctx.send(f"{member.display_name}'s sources lovelist is empty-Q!")
+                    await ctx.respond(f"{member.display_name}'s sources lovelist is empty-Q!")
             if len(userlovelist) > 0:
                 per_page = 15
                 content = []
@@ -1385,6 +1385,86 @@ async def view_lovelist(ctx: discord.Interaction, list_to_view: discord.Option(s
                 embed.set_footer(text=f"Page {current_page} / {pages}")
                 interaction: discord.Interaction = await ctx.respond(embed=embed, view=lovelist_prev_next(content, pages, member))
                 message: discord.Message = interaction.message
+    except Exception as e:
+        exceptionstring = format_exc()
+        await report.send(f"<@120396380073099264>\n{exceptionstring}\nIn {ctx.guild.name}")
+
+def get_user_lovelists(ctx: discord.AutocompleteContext):
+    global user_servers
+    user_servers = {}
+    user = str(ctx.interaction.user.id)
+    try:
+        for guild in lovelist.keys():
+            server = client.get_guild(int(guild))
+            try:
+                if lovelist[guild][user]:
+                    user_servers[server.name] = guild
+            except KeyError:
+                continue
+        keys = list(user_servers.keys())
+        if ctx.interaction.guild.name in keys:
+            keys.pop(keys.index(ctx.interaction.guild.name))
+    except Exception as e:
+        exceptionstring = format_exc()
+        print(exceptionstring)
+    return keys
+
+def get_user_sourcelists(ctx: discord.AutocompleteContext):
+    global user_servers
+    user_servers = {}
+    user = str(ctx.interaction.user.id)
+    try:
+        for guild in sourcelist.keys():
+            server = client.get_guild(int(guild))
+            try:
+                if sourcelist[guild][user]:
+                    user_servers[server.name] = guild
+            except KeyError:
+                continue
+        keys = list(user_servers.keys())
+        if ctx.interaction.guild.name in keys:
+            keys.pop(keys.index(ctx.interaction.guild.name))
+    except Exception as e:
+        exceptionstring = format_exc()
+        print(exceptionstring)
+    return keys
+
+#Lets you import your loved characters from another server
+@client.slash_command(description="Imports your loved character from another server!", guild_ids=guilds)
+async def import_lovelist(ctx: discord.Interaction, server: discord.Option(str, "Select an item", autocomplete=get_user_lovelists)):
+    try:
+        server_id = str(user_servers[server])
+        cur_server_id = str(ctx.guild.id)
+        user_id = str(ctx.user.id)
+        imported_list = lovelist[server_id][user_id]
+        serverlist = lovelist[cur_server_id]
+        cur_user_list = serverlist[user_id]
+        for key, value in imported_list.items():
+            cur_user_list[key] = value
+        lovelist[server_id][user_id] = cur_user_list
+        await ctx.respond(f"Done-Q! Your lovelist from {server} has been imported-Q!")
+    except Exception as e:
+        exceptionstring = format_exc()
+        await report.send(f"<@120396380073099264>\n{exceptionstring}\nIn {ctx.guild.name}")
+
+@client.slash_command(description="Imports your loved sources from another server!", guild_ids=guilds)
+async def import_sourcelist(ctx: discord.Interaction, server: discord.Option(str, "Select an item", autocomplete=get_user_sourcelists)):
+    try:
+        server_id = str(user_servers[server])
+        cur_server_id = str(ctx.guild.id)
+        user_id = str(ctx.user.id)
+        imported_list = sourcelist[server_id][user_id]
+        try:
+            cur_user_list = sourcelist[cur_server_id][user_id]
+        except KeyError:
+            cur_user_list = []
+        cur_user_list += imported_list
+        try:
+            sourcelist[cur_server_id][user_id] = cur_user_list
+        except KeyError:
+            sourcelist[cur_server_id] = {}
+            sourcelist[cur_server_id][user_id] = cur_user_list
+        await ctx.respond(f"Done-Q! Your sourcelist from {server} has been imported-Q!")
     except Exception as e:
         exceptionstring = format_exc()
         await report.send(f"<@120396380073099264>\n{exceptionstring}\nIn {ctx.guild.name}")
