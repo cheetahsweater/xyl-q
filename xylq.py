@@ -18,9 +18,9 @@ from io import BytesIO
 
 status = "Cookie Run: Witch’s Castle"
 #status = "Testing new features!"
-versionnum = "7.0"
-updatetime = "2024/06/28 00:02"
-changes = "**(7.0)** Added commands that let you import lovelist and sourcelist from other servers, fixed date handling in reminder function AGAIN, fixed testing status accidentally pushed to main"
+versionnum = "7.0a"
+updatetime = "2024/06/29 04:20"
+changes = "**(7.0)** Added commands that let you import lovelist and sourcelist from other servers, fixed date handling in reminder function AGAIN, fixed testing status accidentally pushed to main\n(a) Fixed bug with empty lovelist"
 path = os.getcwd()
 print(f"XyL-Q v{versionnum}")
 print(updatetime)
@@ -1438,7 +1438,10 @@ async def import_lovelist(ctx: discord.Interaction, server: discord.Option(str, 
         user_id = str(ctx.user.id)
         imported_list = lovelist[server_id][user_id]
         serverlist = lovelist[cur_server_id]
-        cur_user_list = serverlist[user_id]
+        try:
+            cur_user_list = serverlist[user_id]
+        except KeyError:
+            cur_user_list = []
         for key, value in imported_list.items():
             cur_user_list[key] = value
         lovelist[server_id][user_id] = cur_user_list
