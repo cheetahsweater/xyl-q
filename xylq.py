@@ -18,9 +18,9 @@ from io import BytesIO
 
 status = "Cookie Run: Witch’s Castle"
 #status = "Testing new features!"
-versionnum = "7.0a"
-updatetime = "2024/06/29 04:20"
-changes = "**(7.0)** Added commands that let you import lovelist and sourcelist from other servers, fixed date handling in reminder function AGAIN, fixed testing status accidentally pushed to main\n(a) Fixed bug with empty lovelist"
+versionnum = "7.0b"
+updatetime = "2024/07/04 18:49"
+changes = "**(7.0)** Added commands that let you import lovelist and sourcelist from other servers, fixed date handling in reminder function AGAIN, fixed testing status accidentally pushed to main\n(a) Fixed bug with empty lovelist\n(b) Removed guilds parameter from commands so I don't have to update that Notepad document anymore lol"
 path = os.getcwd()
 print(f"XyL-Q v{versionnum}")
 print(updatetime)
@@ -601,12 +601,12 @@ async def check_time():
         await report.send(f"<@120396380073099264>\n{exceptionstring}\nIn {current_guild.name}")
 
 #Mainly I just use this to make sure I'm running the latest version after I update him
-@client.slash_command(description="Returns XyL-Q version number!", guild_ids=guilds)
+@client.slash_command(description="Returns XyL-Q version number!")
 async def version(ctx: discord.Interaction): 
     await ctx.respond(f"Hello-Q! I'm XyL-Q, running version {versionnum} released on {updatetime}-Q!\n\n__Changelog__\n{changes}")
 
 #For me to refresh variables
-@client.slash_command(description="Refresh all bot variables!", guild_ids=guilds)
+@client.slash_command(description="Refresh all bot variables!")
 async def refresh_vars(ctx: discord.Interaction): 
     if ctx.author.id in [120396380073099264, 1189313967831646278]:
         #Load individual user-to-user reputation database
@@ -748,7 +748,7 @@ def tower_query(url: str, game: str=None, cookies: dict=None):
     return tower
 
 #Command to get info on a certain Cookie Run cookie or choose a random one
-@client.slash_command(description="Get information on a random Cookie Run cookie!", guild_ids=guilds)
+@client.slash_command(description="Get information on a random Cookie Run cookie!")
 async def cookie(ctx: discord.Interaction, game: discord.Option(str, choices=cr_games)=None): 
     try:
         await ctx.response.defer()
@@ -883,7 +883,7 @@ async def cookie(ctx: discord.Interaction, game: discord.Option(str, choices=cr_
         await report.send(f"<@120396380073099264>\n{exceptionstring}\nIn {ctx.guild.name}")
 
 #Command to get info on a certain Care Bear or choose a random one
-@client.slash_command(description="Get information on a random Care Bear, or a bear of your choice!", guild_ids=guilds)
+@client.slash_command(description="Get information on a random Care Bear, or a bear of your choice!")
 async def care_bear(ctx: discord.Interaction, bear: str=None): 
     try:
         await ctx.response.defer()
@@ -1061,7 +1061,7 @@ async def reputation(ctx: discord.Interaction, user: str=None):
         await report.send(f"<@120396380073099264>\n{exceptionstring}\nIn {ctx.guild.name}")
 
 #Disable caching for given channel or user
-@client.slash_command(description="Disables message caching in a given channel or from a given user!", guild_ids=guilds)
+@client.slash_command(description="Disables message caching in a given channel or from a given user!")
 async def disable_cache(ctx: discord.Interaction, channel: str=None, user: str=None): 
     try:
         global badcacheIDs
@@ -1086,7 +1086,7 @@ async def disable_cache(ctx: discord.Interaction, channel: str=None, user: str=N
         await report.send(f"<@120396380073099264>\n{exceptionstring}\nIn {ctx.guild.name}")
 
 #Set reminder for user
-@client.slash_command(description="Sets a reminder based on user input!", guild_ids=guilds)
+@client.slash_command(description="Sets a reminder based on user input!")
 async def set_reminder(ctx: discord.Interaction, timezone: discord.Option(str, choices=common_timezones), time: str, month: discord.Option(str, choices=months)=None, day: int=None, year:int=None, reason: str=None): 
     try:
         global reminders
@@ -1175,7 +1175,7 @@ async def set_reminder(ctx: discord.Interaction, timezone: discord.Option(str, c
         await report.send(f"<@120396380073099264>\n{exceptionstring}\nIn {ctx.guild.name}")
 
 #Disables a command's use in a certain channel, not really even sure what the use case for this is
-@client.slash_command(description="Disables a command in a given channel!", guild_ids=guilds)
+@client.slash_command(description="Disables a command in a given channel!")
 async def disable(ctx: discord.Interaction, command: discord.Option(str, choices=["meme", "reputation", "version"]), channel: str): 
     try:
         global badIDs
@@ -1201,7 +1201,7 @@ async def disable(ctx: discord.Interaction, command: discord.Option(str, choices
         await report.send(f"<@120396380073099264>\n{exceptionstring}\nIn {ctx.guild.name}")
 
 #Utility for Mudae rolls, notifies a user of any character given with this command
-@client.slash_command(description="Loves a character from Mudae to notify you later if that character is rolled!", guild_ids=guilds)
+@client.slash_command(description="Loves a character from Mudae to notify you later if that character is rolled!")
 async def love_character(ctx: discord.Interaction, character: str, source: str, user: str=None):
     try:
         if user == None:
@@ -1232,7 +1232,7 @@ async def love_character(ctx: discord.Interaction, character: str, source: str, 
         await report.send(f"<@120396380073099264>\n{exceptionstring}\nIn {ctx.guild.name}")
     
 #Utility for Mudae rolls, notifies a user of any character from the source given with this command
-@client.slash_command(description="Loves a source from Mudae to notify you later if any character from that source is rolled!", guild_ids=guilds)
+@client.slash_command(description="Loves a source from Mudae to notify you later if any character from that source is rolled!")
 async def love_source(ctx: discord.Interaction, source: str, user: str=None):
     try:
         if user == None:
@@ -1299,7 +1299,7 @@ class lovelist_prev_next(discord.ui.View):
 
 
 #Lets you check your list of loved characters
-@client.slash_command(description="Shows your list of loved characters!", guild_ids=guilds)
+@client.slash_command(description="Shows your list of loved characters!")
 async def view_lovelist(ctx: discord.Interaction, list_to_view: discord.Option(str, choices=["characters", "sources"]), user: str=None):
     try:
         if user == None:
@@ -1430,7 +1430,7 @@ def get_user_sourcelists(ctx: discord.AutocompleteContext):
     return keys
 
 #Lets you import your loved characters from another server
-@client.slash_command(description="Imports your loved character from another server!", guild_ids=guilds)
+@client.slash_command(description="Imports your loved character from another server!")
 async def import_lovelist(ctx: discord.Interaction, server: discord.Option(str, "Select an item", autocomplete=get_user_lovelists)):
     try:
         server_id = str(user_servers[server])
@@ -1450,7 +1450,7 @@ async def import_lovelist(ctx: discord.Interaction, server: discord.Option(str, 
         exceptionstring = format_exc()
         await report.send(f"<@120396380073099264>\n{exceptionstring}\nIn {ctx.guild.name}")
 
-@client.slash_command(description="Imports your loved sources from another server!", guild_ids=guilds)
+@client.slash_command(description="Imports your loved sources from another server!")
 async def import_sourcelist(ctx: discord.Interaction, server: discord.Option(str, "Select an item", autocomplete=get_user_sourcelists)):
     try:
         server_id = str(user_servers[server])
@@ -1508,7 +1508,7 @@ class urban_prev_next(discord.ui.View):
         await interaction.response.edit_message(embed=embed)
 
 #Search Urban Dictionary for word definition
-@client.slash_command(description="Searches the definition of a term in Urban Dictionary!", guild_ids=guilds)
+@client.slash_command(description="Searches the definition of a term in Urban Dictionary!")
 async def urban_dictionary(ctx: discord.Interaction, term: str):
     response = requests.get(f"https://api.urbandictionary.com/v0/define?term={term}").json()
     description = str(response["list"][0]["definition"])
@@ -1581,7 +1581,7 @@ def get_font_size(draw: ImageDraw.ImageDraw, text, image_width, max_height):
     return font_size - 1
 
 """ #MY MAGNUM OPUS (the meme command) 
-@client.slash_command(description="Makes a meme based on parameters given!", guild_ids=guilds)
+@client.slash_command(description="Makes a meme based on parameters given!")
 async def meme(ctx: discord.Interaction, top_text: str=None, bottom_text: str=None, image_link: str=None, image_upload: discord.Attachment=None, wiki: discord.Option(str, choices=wikis)=None): 
     try:
         await ctx.response.defer()
@@ -1732,7 +1732,7 @@ class bjd_prev_next(discord.ui.View):
         await interaction.response.edit_message(embed=embed)
 
 #Utility command to fix embeds of various BJD marketplace websites!
-@client.slash_command(description="Utility command to fix embeds of various BJD marketplace websites!", guild_ids=guilds)
+@client.slash_command(description="Utility command to fix embeds of various BJD marketplace websites!")
 async def bjd_embed(ctx: discord.Interaction, link: str):
     try:
         if "acbjd.com" in link:
