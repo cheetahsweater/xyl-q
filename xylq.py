@@ -18,9 +18,9 @@ from io import BytesIO
 
 status = "Cookie Run: Witch’s Castle"
 #status = "Testing new features!"
-versionnum = "7.0b"
-updatetime = "2024/07/04 18:49"
-changes = "**(7.0)** Added commands that let you import lovelist and sourcelist from other servers, fixed date handling in reminder function AGAIN, fixed testing status accidentally pushed to main\n(a) Fixed bug with empty lovelist\n(b) Removed guilds parameter from commands so I don't have to update that Notepad document anymore lol"
+versionnum = "7.0c"
+updatetime = "2024/08/12 18:02"
+changes = "**(7.0)** Added commands that let you import lovelist and sourcelist from other servers, fixed date handling in reminder function AGAIN, fixed testing status accidentally pushed to main\n(a) Fixed bug with empty lovelist\n(b) Removed guilds parameter from commands so I don't have to update that Notepad document anymore lol\n(c) Fixed bug that duplicated entries in sourcelist when importing"
 path = os.getcwd()
 print(f"XyL-Q v{versionnum}")
 print(updatetime)
@@ -1463,10 +1463,10 @@ async def import_sourcelist(ctx: discord.Interaction, server: discord.Option(str
             cur_user_list = []
         cur_user_list += imported_list
         try:
-            sourcelist[cur_server_id][user_id] = cur_user_list
+            sourcelist[cur_server_id][user_id] = list(set(cur_user_list))
         except KeyError:
             sourcelist[cur_server_id] = {}
-            sourcelist[cur_server_id][user_id] = cur_user_list
+            sourcelist[cur_server_id][user_id] = list(set(cur_user_list))
         await ctx.respond(f"Done-Q! Your sourcelist from {server} has been imported-Q!")
     except Exception as e:
         exceptionstring = format_exc()
