@@ -97,6 +97,16 @@ with open(f'{path}\\reminders.json',"r+") as file:
         reminders = {}
     file.close()
 
+#Load list of blorbos
+with open(f'{path}\\blorbos.json',"r+") as file:
+    try:
+        text = json.loads(file.read())
+        blorbos = text
+    except JSONDecodeError as e:
+        print(e)
+        blorbos = {}
+    file.close()
+
 
 #Load list of channels in which message caching is disabled
 with open(f'{path}\\badcache.txt',"r+") as file:
@@ -1446,6 +1456,36 @@ async def import_lovelist(ctx: discord.Interaction, server: discord.Option(str, 
             cur_user_list[key] = value
         lovelist[server_id][user_id] = cur_user_list
         await ctx.respond(f"Done-Q! Your lovelist from {server} has been imported-Q!")
+    except Exception as e:
+        exceptionstring = format_exc()
+        await report.send(f"<@120396380073099264>\n{exceptionstring}\nIn {ctx.guild.name}")
+
+
+#Spits out two random characters out of a list of your favorites!!
+@client.slash_command(description="Spits out two random characters out of a list of your favorites!")
+async def add_blorbo(ctx: discord.Interaction, blorbo: str):
+    try:
+        await ctx.response.defer()
+        try:
+            listo = blorbos[str(ctx.user.id)]
+        except:
+            listo = []
+        listo.append(blorbo.strip())
+        blorbos.update({str(ctx.user.id): listo})
+        with open(f'{path}\\blorbos.json',"w") as file:
+            myJson = json.dumps(blorbos)
+            file.write(myJson)
+            file.close()
+    except Exception as e:
+        exceptionstring = format_exc()
+        await report.send(f"<@120396380073099264>\n{exceptionstring}\nIn {ctx.guild.name}")
+
+#Spits out two random characters out of a list of your favorites!!
+@client.slash_command(description="Spits out two random characters out of a list of your favorites!")
+async def blorbo_battle(ctx: discord.Interaction):
+    try:
+        await ctx.response.defer()
+        
     except Exception as e:
         exceptionstring = format_exc()
         await report.send(f"<@120396380073099264>\n{exceptionstring}\nIn {ctx.guild.name}")
