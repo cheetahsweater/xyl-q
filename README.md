@@ -33,6 +33,7 @@ Now, you may be asking, what if I particularly despise a message somebody's sent
 
 ## Roadmap
 Here are some things I'm hoping to add soon!
+- [ ]   **Ability to give/take away rep for a message even if sent before last startup** (IMPORTANT)
 - [ ]   A way for users to remove characters/sources from their lovelist
 - [x]   ~~A way for users to check their lovelist~~
 - [ ]   Commands that allow configuration of reaction roles (Inspired by Carl-bot)
