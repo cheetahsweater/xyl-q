@@ -18,9 +18,9 @@ from io import BytesIO
 
 status = "Cookie Run: Witch’s Castle"
 #status = "Testing new features!"
-versionnum = "7.1"
-updatetime = "2024/09/23 12:36"
-changes = "**(7.1)** Added Jane's Doll Land to BJD embed command"
+versionnum = "7.1a"
+updatetime = "2024/09/23 12:42"
+changes = "**(7.1)** Added Jane's Doll Land to BJD embed command\n(a) Fixed command description to fit Discord requirement"
 path = os.getcwd()
 print(f"XyL-Q v{versionnum}")
 print(updatetime)
@@ -1732,7 +1732,7 @@ class bjd_prev_next(discord.ui.View):
         await interaction.response.edit_message(embed=embed)
 
 #Utility command to fix embeds of various BJD marketplace websites!
-@client.slash_command(description="Utility command to fix embeds of various BJD marketplace websites! (check GitHub in bio for list of supported sites)")
+@client.slash_command(description="Command to fix embeds of some BJD websites! (check GitHub in bio for list of supported sites)")
 async def bjd_embed(ctx: discord.Interaction, link: str):
     try:
         if "acbjd.com" in link:
