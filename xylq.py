@@ -18,9 +18,9 @@ from io import BytesIO
 
 status = "Cookie Run: Witch’s Castle"
 #status = "Testing new features!"
-versionnum = "7.0d"
-updatetime = "2024/09/21 12:04"
-changes = "**(7.0)** Added commands that let you import lovelist and sourcelist from other servers, fixed date handling in reminder function AGAIN, fixed testing status accidentally pushed to main\n(a) Fixed bug with empty lovelist\n(b) Removed guilds parameter from commands so I don't have to update that Notepad document anymore lol\n(c) Fixed bug that duplicated entries in sourcelist when importing\n(d) Slight improvement to BJD embed command"
+versionnum = "7.1"
+updatetime = "2024/09/23 12:36"
+changes = "**(7.1)** Added Jane's Doll Land to BJD embed command"
 path = os.getcwd()
 print(f"XyL-Q v{versionnum}")
 print(updatetime)
@@ -1732,7 +1732,7 @@ class bjd_prev_next(discord.ui.View):
         await interaction.response.edit_message(embed=embed)
 
 #Utility command to fix embeds of various BJD marketplace websites!
-@client.slash_command(description="Utility command to fix embeds of various BJD marketplace websites!")
+@client.slash_command(description="Utility command to fix embeds of various BJD marketplace websites! (check GitHub in bio for list of supported sites)")
 async def bjd_embed(ctx: discord.Interaction, link: str):
     try:
         if "acbjd.com" in link:
@@ -1786,6 +1786,24 @@ async def bjd_embed(ctx: discord.Interaction, link: str):
             for line in price_split:
                 if "." in line:
                     price = line
+        elif "janesdolland.com" in link:
+            reqs = requests.get(link)
+            soup = BeautifulSoup(reqs.text, 'html.parser')
+
+            gallery_div = soup.find('div', {"data-hook":"main-media-image-wrapper"})
+            images_elements = gallery_div.find_all('img')
+            images = []
+            for image_element in images_elements:
+                images.append(image_element.get('src'))
+            main_image = str(images[0])
+            main_image = main_image.split("/fill/")
+            main_image = main_image[0] + "/fill/w_500,h_750,al_c,q_90,usm_0.66_1.00_0.01,enc_auto/28d43e_69c206a2bf7443ce9e187310ad233f84~mv2.png"
+            title = soup.find('h1', {"data-hook":"product-title"}).get_text()
+            price_div = soup.find('div', {"data-hook":"product-price"})
+            try:
+                price = price_div.find('span', {"data-hook":"price-range-from"}).get_text()
+            except AttributeError:
+                price = price_div.find('span', {"data-hook":"formatted-primary-price"}).get_text()
         member: discord.User = ctx.user
         embed = discord.Embed(title=title, url=link)
         embed.add_field(name="Price", value=price)
