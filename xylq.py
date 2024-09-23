@@ -18,9 +18,9 @@ from io import BytesIO
 
 status = "Cookie Run: Witch’s Castle"
 #status = "Testing new features!"
-versionnum = "7.1a"
-updatetime = "2024/09/23 12:42"
-changes = "**(7.1)** Added Jane's Doll Land to BJD embed command\n(a) Fixed command description to fit Discord requirement"
+versionnum = "7.1b"
+updatetime = "2024/09/23 14:59"
+changes = "**(7.1)** Added Jane's Doll Land to BJD embed command\n(a) Fixed command description to fit Discord requirement\n(b) Adjusted Jane's Dolland embed"
 path = os.getcwd()
 print(f"XyL-Q v{versionnum}")
 print(updatetime)
@@ -1803,7 +1803,12 @@ async def bjd_embed(ctx: discord.Interaction, link: str):
             try:
                 price = price_div.find('span', {"data-hook":"price-range-from"}).get_text()
             except AttributeError:
-                price = price_div.find('span', {"data-hook":"formatted-primary-price"}).get_text()
+                try:
+                    old_price = price_div.find('span', {"data-hook":"formatted-secondary-price"}).get_text().strip()
+                    new_price = price_div.find('span', {"data-hook":"formatted-primary-price"}).get_text().strip()
+                    price = f"~~{old_price}~~ {new_price}"
+                except AttributeError:
+                    price = price_div.find('span', {"data-hook":"formatted-primary-price"}).get_text().strip()
         member: discord.User = ctx.user
         embed = discord.Embed(title=title, url=link)
         embed.add_field(name="Price", value=price)
