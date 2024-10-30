@@ -15,12 +15,13 @@ import asyncio
 import pytz
 from PIL import Image, ImageDraw, ImageFont
 from io import BytesIO
+import re
 
 status = "Cookie Run: Witch’s Castle"
 #status = "Testing new features!"
-versionnum = "7.1b"
-updatetime = "2024/09/23 14:59"
-changes = "**(7.1)** Added Jane's Doll Land to BJD embed command\n(a) Fixed command description to fit Discord requirement\n(b) Adjusted Jane's Dolland embed"
+versionnum = "7.2"
+updatetime = "2024/10/30 00:31"
+changes = "**(7.2)** Added multiple definition support to Urban Dictionary command, began implementation of function to remove characters from lovelist"
 path = os.getcwd()
 print(f"XyL-Q v{versionnum}")
 print(updatetime)
@@ -1200,6 +1201,41 @@ async def disable(ctx: discord.Interaction, command: discord.Option(str, choices
         exceptionstring = format_exc()
         await report.send(f"<@120396380073099264>\n{exceptionstring}\nIn {ctx.guild.name}")
 
+def get_user_characters(ctx: discord.AutocompleteContext):
+    global user_charas
+    user_charas = {}
+    user = str(ctx.interaction.user.id)
+    try:
+        for guild in lovelist.keys():
+            try:
+                if lovelist[guild][user]:
+                    for key, value in dict(lovelist[guild][user]).items():
+                        user_charas[key] = value
+            except KeyError:
+                continue
+        keys = list(user_charas.keys())
+    except Exception as e:
+        exceptionstring = format_exc()
+        print(exceptionstring)
+    return keys
+
+def get_user_sources(ctx: discord.AutocompleteContext):
+    global user_sources
+    user_sources = []
+    user = str(ctx.interaction.user.id)
+    try:
+        for guild in sourcelist.keys():
+            try:
+                if sourcelist[guild][user]:
+                    user_sources += sourcelist[guild][user]
+            except KeyError:
+                continue
+        keys = user_sources
+    except Exception as e:
+        exceptionstring = format_exc()
+        print(exceptionstring)
+    return keys
+
 #Utility for Mudae rolls, notifies a user of any character given with this command
 @client.slash_command(description="Loves a character from Mudae to notify you later if that character is rolled!")
 async def love_character(ctx: discord.Interaction, character: str, source: str, user: str=None):
@@ -1472,14 +1508,24 @@ async def import_sourcelist(ctx: discord.Interaction, server: discord.Option(str
         exceptionstring = format_exc()
         await report.send(f"<@120396380073099264>\n{exceptionstring}\nIn {ctx.guild.name}")
 
+def ud_format(string: str):
+    brackets = re.findall(r"\[(.*?)\]", string)
+    replacements = []
+    for term in brackets:
+        linkterm = str(term).replace(" ", "%20")
+        replacements.append(f"[{term}](https://www.urbandictionary.com/define.php?term={linkterm})")
+    replacer = iter(replacements)
+    newdef = re.sub(r"\[(.*?)\]", lambda match: next(replacer), string)
+
+    return newdef
+
 class urban_prev_next(discord.ui.View):
-    def __init__(self, content, pages, member: discord.User):
+    def __init__(self, definitions: list):
         super().__init__()
         self.value = None
         self.page = 1
-        self.content = content
-        self.pages = pages
-        self.member = member
+        self.pages = len(definitions)
+        self.definitions = definitions
     
     @discord.ui.button(style=discord.ButtonStyle.secondary , emoji="◀️")
     async def prev(self, button, interaction: discord.Interaction):
@@ -1487,10 +1533,21 @@ class urban_prev_next(discord.ui.View):
             self.page -= 1
         else:
             self.page = self.pages
-        embed = discord.Embed(title="",
-                            color=self.member.color)
-        embed.set_author(name=f"{self.member.display_name}'s lovelist-Q!", icon_url=self.member.display_avatar.url)
-        embed.add_field(name="", value=self.content[self.page - 1])
+        index = self.page - 1
+        definition = ud_format(str(self.definitions[index]["definition"]))
+        example = ud_format(str(self.definitions[index]["example"]))
+        title = str(self.definitions[index]["word"])
+        if len(definition) > 1000:
+            definition = definition[0:1000].strip() + "..."
+        if len(example) > 1000:
+            example = example[0:1000].strip() + "..."
+        link = str(self.definitions[index]["permalink"])
+        date = datetime.strptime(str(self.definitions[index]["written_on"]), "%Y-%m-%dT%H:%M:%S.%fZ")
+        author = str(self.definitions[index]["author"])
+        embed = discord.Embed(title=title, timestamp=date, url=link)
+        embed.set_author(name=author)
+        embed.add_field(name="Definition", value=definition)
+        embed.add_field(name="Example", value=f"{example}")
         embed.set_footer(text=f"Page {self.page} / {self.pages}")
         await interaction.response.edit_message(embed=embed)
 
@@ -1500,30 +1557,51 @@ class urban_prev_next(discord.ui.View):
             self.page += 1
         else:
             self.page = 1
-        embed = discord.Embed(title="",
-                            color=self.member.color)
-        embed.set_author(name=f"{self.member.display_name}'s lovelist-Q!", icon_url=self.member.display_avatar.url)
-        embed.add_field(name="", value=self.content[self.page - 1])
+        index = self.page - 1
+        definition = ud_format(str(self.definitions[index]["definition"]))
+        example = ud_format(str(self.definitions[index]["example"]))
+        title = str(self.definitions[index]["word"])
+        if len(definition) > 1000:
+            definition = definition[0:1000].strip() + "..."
+        if len(example) > 1000:
+            example = example[0:1000].strip() + "..."
+        link = str(self.definitions[index]["permalink"])
+        date = datetime.strptime(str(self.definitions[index]["written_on"]), "%Y-%m-%dT%H:%M:%S.%fZ")
+        author = str(self.definitions[index]["author"])
+        embed = discord.Embed(title=title, timestamp=date, url=link)
+        embed.set_author(name=author)
+        embed.add_field(name="Definition", value=definition)
+        embed.add_field(name="Example", value=f"{example}")
         embed.set_footer(text=f"Page {self.page} / {self.pages}")
         await interaction.response.edit_message(embed=embed)
 
 #Search Urban Dictionary for word definition
 @client.slash_command(description="Searches the definition of a term in Urban Dictionary!")
 async def urban_dictionary(ctx: discord.Interaction, term: str):
-    response = requests.get(f"https://api.urbandictionary.com/v0/define?term={term}").json()
-    description = str(response["list"][0]["definition"])
-    example = str(response["list"][0]["example"])
-    title = str(response["list"][0]["word"])
-    if len(description) > 4000:
-        description = description[0:4000]
-    link = str(response["list"][0]["permalink"])
-    date = datetime.strptime(str(response["list"][0]["written_on"]), "%Y-%m-%dT%H:%M:%S.%fZ")
-    author = str(response["list"][0]["author"])
-    embed = discord.Embed(title=title, timestamp=date, url=link)
-    embed.set_author(name=author)
-    embed.add_field(name="Description", value=description)
-    embed.add_field(name="Example", value=f"*{example}*")
-    await ctx.respond(embed=embed)
+    try:
+        response = requests.get(f"https://api.urbandictionary.com/v0/define?term={term}").json()
+        definitions = list(response["list"])
+        definition = ud_format(str(definitions[0]["definition"]))
+        example = ud_format(str(definitions[0]["example"]))
+        title = str(definitions[0]["word"])
+        if len(definition) > 1000:
+            definition = definition[0:1000].strip() + "..."
+        if len(example) > 1000:
+            example = example[0:1000].strip() + "..."
+        link = str(definitions[0]["permalink"])
+        date = datetime.strptime(str(definitions[0]["written_on"]), "%Y-%m-%dT%H:%M:%S.%fZ")
+        author = str(definitions[0]["author"])
+        embed = discord.Embed(title=title, timestamp=date, url=link)
+        embed.set_author(name=author)
+        embed.add_field(name="Definition", value=definition)
+        embed.add_field(name="Example", value=f"{example}")
+        embed.set_footer(text=f"Page 1 / {len(definitions)}")
+        interaction: discord.Interaction = await ctx.respond(embed=embed, view=urban_prev_next(definitions))
+        message: discord.Message = interaction.message
+    except Exception as e:
+        exceptionstring = format_exc()
+        await report.send(f"<@120396380073099264>\n{exceptionstring}\nIn {ctx.guild.name}")
+
 
 def get_image(url_list: str, base_url: str):
     print("-"*50)
