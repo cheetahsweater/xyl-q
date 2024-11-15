@@ -19,9 +19,9 @@ import re
 
 status = "Cookie Run: Witch’s Castle"
 #status = "Testing new features!"
-versionnum = "7.3"
-updatetime = "2024/11/14 19:51"
-changes = "**(7.3)** Removed meme command"
+versionnum = "7.4"
+updatetime = "2024/11/15 12:35"
+changes = "**(7.4)** Added command to randomly choose two characters from lovelist"
 path = os.getcwd()
 print(f"XyL-Q v{versionnum}")
 print(updatetime)
@@ -929,10 +929,8 @@ async def disable(ctx: discord.Interaction, command: discord.Option(str, choices
         exceptionstring = format_exc()
         await report.send(f"<@120396380073099264>\n{exceptionstring}\nIn {ctx.guild.name}")
 
-def get_user_characters(ctx: discord.AutocompleteContext):
-    global user_charas
-    user_charas = {}
-    user = str(ctx.interaction.user.id)
+def get_user_characters(user: str):
+    user_charas: dict = {}
     try:
         for guild in lovelist.keys():
             try:
@@ -941,11 +939,10 @@ def get_user_characters(ctx: discord.AutocompleteContext):
                         user_charas[key] = value
             except KeyError:
                 continue
-        keys = list(user_charas.keys())
     except Exception as e:
         exceptionstring = format_exc()
         print(exceptionstring)
-    return keys
+    return user_charas
 
 def get_user_sources(ctx: discord.AutocompleteContext):
     global user_sources
@@ -1210,6 +1207,22 @@ async def import_lovelist(ctx: discord.Interaction, server: discord.Option(str, 
             cur_user_list[key] = value
         lovelist[server_id][user_id] = cur_user_list
         await ctx.respond(f"Done-Q! Your lovelist from {server} has been imported-Q!")
+    except Exception as e:
+        exceptionstring = format_exc()
+        await report.send(f"<@120396380073099264>\n{exceptionstring}\nIn {ctx.guild.name}")
+
+@client.slash_command(description="Imports your loved sources from another server!")
+async def chara_chooser(ctx: discord.Interaction):
+    try:
+        characters = get_user_characters(str(ctx.user.id))
+        if len(characters.keys()) > 1: 
+            character_one = random.choice(list(characters.keys()))
+            character_two = random.choice(list(characters.keys()))
+            if character_one == character_two:
+                character_two = random.choice(list(characters.keys()))
+        else:
+            await ctx.respond(f"Error: Character list too short! Add more characters using /love_character!")
+        await ctx.respond(f"Your two characters are **{character_one}** from {characters[character_one]} and **{character_two}** from {characters[character_two]}!")
     except Exception as e:
         exceptionstring = format_exc()
         await report.send(f"<@120396380073099264>\n{exceptionstring}\nIn {ctx.guild.name}")
