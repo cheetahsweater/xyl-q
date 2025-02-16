@@ -19,9 +19,9 @@ import re
 
 status = "Cookie Run: Witch’s Castle"
 #status = "Testing new features!"
-versionnum = "7.4"
-updatetime = "2024/11/15 12:35"
-changes = "**(7.4)** Added command to randomly choose two characters from lovelist"
+versionnum = "7.5"
+updatetime = "2025/02/16 16:49"
+changes = "**(7.5)** Added handling for some common errors that have been unhandled for way too long"
 path = os.getcwd()
 print(f"XyL-Q v{versionnum}")
 print(updatetime)
@@ -283,57 +283,60 @@ async def on_reaction_add(reaction: discord.Reaction, user: discord.User):
 @client.event
 async def on_message(message: discord.Message):
     try:
-        if message.author.id == 432610292342587392: #Mudae notification logic
-            if len(message.embeds) == 1:
-                sourcelines = message.embeds[0].description.split("\n")[:-1]
-                #print(len(sourcelines)) #TEST
-                source = ""
-                for line in sourcelines:
-                    source += f"{line} "
-                try:
-                    roll = {message.embeds[0].author.name.casefold():source.strip().casefold()}
-                    #print(roll)
-                    #print(source)
-                    #print(str(list(roll.keys())[0])) #TEST
-                    #Testing stuff
-                    '''testvar = "reaper bird"
-                    if str(list(roll.keys())[0]) == testvar:
-                        await message.channel.send(f"{testvar} is loved by POOPMEISTER.-Q!")'''
-                except AttributeError:
-                    return
-                try:
-                    if "Belongs to" in str(message.embeds[0].footer.text):
+        try:
+            if message.author.id == 432610292342587392: #Mudae notification logic
+                if len(message.embeds) == 1:
+                    sourcelines = message.embeds[0].description.split("\n")[:-1]
+                    #print(len(sourcelines)) #TEST
+                    source = ""
+                    for line in sourcelines:
+                        source += f"{line} "
+                    try:
+                        roll = {message.embeds[0].author.name.casefold():source.strip().casefold()}
+                        #print(roll)
+                        #print(source)
+                        #print(str(list(roll.keys())[0])) #TEST
+                        #Testing stuff
+                        '''testvar = "reaper bird"
+                        if str(list(roll.keys())[0]) == testvar:
+                            await message.channel.send(f"{testvar} is loved by POOPMEISTER.-Q!")'''
+                    except AttributeError:
                         return
-                    #print(roll)
-                    #print(source)
-                    #print(str(list(roll.keys())[0])) #TEST
-                    #Testing stuff
-                    '''testvar = "reaper bird"
-                    if str(list(roll.keys())[0]) == testvar:
-                        await message.channel.send(f"{testvar} is loved by POOPMEISTER.-Q!")'''
-                except AttributeError:
-                    return
-                for key, value in lovelist.items():
-                    #print(key) #TEST
-                    if int(key) == message.guild.id:
-                        #print("Check 1 succeeded") #TEST
-                        guildlovelist = lovelist[str(message.guild.id)]
-                        for userlist in guildlovelist.items():
-                            for entry in dict(userlist[1]).items():
-                                #print(str(list(roll.keys())[0])) #TEST
-                                if str(list(roll.keys())[0]) == entry[0]:
-                                    if "Claim Rank" not in source:
-                                        #print("Yes!") #TEST
-                                        await message.channel.send(f"{entry[0]} is loved by <@{userlist[0]}>-Q!")
-                for key, value in sourcelist.items():
-                    if int(key) == message.guild.id:
-                        #print("Test 1: passed.") #TEST
-                        guildsourcelist = sourcelist[str(message.guild.id)]
-                        for user, userlist in guildsourcelist.items():
-                            #print(f"Checking {user} list...") #TEST
-                            for usersource in userlist:
-                                if str(usersource).strip().casefold() == source.strip().casefold():
-                                    await message.channel.send(f"{usersource} is loved by <@{user}>-Q!")
+                    try:
+                        if "Belongs to" in str(message.embeds[0].footer.text):
+                            return
+                        #print(roll)
+                        #print(source)
+                        #print(str(list(roll.keys())[0])) #TEST
+                        #Testing stuff
+                        '''testvar = "reaper bird"
+                        if str(list(roll.keys())[0]) == testvar:
+                            await message.channel.send(f"{testvar} is loved by POOPMEISTER.-Q!")'''
+                    except AttributeError:
+                        return
+                    for key, value in lovelist.items():
+                        #print(key) #TEST
+                        if int(key) == message.guild.id:
+                            #print("Check 1 succeeded") #TEST
+                            guildlovelist = lovelist[str(message.guild.id)]
+                            for userlist in guildlovelist.items():
+                                for entry in dict(userlist[1]).items():
+                                    #print(str(list(roll.keys())[0])) #TEST
+                                    if str(list(roll.keys())[0]) == entry[0]:
+                                        if "Claim Rank" not in source:
+                                            #print("Yes!") #TEST
+                                            await message.channel.send(f"{entry[0]} is loved by <@{userlist[0]}>-Q!")
+                    for key, value in sourcelist.items():
+                        if int(key) == message.guild.id:
+                            #print("Test 1: passed.") #TEST
+                            guildsourcelist = sourcelist[str(message.guild.id)]
+                            for user, userlist in guildsourcelist.items():
+                                #print(f"Checking {user} list...") #TEST
+                                for usersource in userlist:
+                                    if str(usersource).strip().casefold() == source.strip().casefold():
+                                        await message.channel.send(f"{usersource} is loved by <@{user}>-Q!")
+        except AttributeError:
+            return
     except Exception as e:
         exceptionstring = format_exc()
         await report.send(f"<@120396380073099264>\n{exceptionstring}\nIn {message.guild.name}")
@@ -1198,7 +1201,10 @@ async def import_lovelist(ctx: discord.Interaction, server: discord.Option(str, 
         cur_server_id = str(ctx.guild.id)
         user_id = str(ctx.user.id)
         imported_list = lovelist[server_id][user_id]
-        serverlist = lovelist[cur_server_id]
+        try:
+            serverlist = lovelist[cur_server_id]
+        except KeyError:
+            serverlist = []
         try:
             cur_user_list = serverlist[user_id]
         except KeyError:
