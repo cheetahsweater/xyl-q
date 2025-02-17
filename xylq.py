@@ -17,11 +17,11 @@ from PIL import Image, ImageDraw, ImageFont
 from io import BytesIO
 import re
 
-status = "Cookie Run: Witch’s Castle"
-#status = "Testing new features!"
-versionnum = "7.5"
-updatetime = "2025/02/16 16:49"
-changes = "**(7.5)** Added handling for some common errors that have been unhandled for way too long"
+#status = "Cookie Run: Witch’s Castle"
+status = "Testing new features!"
+versionnum = "8.0"
+updatetime = "2025/02/16 19:52"
+changes = "**(8.0)** Added function to save quotes on a server-by-server basis"
 path = os.getcwd()
 print(f"XyL-Q v{versionnum}")
 print(updatetime)
@@ -29,7 +29,7 @@ print("womp womp")
 load_dotenv()
 TOKEN = os.getenv('DISCORD_TOKEN')
 #TOKEN = os.getenv('TEST_TOKEN')
-intents=discord.Intents.default()
+intents=discord.Intents.all()
 intents.message_content=True
 client = commands.Bot(intents=intents)
 
@@ -87,6 +87,17 @@ with open(f'{path}\\sourcelist.json',"r+") as file:
         print(e)
         sourcelist = {}
     file.close()
+
+#Load list of loved Mudae characters
+with open(f'{path}\\quotes.json',"r+") as file:
+    try:
+        text = json.loads(file.read())
+        quotes = text
+    except JSONDecodeError as e:
+        print(e)
+        quotes = {}
+    file.close()
+
 
 #Load list of reminders
 with open(f'{path}\\reminders.json',"r+") as file:
@@ -156,7 +167,7 @@ months = ['January',
 cr_games = ["ovenbreak", "kingdom", "tower"]
 
 stringlist = {} #I don't remember what this even is
-aff = ["Okay", "Alright", "Got it", "Affirmative","Sounds good"] #Different affirmative phrases the bot can say when asked to do something
+aff = ["Okay", "Alright", "Got it", "Affirmative","Sounds good", "No problem", "Done"] #Different affirmative phrases the bot can say when asked to do something
 selfrep = ["You're giving reputation to me-Q?? Well, thank you-Q! ^^","Oh...thank you so much for the reputation-Q! I will take good care of it-Q! ^^"] #Cutie little guy messages for when reputation is awarded to XyL-Q
 bots = [429305856241172480, 439205512425504771, 247283454440374274, 431544605209788416] #Bot IDs so XyL-Q can avoid indexing their messages
 imglist = [] #Instantiating list for later
@@ -283,6 +294,26 @@ async def on_reaction_add(reaction: discord.Reaction, user: discord.User):
 @client.event
 async def on_message(message: discord.Message):
     try:
+        if (((f"<@{client.user.id}>") in message.content) and message.reference.resolved): #For quote adding purposes
+                new_quote = message.reference.resolved.content
+                quote_author = message.reference.resolved.author.id
+                quote_server = message.guild.id
+                try:
+                    quote_dict = quotes[str(quote_server)]
+                except KeyError:
+                    quote_dict = {}
+                try:
+                    author_list = quote_dict[str(quote_author)]
+                except KeyError:
+                    author_list = []
+                author_list.append(new_quote)
+                quote_dict[str(quote_author)] = author_list
+                quotes[str(quote_server)] = quote_dict
+                with open(f'{path}\\quotes.json',"w") as file:
+                    myJson = json.dumps(quotes)
+                    file.write(myJson)
+                    file.close()
+                await message.reply(f"{random.choice(aff)}-Q! Quote added-Q!")
         try:
             if message.author.id == 432610292342587392: #Mudae notification logic
                 if len(message.embeds) == 1:
@@ -994,7 +1025,7 @@ async def love_character(ctx: discord.Interaction, character: str, source: str, 
     except Exception as e:
         exceptionstring = format_exc()
         await report.send(f"<@120396380073099264>\n{exceptionstring}\nIn {ctx.guild.name}")
-    
+
 #Utility for Mudae rolls, notifies a user of any character from the source given with this command
 @client.slash_command(description="Loves a source from Mudae to notify you later if any character from that source is rolled!")
 async def love_source(ctx: discord.Interaction, source: str, user: str=None):
@@ -1321,6 +1352,43 @@ class urban_prev_next(discord.ui.View):
         embed.add_field(name="Example", value=f"{example}")
         embed.set_footer(text=f"Page {self.page} / {self.pages}")
         await interaction.response.edit_message(embed=embed)
+
+#Quote command
+@client.slash_command(description="Choose a random quote from this server!")
+async def quote(ctx: discord.Interaction, user: str=None):
+    try:
+        if user == None:
+            try:
+                quote_dict = dict(quotes[str(ctx.guild.id)])
+                quote_pool = []
+                for key, value in quote_dict.items():
+                    for quote in value:
+                        member: discord.User = await ctx.guild.fetch_member(int(key))
+                        quote_pool.append(f"**{member.display_name}:** {quote}")
+                quote_chosen = random.choice(quote_pool)
+                await ctx.respond(quote_chosen)
+            except KeyError:
+                await ctx.respond("Error-Q! No quotes found for this server-Q!\n-# Sorry-Q...")
+                return
+        else:
+            try:
+                quote_dict = dict(quotes[str(ctx.guild.id)])
+                user_id_str = user.strip("<>@")
+                guild: discord.Guild = ctx.guild
+                try:
+                    member: discord.User = await guild.fetch_member(int(user_id_str))
+                except ValueError:
+                    await ctx.respond("Error-Q! Please input the user by @-ing them-Q!")
+                    return
+                author_list = quote_dict[str(user_id_str)]
+                quote_chosen = random.choice(author_list)
+                await ctx.respond(f"**{member.display_name}:** {quote_chosen}")
+            except KeyError:
+                await ctx.respond("Error-Q! No quotes found for this user-Q!\n-# Apologies-Q...")
+                return
+    except Exception as e:
+        exceptionstring = format_exc()
+        await report.send(f"<@120396380073099264>\n{exceptionstring}\nIn {ctx.guild.name}")
 
 #Search Urban Dictionary for word definition
 @client.slash_command(description="Searches the definition of a term in Urban Dictionary!")
