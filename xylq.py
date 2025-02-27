@@ -17,11 +17,11 @@ from PIL import Image, ImageDraw, ImageFont
 from io import BytesIO
 import re
 
-#status = "Cookie Run: Witch’s Castle"
-status = "Testing new features!"
-versionnum = "8.0"
-updatetime = "2025/02/16 19:52"
-changes = "**(8.0)** Added function to save quotes on a server-by-server basis"
+status = "Creatures of Sonaria"
+#status = "Testing new features!"
+versionnum = "8.1"
+updatetime = "2025/02/26 22:50"
+changes = "**(8.1)** Adjusted quote function to accept message links, fixed bug with deleted users"
 path = os.getcwd()
 print(f"XyL-Q v{versionnum}")
 print(updatetime)
@@ -294,10 +294,24 @@ async def on_reaction_add(reaction: discord.Reaction, user: discord.User):
 @client.event
 async def on_message(message: discord.Message):
     try:
-        if (((f"<@{client.user.id}>") in message.content) and message.reference.resolved): #For quote adding purposes
-                new_quote = message.reference.resolved.content
-                quote_author = message.reference.resolved.author.id
-                quote_server = message.guild.id
+        if ((f"<@{client.user.id}>") in message.content): 
+                if (message.reference):
+                    new_quote = message.reference.resolved.content
+                    quote_author = message.reference.resolved.author.id
+                    quote_server = message.guild.id
+                elif re.search(r"https:\/\/discord\.com\/channels\/(@me|\d+)\/\d+\/\d+", message.content):
+                    msgurl = (re.search(r"https:\/\/discord\.com\/channels\/(@me|\d+)\/\d+\/\d+", message.content)).group()
+                    params = msgurl.split("/")[4:7]
+                    if params[0] == "@me":
+                        await message.reply(f"Error-Q! Cannot add direct messages to quote list-Q!")
+                        return
+                    else:
+                        guild = await client.fetch_guild(int(params[0]))
+                        channel = await client.fetch_channel(int(params[1]))
+                        quote_message = await channel.fetch_message(int(params[2]))
+                        new_quote = quote_message.content
+                        quote_author = quote_message.author.id
+                        quote_server = guild.id
                 try:
                     quote_dict = quotes[str(quote_server)]
                 except KeyError:
@@ -1363,8 +1377,11 @@ async def quote(ctx: discord.Interaction, user: str=None):
                 quote_pool = []
                 for key, value in quote_dict.items():
                     for quote in value:
-                        member: discord.User = await ctx.guild.fetch_member(int(key))
-                        quote_pool.append(f"**{member.display_name}:** {quote}")
+                        try:
+                            member: discord.User = await ctx.guild.fetch_member(int(key))
+                            quote_pool.append(f"**{member.display_name}:** {quote}")
+                        except discord.errors.NotFound:
+                            quote_pool.append(f"**Deleted User:** {quote}")
                 quote_chosen = random.choice(quote_pool)
                 await ctx.respond(quote_chosen)
             except KeyError:
