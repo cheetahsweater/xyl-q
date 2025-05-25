@@ -19,9 +19,9 @@ import re
 
 status = "Creatures of Sonaria"
 #status = "Testing new features!"
-versionnum = "8.1"
-updatetime = "2025/02/26 22:50"
-changes = "**(8.1)** Adjusted quote function to accept message links, fixed bug with deleted users"
+versionnum = "8.2"
+updatetime = "2025/05/25 13:26"
+changes = "**(8.2)** Made it so that medal and tomato reacts are picked up regardless of the message age (FINALLY!!!!)"
 path = os.getcwd()
 print(f"XyL-Q v{versionnum}")
 print(updatetime)
@@ -183,23 +183,24 @@ async def on_ready():
 
 #Reputation giving and removing function
 @client.event
-async def on_reaction_add(reaction: discord.Reaction, user: discord.User):
+async def on_raw_reaction_add(payload: discord.RawReactionActionEvent):
     try:
         try:
-            if reaction.emoji == "🏅": #Might add all the other medal emojis too just for funsies
+            if str(payload.emoji) == "🏅": #Might add all the other medal emojis too just for funsies
                 #Heavily revised by ChatGPT which was not necessarily what I even wanted it to do
-                guild_id_str = str(reaction.message.guild.id)
-                user_id_str = str(user.id)
-                author_id_str = str(reaction.message.author.id)
+                guild_id_str = str(payload.guild_id)
+                user_id_str = str(payload.user_id)
+                reaction_message = await client.get_channel(payload.channel_id).fetch_message(payload.message_id)
+                author_id_str = str(reaction_message.author.id)
 
                 # Check for self-reputation or specific user ID conditions
-                if reaction.message.author == client.user:
-                    await reaction.message.channel.send(random.choice(selfrep))
+                if reaction_message.author == client.user:
+                    await reaction_message.channel.send(random.choice(selfrep))
                 elif author_id_str == "1204234942897324074":
-                    await reaction.message.channel.send("My apologies, but I cannot handle giving reputation to tuppers-Q!")
+                    await reaction_message.channel.send("My apologies, but I cannot handle giving reputation to tuppers-Q!")
                     return  # Exit for specific user conditions
                 elif user_id_str == author_id_str:
-                    await reaction.message.channel.send("My apologies, but I cannot let you give reputation to yourself-Q!")
+                    await reaction_message.channel.send("My apologies, but I cannot let you give reputation to yourself-Q!")
                     return  # Exit to prevent self-reputation
 
                 # Ensure guild dictionary exists
@@ -225,7 +226,7 @@ async def on_reaction_add(reaction: discord.Reaction, user: discord.User):
                 await report.send(f"Total reputation of {author_id_str} updated. It is now {totalrep[guild_id_str][author_id_str]}")
             
 
-                await reaction.message.channel.send(f"<@{user_id_str}> has given <@{author_id_str}> +1 reputation-Q!")
+                await reaction_message.channel.send(f"<@{user_id_str}> has given <@{author_id_str}> +1 reputation-Q!")
 
                 # Write to files
                 with open(f'{path}\\rep.json', "w") as file:
@@ -233,23 +234,24 @@ async def on_reaction_add(reaction: discord.Reaction, user: discord.User):
                 
                 with open(f'{path}\\totalrep.json', "w") as file:
                     json.dump(totalrep, file)
-            if reaction.emoji == "🍅":
-                guild_id_str = str(reaction.message.guild.id)
-                user_id_str = str(user.id)
-                author_id_str = str(reaction.message.author.id)
+            if str(payload.emoji) == "🍅":
+                guild_id_str = str(payload.guild_id)
+                user_id_str = str(payload.user_id)
+                reaction_message = await client.get_channel(payload.channel_id).fetch_message(payload.message_id)
+                author_id_str = str(reaction_message.author.id)
 
-                if reaction.message.author == client.user:
-                    await reaction.message.channel.send("I will not permit uncleanliness on my person-Q!!")
+                if reaction_message.author == client.user:
+                    await reaction_message.channel.send("I will not permit uncleanliness on my person-Q!!")
                     return
 
                 # Check for self-reputation or specific user ID conditions
-                if reaction.message.author == client.user:
-                    await reaction.message.channel.send(random.choice(selfrep))
+                if reaction_message.author == client.user:
+                    await reaction_message.channel.send(random.choice(selfrep))
                 elif author_id_str == "1204234942897324074":
-                    await reaction.message.channel.send("My apologies, but I cannot handle taking reputation from tuppers-Q!")
+                    await reaction_message.channel.send("My apologies, but I cannot handle taking reputation from tuppers-Q!")
                     return  # Exit for specific user conditions
                 elif user_id_str == author_id_str:
-                    await reaction.message.channel.send("Why would you want to take away your own rep-Q?!")
+                    await reaction_message.channel.send("Why would you want to take away your own rep-Q?!")
                     return  # Exit to prevent self-reputation
 
                 # Ensure guild dictionary exists
@@ -269,16 +271,16 @@ async def on_reaction_add(reaction: discord.Reaction, user: discord.User):
                     totalrep[guild_id_str] = {}
                 if author_id_str not in totalrep[guild_id_str]:
                     totalrep[guild_id_str][author_id_str] = 0
-                    await reaction.message.channel.send("This user has no rep to take away-Q!")
+                    await reaction_message.channel.send("This user has no rep to take away-Q!")
                 if totalrep[guild_id_str][author_id_str] <= 0:
                     totalrep[guild_id_str][author_id_str] = 0
-                    await reaction.message.channel.send("This user has no rep to take away-Q!")
+                    await reaction_message.channel.send("This user has no rep to take away-Q!")
                 else:
                     # Update totalrep
                     totalrep[guild_id_str][author_id_str] -= 1
                     await report.send(f"Total reputation of {author_id_str} updated. It is now {totalrep[guild_id_str][author_id_str]}")
 
-                    await reaction.message.channel.send(f"<@{user_id_str}> threw a tomato at <@{author_id_str}>-Q! Rather unclean of you-Q…")
+                    await reaction_message.channel.send(f"<@{user_id_str}> threw a tomato at <@{author_id_str}>-Q! Rather unclean of you-Q…")
         except Forbidden:
             return
         # Write to reputation databases
@@ -289,7 +291,7 @@ async def on_reaction_add(reaction: discord.Reaction, user: discord.User):
             json.dump(totalrep, file)
     except Exception as e:
         exceptionstring = format_exc()
-        await report.send(f"<@120396380073099264>\n{exceptionstring}\nIn {reaction.message.guild.name}")
+        await report.send(f"<@120396380073099264>\n{exceptionstring}\nIn {reaction_message.guild.name}")
 
 @client.event
 async def on_message(message: discord.Message):
