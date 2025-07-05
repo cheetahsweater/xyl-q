@@ -19,9 +19,9 @@ import re
 
 status = "Creatures of Sonaria"
 #status = "Testing new features!"
-versionnum = "8.2"
-updatetime = "2025/05/25 13:26"
-changes = "**(8.2)** Made it so that medal and tomato reacts are picked up regardless of the message age (FINALLY!!!!)"
+versionnum = "8.3"
+updatetime = "2025/07/05 18:09"
+changes = "**(8.3)** Removed time zones from the reminder command since I'm pretty sure nobody uses it but me anyway lmao"
 path = os.getcwd()
 print(f"XyL-Q v{versionnum}")
 print(updatetime)
@@ -866,7 +866,7 @@ async def reputation(ctx: discord.Interaction, user: str=None):
 
 #Set reminder for user
 @client.slash_command(description="Sets a reminder based on user input!")
-async def set_reminder(ctx: discord.Interaction, timezone: discord.Option(str, choices=common_timezones), time: str, month: discord.Option(str, choices=months)=None, day: int=None, year:int=None, reason: str=None): 
+async def set_reminder(ctx: discord.Interaction, time: str, month: discord.Option(str, choices=months)=None, day: int=None, year:int=None, reason: str=None): 
     try:
         global reminders
         user = str(ctx.user.id)
@@ -931,9 +931,7 @@ async def set_reminder(ctx: discord.Interaction, timezone: discord.Option(str, c
             num_month = month
             word_month = months[num_month-1]
         date_time = datetime(year=int(year), month=num_month, day=int(day), hour=int(hour), minute=int(minute))
-        timezone: pytz.tzinfo.DstTzInfo = pytz.timezone(timezone)
-        localized: datetime = timezone.localize(date_time)
-        output = [localized.month, localized.day, localized.hour, localized.minute, localized.weekday()]
+        output = [date_time.month, date_time.day, date_time.hour, date_time.minute, date_time.weekday()]
         if reason != None:
             channel_reminders[reason] = output
             user_reminders[channel] = channel_reminders
