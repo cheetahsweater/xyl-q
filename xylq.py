@@ -19,9 +19,9 @@ import re
 
 status = "Creatures of Sonaria"
 #status = "Testing new features!"
-versionnum = "8.2"
-updatetime = "2025/05/25 13:26"
-changes = "**(8.2)** Made it so that medal and tomato reacts are picked up regardless of the message age (FINALLY!!!!)"
+versionnum = "8.4"
+updatetime = "2025/07/07 19:22"
+changes = "**(8.4)** Added handler for urban dictionary command when no results are found"
 path = os.getcwd()
 print(f"XyL-Q v{versionnum}")
 print(updatetime)
@@ -1415,7 +1415,11 @@ async def urban_dictionary(ctx: discord.Interaction, term: str):
     try:
         response = requests.get(f"https://api.urbandictionary.com/v0/define?term={term}").json()
         definitions = list(response["list"])
-        definition = ud_format(str(definitions[0]["definition"]))
+        try:
+            definition = ud_format(str(definitions[0]["definition"]))
+        except IndexError:
+            await ctx.respond(f"No results found for {term}!")
+            return
         example = ud_format(str(definitions[0]["example"]))
         title = str(definitions[0]["word"])
         if len(definition) > 1000:
