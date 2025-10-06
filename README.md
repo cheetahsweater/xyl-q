@@ -22,6 +22,7 @@ As of right now, there are 13 commands, 12 of which can be used by all members o
 - **/urban_dictionary** [term] - This command allows you to search for the definition of a word on Urban Dictionary. ([June 10, 2024](https://github.com/cheetahsweater/xyl-q/commit/4534d44e4fc9d6dbeeb324fd0ae98a4e83784bc8))
 - **/import_lovelist** [server] - This command allows you to import your lovelist from one server to another. ([June 28, 2024](https://github.com/cheetahsweater/xyl-q/commit/fe0c26f765cf7ea44adb58e168f2f04022e72359))
 - **/import_sourcelist** [server] - This command allows you to import your sourcelist from one server to another. ([June 28, 2024](https://github.com/cheetahsweater/xyl-q/commit/fe0c26f765cf7ea44adb58e168f2f04022e72359))
+- **/quote** *[user]* - This command chooses a random quote from a database of quotes added by users of the server. To add a quote from a server, either reply to a message with an XyL-Q ping, or by pinging XyL-Q and linking the message you want to add. ([February 16, 2025](https://github.com/cheetahsweater/xyl-q/commit/d256658d521b96c48d1493e070acf8d0a28966ee))
 
 ## Reputation
 The reputation functionality of XyL-Q was inspired by the rep functionality in UB3R-B0T, a Discord bot that I respect very much but I disagreed with the way they implemented their rep function, so I made my own!
@@ -32,7 +33,7 @@ Now, you may be asking, what if I particularly despise a message somebody's sent
 
 ## Roadmap
 Here are some things I'm hoping to add soon!
-- [ ]   **Ability to give/take away rep for a message even if sent before last startup** (IMPORTANT)
+- [x]   ~~**Ability to give/take away rep for a message even if sent before last startup** (IMPORTANT)~~
 - [ ]   A way for users to remove characters/sources from their lovelist
 - [x]   ~~A way for users to check their lovelist~~
 - [ ]   Commands that allow configuration of reaction roles (Inspired by Carl-bot)
