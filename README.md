@@ -8,7 +8,6 @@ Hello-Q! XyL-Q is a multiple utility Discord bot designed for general use in ser
 
 As of right now, there are 13 commands, 12 of which can be used by all members of any server XyL-Q is in:
 - **/disable** [command] [channel] - Disables use of a certain command in a certain channel. This command is extremely out of date and should probably be updated or removed. ([Jan. 27, 2024](https://github.com/cheetahsweater/xyl-q/commit/ccb9d0640720c46fd9aa1e33f645e6c20e5f17cb))
-- **/disable_cache** [channel] OR [user] - Disables message caching (for use in /meme command) for messages in the given channel or by the given user. ([Jan. 27, 2024](https://github.com/cheetahsweater/xyl-q/commit/ccb9d0640720c46fd9aa1e33f645e6c20e5f17cb))
 - **/version** - This command outputs the current version XyL-Q is running on, as well as the changelog for the current version and any previous iterations of the current version as well. ([Jan. 27, 2024](https://github.com/cheetahsweater/xyl-q/commit/e3faa6a6938dd86cefaba38dabd1a5aa2de113fd))
 - **/reputation** *[user]* - This command sends an embed with info on the desired user's reputation stats (amount of rep, who you've given the most to, and who you've received the most from). For more info on reputation, see below. ([Feb. 5, 2024](https://github.com/cheetahsweater/xyl-q/commit/300ed0a32c27121d91706d96716e5da1075ca884))
 - **/love_character** [character] [source] *[user]* - **(Mudae utility)** Adds a character to your lovelist, or the given user's lovelist if one is provided. ([Mar. 4, 2024](https://github.com/cheetahsweater/xyl-q/commit/9758efb0dfafb512ba1c7fd29ff0c2a35ad846ec))
@@ -22,6 +21,7 @@ As of right now, there are 13 commands, 12 of which can be used by all members o
 - **/urban_dictionary** [term] - This command allows you to search for the definition of a word on Urban Dictionary. ([June 10, 2024](https://github.com/cheetahsweater/xyl-q/commit/4534d44e4fc9d6dbeeb324fd0ae98a4e83784bc8))
 - **/import_lovelist** [server] - This command allows you to import your lovelist from one server to another. ([June 28, 2024](https://github.com/cheetahsweater/xyl-q/commit/fe0c26f765cf7ea44adb58e168f2f04022e72359))
 - **/import_sourcelist** [server] - This command allows you to import your sourcelist from one server to another. ([June 28, 2024](https://github.com/cheetahsweater/xyl-q/commit/fe0c26f765cf7ea44adb58e168f2f04022e72359))
+- **/quote** *[user]* - This command chooses a random quote from a database of quotes added by users of the server. To add a quote from a server, either reply to a message with an XyL-Q ping, or by pinging XyL-Q and linking the message you want to add. ([February 16, 2025](https://github.com/cheetahsweater/xyl-q/commit/d256658d521b96c48d1493e070acf8d0a28966ee))
 
 ## Reputation
 The reputation functionality of XyL-Q was inspired by the rep functionality in UB3R-B0T, a Discord bot that I respect very much but I disagreed with the way they implemented their rep function, so I made my own!
@@ -32,7 +32,7 @@ Now, you may be asking, what if I particularly despise a message somebody's sent
 
 ## Roadmap
 Here are some things I'm hoping to add soon!
-- [ ]   **Ability to give/take away rep for a message even if sent before last startup** (IMPORTANT)
+- [x]   ~~**Ability to give/take away rep for a message even if sent before last startup** (IMPORTANT)~~
 - [ ]   A way for users to remove characters/sources from their lovelist
 - [x]   ~~A way for users to check their lovelist~~
 - [ ]   Commands that allow configuration of reaction roles (Inspired by Carl-bot)
