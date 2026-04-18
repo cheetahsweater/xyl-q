@@ -17,11 +17,11 @@ from PIL import Image, ImageDraw, ImageFont
 from io import BytesIO
 import re
 
-status = "Creatures of Sonaria"
+status = "100% Orange Juice"
 #status = "Testing new features!"
-versionnum = "8.4"
-updatetime = "2025/07/07 19:22"
-changes = "**(8.4)** Added handler for urban dictionary command when no results are found"
+versionnum = "8.4a"
+updatetime = "2026/04/18 13:05"
+changes = "**(8.4)** Added handler for urban dictionary command when no results are found\n(a) Fixed BJD embed so that the word 'Price' isn't appended to the end of the price"
 path = os.getcwd()
 print(f"XyL-Q v{versionnum}")
 print(updatetime)
@@ -1543,7 +1543,7 @@ async def bjd_embed(ctx: discord.Interaction, link: str):
             title = soup.find('h1', {"data-hook":"product-title"}).get_text()
             price_div = soup.find('div', {"data-hook":"product-price"})
             try:
-                price = price_div.find('span', {"data-hook":"price-range-from"}).get_text()
+                price = price_div.find('span', {"data-hook":"price-range-from"}).get_text().strip("Price")
             except AttributeError:
                 try:
                     old_price = price_div.find('span', {"data-hook":"formatted-secondary-price"}).get_text().strip()
